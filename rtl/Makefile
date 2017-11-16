@@ -1,10 +1,12 @@
 .PHONY: test clean
 
-test: test.vvp
-	vvp test.vvp
+test: test.vcd
 
-test.vvp: node.sv test.sv
-	iverilog -g2012 -t vvp -o test.vvp node.sv test.sv
+%.vcd: %.vvp
+	vvp $<
+
+%.vvp: %.sv node.sv
+	iverilog -g2012 -t vvp -o $@ $^
 
 clean:
 	-$(RM) *.vvp *.vcd
