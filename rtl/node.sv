@@ -102,7 +102,7 @@ module node #(
     for (i = 0; i < DEPTH; i = i + 1) begin
       always @(posedge clock) begin
         if (input_forward_valid & input_forward_ready) begin
-          operand[i] <= input_forward_data[i];
+          operand[i] <= standard_t'(input_forward_data[i]);
         end
       end
     end
@@ -115,7 +115,7 @@ module node #(
     end else if (state == FWD) begin
       if (!output_forward_valid | output_forward_ready) begin
         output_forward_valid <= '1;
-        output_forward_data <= activation[$unsigned(accumalater)];
+        output_forward_data <= activation[$unsigned(accumalater)][WIDTH-1:0];
       end
     end else if (output_forward_valid & output_forward_ready) begin
         output_forward_valid <= '0;
@@ -140,7 +140,7 @@ module node #(
         if (state == BWD) begin
           if (!output_backward_valid | output_backward_ready) begin
             output_backward_data[j] <= (weight[j] * delta) >>> WIDTH;
-            weight[j] <= weight[j] + ((delta * operand[j]) >>> (SCALE + WIDTH));
+            weight[j] <= weight[j] + standard_t'((delta * operand[j]) >>> (SCALE + WIDTH));
           end
         end
       end
