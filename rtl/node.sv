@@ -28,6 +28,7 @@ module node #(
   typedef logic signed [2*WIDTH-1:0] extended_t;
 
   standard_t weight [DEPTH];
+  standard_t bias;
   standard_t operand [DEPTH];
 
   extended_t summand;
@@ -59,6 +60,7 @@ module node #(
   // Initialize weights
   // TODO Should be initialized uniformly random
   initial begin
+    bias = 0;
     for (int i = 0; i < DEPTH; i = i + 1) begin
       weight[i] = 0;
     end
@@ -88,7 +90,7 @@ module node #(
     if (reset) begin
       accumalater <= '0;
     end else if (state == RDY) begin
-      accumalater <= '0;
+      accumalater <= extended_t'(bias);
     end else if (state == MAC || state == ACC) begin
       accumalater <= accumalater + summand;
     end
@@ -146,6 +148,16 @@ module node #(
       end
     end
   endgenerate
+
+  always @(posedge clock) begin
+    if (reset) begin
+      bias <= '0;
+    end else if (state == BWD) begin
+      if (!output_backward_valid | output_backward_ready) begin
+        bias <= bias + standard_t'(delta >>> SCALE);
+      end
+    end
+  end
 
   always @ (posedge clock) begin
     if (reset) begin
