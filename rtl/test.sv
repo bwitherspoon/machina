@@ -81,7 +81,7 @@ module test;
         @(posedge clock) result = output_forward_data;
         #1 output_forward_ready = 0;
 
-        $display("%t: %2b: %5d * %5d + %5d * %5d + %5d = %5d ? %5d ! %5d",
+        $display("%t: %2b: %5d * %5d + %5d * %5d + %5d = %5d -> %5d ? %5d ! %5d",
                  $time,
                  i[1:0],
                  dut.weight[1],
@@ -89,6 +89,7 @@ module test;
                  dut.weight[0],
                  dut.operand[0],
                  dut.bias,
+                 $signed(dut.accumalater[15:0]),
                  result,
                  target[i],
                  target[i] - result);
