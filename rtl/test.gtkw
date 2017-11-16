@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.81 (w)1999-2017 BSI
-[*] Wed Nov 15 22:13:54 2017
+[*] Thu Nov 16 06:48:30 2017
 [*]
 [dumpfile] "/home/spoonb/repositories/net/rtl/test.vcd"
-[dumpfile_mtime] "Wed Nov 15 22:04:21 2017"
-[dumpfile_size] 3753
+[dumpfile_mtime] "Thu Nov 16 06:45:02 2017"
+[dumpfile_size] 2010133
 [savefile] "/home/spoonb/repositories/net/rtl/test.gtkw"
 [timestart] 0
 [size] 1920 1016
 [pos] -1 -1
-*-13.969951 79820 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-13.969951 46530 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] test.
 [treeopen] test.dut.
 [sst_width] 229
@@ -27,41 +27,38 @@ test.dut.state[2:0]
 @200
 -
 @28
-test.dut.input_valid
+test.dut.input_forward_valid
+test.dut.input_forward_ready
 @22
-test.dut.input_data[15:0]
-@28
-test.dut.input_ready
+test.dut.input_forward_data[15:0]
 @200
 -
 @28
-test.dut.output_valid
-@420
-test.dut.output_data[7:0]
+test.dut.output_forward_valid
+@24
+test.dut.output_forward_data[7:0]
 @28
-test.dut.output_ready
+test.dut.output_forward_ready
 @200
 -
 @28
-test.dut.input_backprop_valid
-@420
-test.dut.input_backprop_data[7:0]
-@28
-test.dut.input_backprop_ready
-@200
--
-@28
-test.dut.output_backprop_valid
+test.dut.input_backward_valid
 @22
-test.dut.output_backprop_data[15:0]
+test.dut.input_backward_data[15:0]
 @28
-test.dut.output_backprop_ready
+test.dut.input_backward_ready
+@200
+-
+@28
+test.dut.output_backward_valid
+@22
+test.dut.output_backward_data[31:0]
+@29
+test.dut.output_backward_ready
 @200
 -
 @22
-test.dut.delta[7:0]
 test.dut.summand[15:0]
-@23
 test.dut.accumalater[15:0]
 [pattern_trace] 1
 [pattern_trace] 0
