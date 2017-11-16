@@ -140,7 +140,7 @@ module node #(
       always @(posedge clock) begin
         if (state == BWD) begin
           if (!output_backward_valid | output_backward_ready) begin
-            output_backward_data[j] <= (weight[j] * delta) >>> W;
+            output_backward_data[j] <= 16'((weight[j] * delta) >>> W);
             weight[j] <= weight[j] + (delta * operand[j] >>> K + W);
           end
         end
