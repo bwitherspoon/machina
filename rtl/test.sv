@@ -89,7 +89,7 @@ module test;
                  dut.weight[0],
                  dut.operand[0],
                  dut.bias,
-                 $signed(dut.accumalater[15:0]),
+                 $signed(dut.accumulator[15:0]),
                  result,
                  target[i],
                  target[i] - result);

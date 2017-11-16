@@ -35,7 +35,7 @@ module node #(
   extended_t weight [N];
   extended_t bias;
   extended_t summand;
-  extended_t accumalater;
+  extended_t accumulator;
   extended_t delta;
 
   enum logic [2:0] { RDY, MUL, MAC, ACC, FWD, DEL, BWD, UPD } state;
@@ -87,11 +87,11 @@ module node #(
 
   always @(posedge clock) begin
     if (reset) begin
-      accumalater <= '0;
+      accumulator <= '0;
     end else if (state == RDY) begin
-      accumalater <= bias;
+      accumulator <= bias;
     end else if (state == MAC || state == ACC) begin
-      accumalater <= accumalater + summand;
+      accumulator <= accumulator + summand;
     end
   end
 
@@ -116,7 +116,7 @@ module node #(
     end else if (state == FWD) begin
       if (!output_forward_valid | output_forward_ready) begin
         output_forward_valid <= '1;
-        output_forward_data <= activation[accumalater[2*W-1:0]][W-1:0];
+        output_forward_data <= activation[accumulator[2*W-1:0]][W-1:0];
       end
     end else if (output_forward_valid & output_forward_ready) begin
         output_forward_valid <= '0;
@@ -128,7 +128,7 @@ module node #(
 
   always @ (posedge clock) begin
     if (input_backward_valid & input_backward_ready) begin
-      delta <= $signed(input_backward_data) * activation_derivative[accumalater[2*W-1:0]] >>> W;
+      delta <= $signed(input_backward_data) * activation_derivative[accumulator[2*W-1:0]] >>> W;
     end
   end
 
