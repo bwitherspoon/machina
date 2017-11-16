@@ -61,7 +61,7 @@ module node #(
   initial begin
     bias = 0;
     for (int i = 0; i < N; i = i + 1) begin
-      weight[i] = 0;
+      weight[i] = extended_t'($random % 16);
     end
   end
 
