@@ -33,7 +33,7 @@ module test;
   logic signed [15:0] target [4];
 
   // DUT
-  node #(.WIDTH(8), .DEPTH(2)) dut (
+  node #(.N(2), .K(3)) dut (
     .clock(clock),
     .reset(reset),
     .train(train),
@@ -59,7 +59,7 @@ module test;
     stimulus[2] = 16'hFF00;
     stimulus[3] = 16'hFFFF;
     target[0] = 16'h0000;
-    target[1] = 16'h0000;
+    target[1] = 16'h00FF;
     target[2] = 16'h0000;
     target[3] = 16'h00FF;
     train = 0;
@@ -70,7 +70,6 @@ module test;
     output_backward_ready = 0;
     #20 reset = 0;
     train = 1;
-    $info("Running...");
     repeat (1000) begin
       for (int i = 0; i < 4; i++) begin
         input_forward_valid = 1;
@@ -82,6 +81,18 @@ module test;
         @(posedge clock) result = output_forward_data;
         #1 output_forward_ready = 0;
 
+        $display("%t: %2b: %5d * %5d + %5d * %5d + %5d = %5d ? %5d ! %5d",
+                 $time,
+                 i[1:0],
+                 dut.weight[1],
+                 dut.operand[1],
+                 dut.weight[0],
+                 dut.operand[0],
+                 dut.bias,
+                 result,
+                 target[i],
+                 target[i] - result);
+
         input_backward_valid = 1;
         input_backward_data = target[i] - result;
         wait (input_backward_ready == 1) @(posedge clock);
@@ -90,8 +101,8 @@ module test;
         wait (output_backward_valid == 1) output_backward_ready = 1;
         @(posedge clock) #1 output_backward_ready = 0;
       end
+      $display;
     end
-    $info("Finished");
     $finish(0);
   end
 

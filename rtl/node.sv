@@ -1,59 +1,59 @@
 module node #(
-  parameter WIDTH = 8,
-  parameter DEPTH = 2,
-  parameter SCALE = 1
+  parameter N = 2,
+  parameter K = 2
 )(
   input logic clock,
   input logic reset,
   input logic train,
 
   input  logic input_forward_valid,
-  input  logic [DEPTH-1:0][WIDTH-1:0] input_forward_data,
+  input  logic [N-1:0][7:0] input_forward_data,
   output logic input_forward_ready,
 
   input  logic input_backward_valid,
-  input  logic [2*WIDTH-1:0] input_backward_data,
+  input  logic [15:0] input_backward_data,
   output logic input_backward_ready,
 
   output logic output_backward_valid,
-  output logic [DEPTH-1:0][2*WIDTH-1:0] output_backward_data,
+  output logic [N-1:0][15:0] output_backward_data,
   input  logic output_backward_ready,
 
   output logic output_forward_valid,
-  output logic [WIDTH-1:0] output_forward_data,
+  output logic [7:0] output_forward_data,
   input  logic output_forward_ready
 );
 
-  typedef logic signed [WIDTH:0] standard_t;
-  typedef logic signed [2*WIDTH-1:0] extended_t;
+  localparam W = 8;
+  typedef logic signed [W:0] standard_t;
+  typedef logic signed [2*$bits(standard_t)-1:0] extended_t;
 
-  standard_t weight [DEPTH];
-  standard_t bias;
-  standard_t operand [DEPTH];
+  standard_t operand [N];
 
+  extended_t weight [N];
+  extended_t bias;
   extended_t summand;
   extended_t accumalater;
   extended_t delta;
 
-  typedef logic [$clog2(DEPTH)-1:0] count_t;
-  localparam CNT = count_t'(DEPTH - 1);
+  typedef logic [$clog2(N)-1:0] count_t;
+  localparam CNT = count_t'(N - 1);
   count_t counter;
 
   enum logic [2:0] { RDY, MUL, MAC, ACC, FWD, DEL, BWD, UPD } state;
 
   // Initialize logistic activation function and its derivative
   // TODO We really only need [-6, 6] domain
-  standard_t activation [2**(2*WIDTH)];
-  standard_t activation_derivative [2**(2*WIDTH)];
+  standard_t activation [2**(2*W)];
+  standard_t activation_derivative [2**(2*W)];
 
   function real logistic(int value);
-    return 1.0 / (1.0 + $exp(-1.0 * $itor(value) / 2.0**WIDTH));
+    return 1.0 / (1.0 + $exp(-6.0 * $itor(value) / 2.0**W));
   endfunction
 
   initial begin
-    for (int i = -2**(2*WIDTH-1); i < 2**(2*WIDTH-1); i = i + 1) begin
-      activation[i[2*WIDTH-1:0]] = standard_t'($rtoi(2**WIDTH * logistic(i)));
-      activation_derivative[i[2*WIDTH-1:0]] = standard_t'($rtoi(2**WIDTH * logistic(i) * (1 - logistic(i))));
+    for (int i = -2**(2*W-1); i < 2**(2*W-1); i = i + 1) begin
+      activation[i[2*W-1:0]] = standard_t'($rtoi(2**W * logistic(i)));
+      activation_derivative[i[2*W-1:0]] = standard_t'($rtoi(2**W * logistic(i) * (1 - logistic(i))));
     end
   end
 
@@ -61,7 +61,7 @@ module node #(
   // TODO Should be initialized uniformly random
   initial begin
     bias = 0;
-    for (int i = 0; i < DEPTH; i = i + 1) begin
+    for (int i = 0; i < N; i = i + 1) begin
       weight[i] = 0;
     end
   end
@@ -82,7 +82,7 @@ module node #(
   // Multiply and accumalate input operands
   always @(posedge clock) begin
     if (state == MUL || state == MAC) begin
-      summand <= (weight[counter] * operand[counter]) >>> WIDTH;
+      summand <= (weight[counter] * operand[counter]) >>> W;
     end
   end
 
@@ -90,7 +90,7 @@ module node #(
     if (reset) begin
       accumalater <= '0;
     end else if (state == RDY) begin
-      accumalater <= extended_t'(bias);
+      accumalater <= bias;
     end else if (state == MAC || state == ACC) begin
       accumalater <= accumalater + summand;
     end
@@ -101,7 +101,7 @@ module node #(
 
   genvar i;
   generate
-    for (i = 0; i < DEPTH; i = i + 1) begin
+    for (i = 0; i < N; i = i + 1) begin
       always @(posedge clock) begin
         if (input_forward_valid & input_forward_ready) begin
           operand[i] <= standard_t'(input_forward_data[i]);
@@ -117,7 +117,7 @@ module node #(
     end else if (state == FWD) begin
       if (!output_forward_valid | output_forward_ready) begin
         output_forward_valid <= '1;
-        output_forward_data <= activation[$unsigned(accumalater)][WIDTH-1:0];
+        output_forward_data <= activation[accumalater[2*W-1:0]][W-1:0];
       end
     end else if (output_forward_valid & output_forward_ready) begin
         output_forward_valid <= '0;
@@ -129,7 +129,7 @@ module node #(
 
   always @ (posedge clock) begin
     if (input_backward_valid & input_backward_ready) begin
-      delta <= ($signed(input_backward_data) * activation_derivative[$unsigned(accumalater)]) >>> WIDTH;
+      delta <= $signed(input_backward_data) * activation_derivative[accumalater[2*W-1:0]] >>> W;
     end
   end
 
@@ -137,12 +137,12 @@ module node #(
   // FIXME Use counter and single multiplier
   genvar j;
   generate
-    for (j = 0; j < DEPTH; j = j + 1) begin
+    for (j = 0; j < N; j = j + 1) begin
       always @(posedge clock) begin
         if (state == BWD) begin
           if (!output_backward_valid | output_backward_ready) begin
-            output_backward_data[j] <= (weight[j] * delta) >>> WIDTH;
-            weight[j] <= weight[j] + standard_t'((delta * operand[j]) >>> (SCALE + WIDTH));
+            output_backward_data[j] <= (weight[j] * delta) >>> W;
+            weight[j] <= weight[j] + (delta * operand[j] >>> K + W);
           end
         end
       end
@@ -154,7 +154,7 @@ module node #(
       bias <= '0;
     end else if (state == BWD) begin
       if (!output_backward_valid | output_backward_ready) begin
-        bias <= bias + standard_t'(delta >>> SCALE);
+        bias <= bias + delta >>> K;
       end
     end
   end

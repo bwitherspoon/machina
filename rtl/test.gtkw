@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.81 (w)1999-2017 BSI
-[*] Thu Nov 16 06:48:30 2017
+[*] Thu Nov 16 16:30:14 2017
 [*]
 [dumpfile] "/home/spoonb/repositories/net/rtl/test.vcd"
-[dumpfile_mtime] "Thu Nov 16 06:45:02 2017"
-[dumpfile_size] 2010133
+[dumpfile_mtime] "Thu Nov 16 16:20:07 2017"
+[dumpfile_size] 233483
 [savefile] "/home/spoonb/repositories/net/rtl/test.gtkw"
-[timestart] 0
-[size] 1920 1016
+[timestart] 52570
+[size] 1920 1043
 [pos] -1 -1
-*-13.969951 46530 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-13.969951 105000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] test.
 [treeopen] test.dut.
 [sst_width] 229
@@ -43,7 +43,7 @@ test.dut.output_forward_ready
 -
 @28
 test.dut.input_backward_valid
-@22
+@421
 test.dut.input_backward_data[15:0]
 @28
 test.dut.input_backward_ready
@@ -53,11 +53,12 @@ test.dut.input_backward_ready
 test.dut.output_backward_valid
 @22
 test.dut.output_backward_data[31:0]
-@29
+@28
 test.dut.output_backward_ready
 @200
 -
-@22
+@420
+test.dut.delta[15:0]
 test.dut.summand[15:0]
 test.dut.accumalater[15:0]
 [pattern_trace] 1
