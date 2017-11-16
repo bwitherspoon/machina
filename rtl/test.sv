@@ -37,31 +37,31 @@ module test;
     .clock(clock),
     .reset(reset),
     .train(train),
-    .input_valid(input_forward_valid),
-    .input_data(input_forward_data),
-    .input_ready(input_forward_ready),
-    .input_backprop_valid(input_backward_valid),
-    .input_backprop_data(input_backward_data),
-    .input_backprop_ready(input_backward_ready),
-    .output_valid(output_forward_valid),
-    .output_data(output_forward_data),
-    .output_ready(output_forward_ready),
-    .output_backprop_valid(output_backward_valid),
-    .output_backprop_data(output_backward_data),
-    .output_backprop_ready(output_backward_ready)
+    .input_forward_valid(input_forward_valid),
+    .input_forward_data(input_forward_data),
+    .input_forward_ready(input_forward_ready),
+    .input_backward_valid(input_backward_valid),
+    .input_backward_data(input_backward_data),
+    .input_backward_ready(input_backward_ready),
+    .output_forward_valid(output_forward_valid),
+    .output_forward_data(output_forward_data),
+    .output_forward_ready(output_forward_ready),
+    .output_backward_valid(output_backward_valid),
+    .output_backward_data(output_backward_data),
+    .output_backward_ready(output_backward_ready)
   );
 
   initial begin
     $dumpfile("test.vcd");
     $dumpvars;
-    stimulus[0] = 16'h8080;
-    stimulus[1] = 16'h807F;
-    stimulus[2] = 16'h7F80;
-    stimulus[3] = 16'h7F7F;
+    stimulus[0] = 16'h0000;
+    stimulus[1] = 16'h00FF;
+    stimulus[2] = 16'hFF00;
+    stimulus[3] = 16'hFFFF;
     target[0] = 16'h0000;
     target[1] = 16'h0000;
     target[2] = 16'h0000;
-    target[3] = 16'h0000;
+    target[3] = 16'h00FF;
     train = 0;
     reset = 1;
     input_forward_valid = 0;
@@ -87,7 +87,7 @@ module test;
         wait (input_backward_ready == 1) @(posedge clock);
         #1 input_backward_valid = 0;
 
-        wait (output_backward_valid == 1) output_forward_ready = 1;
+        wait (output_backward_valid == 1) output_backward_ready = 1;
         @(posedge clock) #1 output_backward_ready = 0;
       end
     end
