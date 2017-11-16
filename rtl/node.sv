@@ -27,17 +27,16 @@ module node #(
   typedef logic signed [W:0] standard_t;
   typedef logic signed [2*$bits(standard_t)-1:0] extended_t;
 
-  standard_t operand [N];
+  typedef logic [$clog2(N)-1:0] counter_t;
+  localparam CNT = counter_t'(N - 1);
+  counter_t counter;
 
+  standard_t operand [N];
   extended_t weight [N];
   extended_t bias;
   extended_t summand;
   extended_t accumalater;
   extended_t delta;
-
-  typedef logic [$clog2(N)-1:0] count_t;
-  localparam CNT = count_t'(N - 1);
-  count_t counter;
 
   enum logic [2:0] { RDY, MUL, MAC, ACC, FWD, DEL, BWD, UPD } state;
 
