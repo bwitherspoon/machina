@@ -1,4 +1,5 @@
 .PHONY: test clean
+.SECONDARY: test.vvp
 
 test: test.vcd
 
