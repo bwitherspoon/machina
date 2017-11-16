@@ -45,8 +45,8 @@ module node #(
   standard_t activation [2**(2*W)];
   standard_t activation_derivative [2**(2*W)];
 
-  function real logistic(int value);
-    return 1.0 / (1.0 + $exp(-6.0 * $itor(value) / 2.0**W));
+  function real logistic(int value, real rate = 6.0);
+    return 1.0 / (1.0 + $exp(-rate * $itor(value) / 2.0**W));
   endfunction
 
   initial begin
