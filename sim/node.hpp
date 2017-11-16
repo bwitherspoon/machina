@@ -8,6 +8,7 @@ namespace net {
 class Node : public Simulation<Vnode> {
 public:
   Node() : Simulation<Vnode>::Simulation("node") {
+    m_module->train = 0;
     m_module->input_valid = 0;
     m_module->output_ready = 0;
   }
