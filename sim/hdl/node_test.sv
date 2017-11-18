@@ -27,7 +27,7 @@ module node_test;
   logic [15:0] product;
   logic [1:0][15:0] feedback;
 
-  node #(.N(2), .K(2)) dut (
+  node #(.N(2), .K(2), .SEED(255)) dut (
     .clock(clock),
     .reset(reset),
     .train(train),

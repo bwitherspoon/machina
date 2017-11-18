@@ -2,7 +2,7 @@ module node #(
   parameter N = 2,
 `ifndef VERILATOR
   parameter K = 2,
-  parameter S = 0
+  parameter SEED = 0
 `else
   parameter K = 2
 `endif
@@ -48,7 +48,7 @@ module node #(
 
   // Initialize weights to small pseudorandom values and operands to zero
 `ifndef VERILATOR
-  int seed = S;
+  int seed = SEED;
 `endif
   initial begin
     for (int i = 0; i < N; i = i + 1) begin
