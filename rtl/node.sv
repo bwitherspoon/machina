@@ -1,6 +1,11 @@
 module node #(
   parameter N = 2,
+`ifndef VERILATOR
+  parameter K = 2,
+  parameter S = 0
+`else
   parameter K = 2
+`endif
 )(
   input logic clock,
   input logic reset,
@@ -42,9 +47,16 @@ module node #(
   enum logic [3:0] { RDY, MUL, MAC, ACC, PRD, DEL, ERR, FBK, UPD } state;
 
   // Initialize weights to small pseudorandom values and operands to zero
+`ifndef VERILATOR
+  int seed = S;
+`endif
   initial begin
     for (int i = 0; i < N; i = i + 1) begin
-      weight[i] = ext_t'($random % 16);
+`ifndef VERILATOR
+      weight[i] = ext_t'($random(seed) % 2**4);
+`else
+      weight[i] = '0;
+`endif
       operand[i] = '0;
     end
   end
