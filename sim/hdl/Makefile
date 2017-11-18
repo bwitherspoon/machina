@@ -31,6 +31,7 @@ $(TESTS): % : %.vvp
 
 %.d: %.sv
 	iverilog $(SVFLAGS) -t null -Mall=$@ $<
+	sed -i ':a;N;$$!ba;s/\n/ /g' $@
 
 %.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.sv
 	iverilog $(SVFLAGS) -t vvp -o $@ $<
