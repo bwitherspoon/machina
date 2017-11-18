@@ -1,9 +1,18 @@
-VPATH = ../rtl
+VPATH = ../../rtl
 
-.PHONY: test clean
-.SECONDARY: %.vvp
+TESTS = node_test logistic_test
 
-test: logistic_test.vcd
+.PHONY: test clean $(TESTS)
+.SECONDARY:
+
+test: $(TESTS)
+
+node_test.vvp: node.sv
+
+logistic_test.vvp: logistic.sv
+
+$(TESTS) : %: %.vvp
+	vvp $< -none
 
 %.vcd: %.vvp
 	vvp $<
