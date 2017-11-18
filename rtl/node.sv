@@ -156,11 +156,12 @@ module node #(
     end
   endgenerate
 
-  // Update weights
+  // Update weights and bias
   // TODO reset
   always @ (posedge clock) begin
     if (state == UPD) begin
       weight[counter] <= weight[counter] + (delta * operand[counter] >>> K + W);
+      bias <= bias + (delta >>> K);
     end
   end
 
