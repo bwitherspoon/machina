@@ -1,9 +1,12 @@
-VPATH = ../../rtl
+VPATH = ../../rtl/
+
+SVFLAGS = $(DEFINES) -g 2012 -Y .sv -y ../../rtl/
 
 TESTS = node_test logistic_test
 
-.PHONY: test clean $(TESTS)
-.SECONDARY:
+.PHONY: all test clean $(TESTS)
+
+all: $(TESTS:=.vvp)
 
 test: $(TESTS)
 
@@ -11,14 +14,26 @@ node_test.vvp: node.sv
 
 logistic_test.vvp: logistic.sv
 
-$(TESTS) : %: %.vvp
-	vvp $< -none
+$(TESTS): % : %.vvp
+	vvp -N $< -none
 
-%.vcd: %.vvp
-	vvp $<
+%.vcd: DEFINES += -DDUMPFILE=$*.vcd
+%.vcd: %.vcd.vvp
+	vvp -N $< -vcd
 
-%.vvp: %.sv
-	iverilog -g2012 -Y .sv -y ../../rtl -t vvp -o $@ $<
+%.lxt: DEFINES += -DDUMPFILE=$*.lxt
+%.lxt: %.lxt.vvp
+	vvp -N $< -lxt2
+
+%.fst: DEFINES += -DDUMPFILE=$*.fst
+%.fst: %.fst.vvp
+	vvp -N $< -fst
+
+%.d: %.sv
+	iverilog $(SVFLAGS) -t null -Mall=$@ $<
+
+%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.sv
+	iverilog $(SVFLAGS) -t vvp -o $@ $<
 
 clean:
-	-$(RM) *.vvp *.vcd
+	-$(RM) *.vvp *.vcd *.lx2 *.lxt *.lxt2 *.fst *.d

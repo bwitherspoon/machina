@@ -46,8 +46,10 @@ module logistic_test;
   );
 
   initial begin
-    $dumpfile("logistic_test.vcd");
+`ifdef DUMPFILE
+    $dumpfile(`"`DUMPFILE`");
     $dumpvars;
+`endif
 
     reset = 1;
     #20 reset = 0;

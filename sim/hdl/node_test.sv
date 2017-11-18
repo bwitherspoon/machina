@@ -46,8 +46,10 @@ module node_test;
   );
 
   initial begin
-    $dumpfile("node_test.vcd");
+`ifdef DUMPFILE
+    $dumpfile(`"`DUMPFILE`");
     $dumpvars;
+`endif
 
     reset = 1;
     #20 reset = 0;
