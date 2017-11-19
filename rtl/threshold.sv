@@ -22,7 +22,15 @@ module threshold (
   logic signed [15:0] argument;
   logic [15:0] feedback;
 
+`ifndef NOENUM
   enum logic [1:0] { ARG, ACT, FBK, DEL } state = ARG;
+`else
+  localparam ARG = 2'd0;
+  localparam ACT = 2'd1;
+  localparam FBK = 2'd2;
+  localparam DEL = 2'd3;
+  logic [1:0] state = ARG;
+`endif
 
   always @ (posedge clock) begin
     case (state)

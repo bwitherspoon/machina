@@ -29,7 +29,15 @@ module logistic (
   logic signed [15:0] feedback;
   logic signed [15:0] delta;
 
+`ifndef NOENUM
   enum logic [1:0] { ARG, ACT, FBK, DEL } state = ARG;
+`else
+  localparam ARG = 2'd0;
+  localparam ACT = 2'd1;
+  localparam FBK = 2'd2;
+  localparam DEL = 2'd3;
+  logic [1:0] state = ARG;
+`endif
 
   initial begin
     for (int n = -6 <<< 8; n < 6 <<< 8; n++)

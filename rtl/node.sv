@@ -44,7 +44,20 @@ module node #(
 
   logic [15:0] error [N];
 
+`ifndef NOENUM
   enum logic [3:0] { RDY, MUL, MAC, ACC, PRD, DEL, ERR, FBK, UPD } state;
+`else
+  localparam RDY = 2'd0;
+  localparam MUL = 2'd1;
+  localparam MAC = 2'd2;
+  localparam ACC = 2'd3;
+  localparam PRD = 2'd4;
+  localparam DEL = 2'd5;
+  localparam ERR = 2'd6;
+  localparam FBK = 2'd7;
+  localparam UPD = 2'd8;
+  logic [3:0] state = ARG;
+`endif
 
   // Initialize weights to small pseudorandom values and operands to zero
 `ifndef VERILATOR
