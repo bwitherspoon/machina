@@ -11,17 +11,17 @@ module threshold_test;
   logic argument_ready;
   logic [15:0] argument_data;
 
-  logic feedback_valid = 0;
-  logic feedback_ready;
-  logic [15:0] feedback_data;
-
   logic result_valid;
   logic result_ready = 0;
   logic [7:0] result_data;
 
-  logic delta_valid;
-  logic delta_ready = 0;
-  logic [15:0] delta_data;
+  logic error_valid = 0;
+  logic error_ready;
+  logic [15:0] error_data;
+
+  logic propagate_valid;
+  logic propagate_ready = 0;
+  logic [15:0] propagate_data;
 
   logic [7:0] a;
   logic [15:0] d;
@@ -33,15 +33,15 @@ module threshold_test;
     .argument_valid(argument_valid),
     .argument_data(argument_data),
     .argument_ready(argument_ready),
-    .feedback_valid(feedback_valid),
-    .feedback_data(feedback_data),
-    .feedback_ready(feedback_ready),
-    .activation_valid(result_valid),
-    .activation_data(result_data),
-    .activation_ready(result_ready),
-    .delta_valid(delta_valid),
-    .delta_data(delta_data),
-    .delta_ready(delta_ready)
+    .result_valid(result_valid),
+    .result_data(result_data),
+    .result_ready(result_ready),
+    .error_valid(error_valid),
+    .error_data(error_data),
+    .error_ready(error_ready),
+    .propagate_valid(propagate_valid),
+    .propagate_data(propagate_data),
+    .propagate_ready(propagate_ready)
   );
 
   initial begin
@@ -70,10 +70,10 @@ module threshold_test;
       $display("ERROR: result invalid: %h", a);
       $stop;
     end
-    feedback(-1);
-    delta(d);
+    error(-1);
+    propagate(d);
     if ($signed(d) != -1) begin
-      $display("ERROR: delta invalid: %h", d);
+      $display("ERROR: propagate invalid: %h", d);
       $stop;
     end
     // Success

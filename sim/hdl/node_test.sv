@@ -1,51 +1,48 @@
 module node_test;
-  timeunit 1ns;
-  timeprecision 1ps;
-
   bit clock = 0;
   always #5 clock = ~clock;
 
   bit reset = 0;
   bit train = 0;
 
-  logic operand_valid = 0;
-  logic operand_ready;
-  logic [1:0][7:0] operand_data;
+  logic argument_valid = 0;
+  logic argument_ready;
+  logic [1:0][7:0] argument_data;
 
-  logic product_valid;
-  logic product_ready = 0;
-  logic [15:0] product_data;
+  logic result_valid;
+  logic result_ready = 0;
+  logic [15:0] result_data;
 
-  logic delta_valid = 0;
-  logic delta_ready;
-  logic [15:0] delta_data;
+  logic error_valid = 0;
+  logic error_ready;
+  logic [15:0] error_data;
 
-  logic feedback_valid;
-  logic feedback_ready = 0;
-  logic [1:0][15:0] feedback_data;
+  logic propagate_valid;
+  logic propagate_ready = 0;
+  logic [1:0][15:0] propagate_data;
 
-  logic [1:0][7:0] operand [4];
+  logic [1:0][7:0] argument [4];
   logic [15:0] target [4];
-  logic [15:0] product;
+  logic [15:0] result;
   logic signed [15:0] delta;
-  logic [1:0][15:0] feedback;
+  logic [1:0][15:0] propagate;
 
-  node #(.N(2), .K(2), .SEED(0)) dut (
+  node #(.N(2), .S(2), .SEED(0)) dut (
     .clock(clock),
     .reset(reset),
     .train(train),
-    .operand_valid(operand_valid),
-    .operand_data(operand_data),
-    .operand_ready(operand_ready),
-    .product_valid(product_valid),
-    .product_data(product_data),
-    .product_ready(product_ready),
-    .delta_valid(delta_valid),
-    .delta_data(delta_data),
-    .delta_ready(delta_ready),
-    .feedback_valid(feedback_valid),
-    .feedback_data(feedback_data),
-    .feedback_ready(feedback_ready)
+    .argument_valid(argument_valid),
+    .argument_data(argument_data),
+    .argument_ready(argument_ready),
+    .result_valid(result_valid),
+    .result_data(result_data),
+    .result_ready(result_ready),
+    .error_valid(error_valid),
+    .error_data(error_data),
+    .error_ready(error_ready),
+    .propagate_valid(propagate_valid),
+    .propagate_data(propagate_data),
+    .propagate_ready(propagate_ready)
   );
 
   initial begin
@@ -58,54 +55,54 @@ module node_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
 
-    @ (negedge clock) operand_valid = 1;
-    operand_data[0] = 8'h7f;
-    operand_data[1] = 8'h7f;
-    wait (operand_ready == 1) @ (posedge clock);
-    #1 operand_valid = 0;
+    @ (negedge clock) argument_valid = 1;
+    argument_data[0] = 8'h7f;
+    argument_data[1] = 8'h7f;
+    wait (argument_ready == 1) @ (posedge clock);
+    #1 argument_valid = 0;
 
-    wait (product_valid == 1) #1 product_ready = 1;
-    @ (posedge clock) product = product_data;
-    if (product != 16'hfff9) begin
-      $error("product invalid: %h", product);
+    wait (result_valid == 1) #1 result_ready = 1;
+    @ (posedge clock) result = result_data;
+    if (result != 16'hfff9) begin
+      $error("result invalid: %h", result);
       $stop;
     end
-    #1 product_ready = 0;
+    #1 result_ready = 0;
 
-    wait (operand_ready == 1) @ (posedge clock) #1 train = 1;
+    wait (argument_ready == 1) @ (posedge clock) #1 train = 1;
 
-    operand_valid = 1;
-    operand_data[0] = 8'hff;
-    operand_data[1] = 8'hff;
-    wait (operand_ready == 1) @ (posedge clock);
-    #1 operand_valid = 0;
+    argument_valid = 1;
+    argument_data[0] = 8'hff;
+    argument_data[1] = 8'hff;
+    wait (argument_ready == 1) @ (posedge clock);
+    #1 argument_valid = 0;
 
-    wait (product_valid == 1) #1 product_ready = 1;
-    @ (posedge clock) product = product_data;
-    if (product != 16'hfff4) begin
-      $error("product invalid: %h", product);
+    wait (result_valid == 1) #1 result_ready = 1;
+    @ (posedge clock) result = result_data;
+    if (result != 16'hfff4) begin
+      $error("result invalid: %h", result);
       $stop;
     end
-    #1 product_ready = 0;
+    #1 result_ready = 0;
 
-    @ (negedge clock) delta_valid = 1;
-    delta_data = 16'h0000;
-    wait (delta_ready == 1) @ (posedge clock);
-    #1 delta_valid = 0;
+    @ (negedge clock) error_valid = 1;
+    error_data = 16'h0000;
+    wait (error_ready == 1) @ (posedge clock);
+    #1 error_valid = 0;
 
-    wait (feedback_valid == 1) #1 feedback_ready = 1;
-    @ (posedge clock) feedback = feedback_data;
-    if (feedback != 16'h00) begin
-      $error("feedback invalid: %h", feedback);
+    wait (propagate_valid == 1) #1 propagate_ready = 1;
+    @ (posedge clock) propagate = propagate_data;
+    if (propagate != 16'h00) begin
+      $error("propagate invalid: %h", propagate);
       $stop;
     end
-    #1 feedback_ready = 0;
+    #1 propagate_ready = 0;
 
     // Test 2
-    operand[0] = 16'h0000;
-    operand[1] = 16'h00ff;
-    operand[2] = 16'hff00;
-    operand[3] = 16'hffff;
+    argument[0] = 16'h0000;
+    argument[1] = 16'h00ff;
+    argument[2] = 16'hff00;
+    argument[3] = 16'hffff;
     target[0] = 16'hff00;
     target[1] = 16'h007f;
     target[2] = 16'hff00;
@@ -113,58 +110,59 @@ module node_test;
 
     repeat (25) begin
       for (int i = 0; i < 4; i++) begin
-        operand_valid = 1;
-        operand_data = operand[i];
-        wait (operand_ready == 1) @ (posedge clock);
-        #1 operand_valid = 0;
+        argument_valid = 1;
+        argument_data = argument[i];
+        wait (argument_ready == 1) @ (posedge clock);
+        #1 argument_valid = 0;
 
-        wait (product_valid == 1) #1 product_ready = 1;
-        @ (posedge clock) product = product_data;
-        #1 product_ready = 0;
+        wait (result_valid == 1) #1 result_ready = 1;
+        @ (posedge clock) result = result_data;
+        #1 result_ready = 0;
 
-        @ (negedge clock) delta_valid = 1;
-        delta_data = $unsigned($signed(target[i]) - $signed(product));
-        wait (delta_ready == 1) @ (posedge clock);
-        #1 delta_valid = 0;
+        @ (negedge clock) error_valid = 1;
+        error_data = $unsigned($signed(target[i]) - $signed(result));
+        wait (error_ready == 1) @ (posedge clock);
+        #1 error_valid = 0;
 
-        wait (feedback_valid == 1) #1 feedback_ready = 1;
-        @ (posedge clock) feedback = feedback_data;
-        #1 feedback_ready = 0;
+        wait (propagate_valid == 1) #1 propagate_ready = 1;
+        @ (posedge clock) propagate = propagate_data;
+        #1 propagate_ready = 0;
       end
     end
 
     for (int i = 0; i < 4; i++) begin
-      operand_valid = 1;
-      operand_data = operand[i];
-      wait (operand_ready == 1) @ (posedge clock);
-      #1 operand_valid = 0;
+      argument_valid = 1;
+      argument_data = argument[i];
+      wait (argument_ready == 1) @ (posedge clock);
+      #1 argument_valid = 0;
 
-      wait (product_valid == 1) #1 product_ready = 1;
-      @ (posedge clock) product = product_data;
-      #1 product_ready = 0;
+      wait (result_valid == 1) #1 result_ready = 1;
+      @ (posedge clock) result = result_data;
+      #1 result_ready = 0;
 
-      @ (negedge clock) delta_valid = 1;
-      delta = $signed(target[i]) - $signed(product);
-      delta_data = $unsigned(delta);
+      @ (negedge clock) error_valid = 1;
+      delta = $signed(target[i]) - $signed(result);
+      error_data = $unsigned(delta);
 `ifdef DEBUG
-      $write("%6.3f * %6.3f + ", dut.weight[1] / 256.0, operand[i][1] / 256.0);
-      $write("%6.3f * %6.3f + ", dut.weight[0] / 256.0, operand[i][0] / 256.0);
-      $write("%6.3f = %6.3f ? ", dut.bias / 256.0, $signed(product) / 256.0);
-      $write("%6.3f ! %6.3f\n", $signed(target[i]) / 256.0, $signed(delta_data) / 256.0);
+      $write("DEBUG: ");
+      $write("%6.3f * %6.3f + ", dut.weight[1] / 256.0, argument[i][1] / 256.0);
+      $write("%6.3f * %6.3f + ", dut.weight[0] / 256.0, argument[i][0] / 256.0);
+      $write("%6.3f = %6.3f ? ", dut.bias / 256.0, $signed(result) / 256.0);
+      $write("%6.3f ! %6.3f\n", $signed(target[i]) / 256.0, $signed(delta) / 256.0);
 `endif
-      wait (delta_ready == 1) @ (posedge clock);
-      #1 delta_valid = 0;
+      wait (error_ready == 1) @ (posedge clock);
+      #1 error_valid = 0;
       if (((delta[15]) ? -delta : delta) > 4) begin
-        $error("error out of range: %6.3f", delta / 256.0);
+        $display("ERROR: error out of range: %6.3f", delta / 256.0);
         $stop;
       end
 
-      wait (feedback_valid == 1) #1 feedback_ready = 1;
-      @ (posedge clock) feedback = feedback_data;
-      #1 feedback_ready = 0;
+      wait (propagate_valid == 1) #1 propagate_ready = 1;
+      @ (posedge clock) propagate = propagate_data;
+      #1 propagate_ready = 0;
     end
-
-    $finish(0);
+    // Success
+    $finish;
   end
 
 endmodule

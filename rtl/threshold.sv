@@ -7,28 +7,28 @@ module threshold (
   input logic [15:0] argument_data,
   output logic argument_ready,
 
-  input logic feedback_valid,
-  input logic [15:0] feedback_data,
-  output logic feedback_ready,
+  output logic result_valid,
+  output logic [7:0] result_data,
+  input logic result_ready,
 
-  output logic activation_valid,
-  output logic [7:0] activation_data,
-  input logic activation_ready,
+  input logic error_valid,
+  input logic [15:0] error_data,
+  output logic error_ready,
 
-  output logic delta_valid,
-  output logic [15:0] delta_data,
-  input logic delta_ready
+  output logic propagate_valid,
+  output logic [15:0] propagate_data,
+  input logic propagate_ready
 );
   logic signed [15:0] argument;
-  logic [15:0] feedback;
+  logic [15:0] delta;
 
 `ifndef NOENUM
-  enum logic [1:0] { ARG, ACT, FBK, DEL } state = ARG;
+  enum logic [1:0] { ARG, RES, ERR, PRP } state = ARG;
 `else
   localparam ARG = 2'd0;
-  localparam ACT = 2'd1;
-  localparam FBK = 2'd2;
-  localparam DEL = 2'd3;
+  localparam RES = 2'd1;
+  localparam ERR = 2'd2;
+  localparam PRP = 2'd3;
   logic [1:0] state = ARG;
 `endif
 
@@ -36,15 +36,15 @@ module threshold (
     case (state)
       ARG:
         if (argument_valid & argument_ready)
-          state <= ACT;
-      ACT:
-        if (activation_valid & activation_ready)
-          state <= (train) ? FBK : ARG;
-      FBK:
-        if (feedback_valid & feedback_ready)
-          state <= DEL;
-      DEL:
-        if (delta_valid & delta_ready)
+          state <= RES;
+      RES:
+        if (result_valid & result_ready)
+          state <= (train) ? ERR : ARG;
+      ERR:
+        if (error_valid & error_ready)
+          state <= PRP;
+      PRP:
+        if (propagate_valid & propagate_ready)
           state <= ARG;
     endcase
   end
@@ -58,33 +58,33 @@ module threshold (
 
   always @ (posedge clock) begin
     if (reset) begin
-      activation_valid <= 0;
-    end else if (state == ACT) begin
-      if (!activation_valid) begin
-        activation_valid <= 1;
-        activation_data <= (argument >= 0) ? 8'hff : 8'h00;
-      end else if (activation_ready) begin
-        activation_valid <= 0;
+      result_valid <= 0;
+    end else if (state == RES) begin
+      if (!result_valid) begin
+        result_valid <= 1;
+        result_data <= (argument >= 0) ? 8'hff : 8'h00;
+      end else if (result_ready) begin
+        result_valid <= 0;
       end
     end
   end
 
-  assign feedback_ready = state == FBK;
+  assign error_ready = state == ERR;
 
   always @ (posedge clock) begin
-    if (feedback_valid & feedback_ready)
-      feedback <= feedback_data;
+    if (error_valid & error_ready)
+      delta <= error_data;
   end
 
   always @ (posedge clock) begin
     if (reset) begin
-      delta_valid <= 0;
-    end else if (state == DEL) begin
-      if (!delta_valid) begin
-        delta_valid <= 1;
-        delta_data <= feedback;
-      end else if (delta_ready) begin
-        delta_valid <= 1;
+      propagate_valid <= 0;
+    end else if (state == PRP) begin
+      if (!propagate_valid) begin
+        propagate_valid <= 1;
+        propagate_data <= delta;
+      end else if (propagate_ready) begin
+        propagate_valid <= 1;
       end
     end
   end
