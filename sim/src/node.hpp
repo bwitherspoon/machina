@@ -9,43 +9,44 @@ class Node : public Simulation<Vnode> {
 public:
   Node() : Simulation<Vnode>::Simulation("node") {
     m_module->train = 0;
-    m_module->input_forward_valid = 0;
-    m_module->output_forward_ready = 0;
+    m_module->operand_valid = 0;
+    m_module->delta_valid = 0;
+    m_module->product_ready = 0;
+    m_module->feedback_ready = 0;
   }
 
   Node& operator= (const Node&) = delete;
 
   Node(const Node&) = delete;
 
-  using send_type = decltype(Vnode::input_forward_data);
-  void send(send_type);
+  using operand_type = decltype(Vnode::operand_data);
+  void operand(operand_type);
 
-  using recv_type = decltype(Vnode::output_forward_data);
-  recv_type recv();
+  using product_type = decltype(Vnode::product_data);
+  product_type product();
 };
 
-void Node::send(send_type data) {
+void Node::operand(operand_type data) {
   step();
-  m_module->input_forward_data = data;
-  m_module->input_forward_valid = 1;
+  m_module->operand_data = data;
+  m_module->operand_valid = 1;
   step();
-  while (m_module->input_forward_ready == 0)
+  while (m_module->operand_ready == 0)
     cycle();
   step();
-  m_module->input_forward_valid = 0;
-  m_module->input_forward_data = 0;
+  m_module->operand_valid = 0;
   step();
 }
 
-Node::recv_type Node::recv() {
+Node::product_type Node::product() {
   step();
-  m_module->output_forward_ready = 1;
+  m_module->product_ready = 1;
   step();
-  while (m_module->output_forward_valid != 1)
+  while (m_module->product_valid != 1)
     cycle();
-  recv_type data = m_module->output_forward_data;
+  product_type data = m_module->product_data;
   step();
-  m_module->output_forward_ready = 0;
+  m_module->product_ready = 0;
   step();
   return data;
 }

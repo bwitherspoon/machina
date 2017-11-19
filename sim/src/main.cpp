@@ -19,7 +19,7 @@ double sc_time_stamp() {
 int main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
-  Node::recv_type data;
+  Node::product_type data;
 
   node = new Node;
   if (!node)
@@ -31,10 +31,10 @@ int main(int argc, char *argv[]) {
   while (!Verilated::gotFinish()) {
     if (node->time() > 500)
       break;
-    node->send(0x7f7f);
-    data = node->recv();
-    std::cout << static_cast<unsigned int>(data) << " : ";
-    std::cout << "0x" << static_cast<unsigned int>(data) << std::endl;
+    node->operand(0x7f7f);
+    data = node->product();
+    std::cout << data << " : ";
+    std::cout << "0x" << data << std::endl;
   }
 
   return 0;
