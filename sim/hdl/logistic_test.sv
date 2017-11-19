@@ -62,8 +62,10 @@ module logistic_test;
 
     wait (activation_valid == 1) #1 activation_ready = 1;
     @ (posedge clock) activation = activation_data;
-    if (activation != 8'h80)
-      $fatal(0, "activation invalid: %h", activation);
+    if (activation != 8'h80) begin
+      $error("activation invalid: %h", activation);
+      $stop;
+    end
     #1 activation_ready = 0;
 
     wait (argument_ready == 1) @ (posedge clock) #1 train = 1;
@@ -75,8 +77,10 @@ module logistic_test;
 
     wait (activation_valid == 1) #1 activation_ready = 1;
     @ (posedge clock) activation = activation_data;
-    if (activation != 8'hff)
-      $fatal(0, "activation invalid: %h", activation);
+    if (activation != 8'hff) begin
+      $error("activation invalid: %h", activation);
+      $stop;
+    end
     #1 activation_ready = 0;
 
     feedback_valid = 1;
@@ -86,8 +90,10 @@ module logistic_test;
 
     wait (delta_valid == 1) #1 delta_ready = 1;
     @ (posedge clock) delta = delta_data;
-    if (delta != 8'h00)
-      $fatal(0, "delta invalid: %h", delta);
+    if (delta != 8'h00) begin
+      $error("delta invalid: %h", delta);
+      $stop;
+    end
     #1 delta_ready = 0;
 
     $finish(0);
