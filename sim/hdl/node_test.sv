@@ -1,4 +1,5 @@
 module node_test;
+`define TEST_WIDTH 32
 `include "test.svh"
 
   function logic [15:0] abs(logic [15:0] val);
@@ -60,51 +61,28 @@ module node_test;
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
-
-    @ (negedge clock) argument_valid = 1;
-    argument_data[0] = 8'h7f;
-    argument_data[1] = 8'h7f;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (result_valid == 1) #1 result_ready = 1;
-    @ (posedge clock) res = result_data;
+    argument(16'h7f7f);
+    result(res);
     if (res != 16'hfff9) begin
       $display("ERROR: result invalid: %h", res);
       $stop;
     end
-    #1 result_ready = 0;
-
-    wait (argument_ready == 1) @ (posedge clock) #1 train = 1;
-
-    argument_valid = 1;
-    argument_data[0] = 8'hff;
-    argument_data[1] = 8'hff;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (result_valid == 1) #1 result_ready = 1;
-    @ (posedge clock) res = result_data;
+    train = 1;
+    argument(16'hffff);
+    result(res);
     if (res != 16'hfff4) begin
       $display("ERROR: result invalid: %h", res);
       $stop;
     end
-    #1 result_ready = 0;
 
-    @ (negedge clock) error_valid = 1;
-    error_data = 16'h0000;
-    wait (error_ready == 1) @ (posedge clock);
-    #1 error_valid = 0;
-
-    wait (propagate_valid == 1) #1 propagate_ready = 1;
-    @ (posedge clock) prp = propagate_data;
+    error(16'h0000);
+    propagate(prp);
     if (prp != 16'h00) begin
       $display("ERROR: propagation invalid: %h", prp);
       $stop;
     end
-    #1 propagate_ready = 0;
-
     // Test 2
+    // FIXME Use array assignment patterns when supported
     arg[0] = 16'h0000;
     arg[1] = 16'h00ff;
     arg[2] = 16'hff00;
@@ -113,42 +91,23 @@ module node_test;
     tgt[1] = 16'h007f;
     tgt[2] = 16'hff00;
     tgt[3] = 16'h007f;
+    reset = 1;
+    repeat (2) @ (posedge clock);
+    #1 reset = 0;
     // Train
     repeat (25) begin
       for (int i = 0; i < 4; i++) begin
-        argument_valid = 1;
-        argument_data = arg[i];
-        wait (argument_ready == 1) @ (posedge clock);
-        #1 argument_valid = 0;
-
-        wait (result_valid == 1) #1 result_ready = 1;
-        @ (posedge clock) res = result_data;
-        #1 result_ready = 0;
-
-        @ (negedge clock) error_valid = 1;
-        error_data = $unsigned($signed(tgt[i]) - $signed(res));
-        wait (error_ready == 1) @ (posedge clock);
-        #1 error_valid = 0;
-
-        wait (propagate_valid == 1) #1 propagate_ready = 1;
-        @ (posedge clock) prp = propagate_data;
-        #1 propagate_ready = 0;
+        argument(arg[i]);
+        result(res);
+        error($unsigned($signed(tgt[i]) - $signed(res)));
+        propagate(prp);
       end
     end
     // Validate
     for (int i = 0; i < 4; i++) begin
-      argument_valid = 1;
-      argument_data = arg[i];
-      wait (argument_ready == 1) @ (posedge clock);
-      #1 argument_valid = 0;
-
-      wait (result_valid == 1) #1 result_ready = 1;
-      @ (posedge clock) res = result_data;
-      #1 result_ready = 0;
-
-      @ (negedge clock) error_valid = 1;
+      argument(arg[i]);
+      result(res);
       err = $signed(tgt[i]) - $signed(res);
-      error_data = $unsigned(err);
 `ifdef DEBUG
       $write("DEBUG: ");
       $write("%6.3f * %6.3f + ", dut.weight[1] / 256.0, arg[i][1] / 256.0);
@@ -156,17 +115,12 @@ module node_test;
       $write("%6.3f = %6.3f ? ", dut.bias / 256.0, $signed(res) / 256.0);
       $write("%6.3f ! %6.3f\n", $signed(tgt[i]) / 256.0, $signed(err) / 256.0);
 `endif
-      wait (error_ready == 1) @ (posedge clock);
-      #1 error_valid = 0;
       if (abs(err) > 4) begin
         $display("ERROR: error out of range: %6.3f", err / 256.0);
         $stop;
       end
-
-      // TODO verify propagation
-      wait (propagate_valid == 1) #1 propagate_ready = 1;
-      @ (posedge clock) prp = propagate_data;
-      #1 propagate_ready = 0;
+      error(err);
+      propagate(prp);
     end
     // Success
     $finish;
