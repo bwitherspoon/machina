@@ -4,6 +4,8 @@ TESTS = node_test logistic_test
 
 .PHONY: all test clean $(TESTS)
 
+.DELETE_ON_ERROR:
+
 all: $(TESTS:=.vvp)
 
 test: $(TESTS)
@@ -26,9 +28,11 @@ $(TESTS): % : %.vvp
 	vvp -N $< -fst
 
 %.d: %.sv
-	@iverilog $(SVFLAGS) -t null -Mall=$@ $<
-	@sed -i '1i$@:' $@
-	@sed -i ':a;N;$$!ba;s/\n/ /g' $@
+	@trap 'rm -f "$@.$$$$"' EXIT; \
+	iverilog $(SVFLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
+	sed -i '1i$*.vvp $@:' $@.$$$$; \
+	sed -i ':x ; N ; s/\n/ /g ; bx' $@.$$$$; \
+	mv -f $@.$$$$ $@
 
 %.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.d
 	iverilog $(SVFLAGS) -t vvp -o $@ $*.sv
