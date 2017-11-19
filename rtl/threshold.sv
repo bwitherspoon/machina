@@ -38,8 +38,6 @@ module threshold (
       DEL:
         if (delta_valid & delta_ready)
           state <= ARG;
-      default:
-        $error("invalid state: %h", state);
     endcase
   end
 
@@ -52,13 +50,13 @@ module threshold (
 
   always @ (posedge clock) begin
     if (reset) begin
-      activation_valid <= '0;
+      activation_valid <= 0;
     end else if (state == ACT) begin
       if (!activation_valid) begin
-        activation_valid <= '1;
+        activation_valid <= 1;
         activation_data <= (argument >= 0) ? 8'hff : 8'h00;
       end else if (activation_ready) begin
-        activation_valid <= '0;
+        activation_valid <= 0;
       end
     end
   end
@@ -72,13 +70,13 @@ module threshold (
 
   always @ (posedge clock) begin
     if (reset) begin
-      delta_valid <= '0;
+      delta_valid <= 0;
     end else if (state == DEL) begin
       if (!delta_valid) begin
-        delta_valid <= '1;
+        delta_valid <= 1;
         delta_data <= feedback;
       end else if (delta_ready) begin
-        delta_valid <= '1;
+        delta_valid <= 1;
       end
     end
   end
