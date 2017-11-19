@@ -3,4 +3,5 @@
 *.d
 *.lxt
 *.fst
+.lint
 obj_dir/
