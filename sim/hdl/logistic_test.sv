@@ -52,9 +52,10 @@ module logistic_test;
 `endif
 
     reset = 1;
-    #20 reset = 0;
+    repeat (2) @ (posedge clock);
+    #1 reset = 0;
 
-    #10 argument_valid = 1;
+    @ (negedge clock) argument_valid = 1;
     argument_data = 0;
     wait (argument_ready == 1) @ (posedge clock);
     #1 argument_valid = 0;
