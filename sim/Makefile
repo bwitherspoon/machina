@@ -1,4 +1,4 @@
-SUBDIR = sim
+SUBDIR = hdl
 .PHONY: all test clean
 
 all:
