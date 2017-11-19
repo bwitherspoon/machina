@@ -56,7 +56,7 @@ module logistic_test;
     argument(0);
     result(a);
     if (a != 8'h80) begin
-      $error("result invalid: %h", a);
+      $display("ERROR: result invalid: %h", a);
       $stop;
     end
     // Test 2
@@ -67,13 +67,13 @@ module logistic_test;
     argument(6 <<< 8);
     result(a);
     if (a != 8'hff) begin
-      $error("result invalid: %h", a);
+      $display("ERROR: result invalid: %h", a);
       $stop;
     end
     error(-(2**8) - 2**8);
     propagate(d);
     if (d != 8'h00) begin
-      $error("propagate invalid: %h", d);
+      $display("ERROR: propagation invalid: %h", a);
       $stop;
     end
     // Success
