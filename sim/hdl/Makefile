@@ -1,5 +1,9 @@
 SVFLAGS = $(DEFINES) -g 2012 -Y .sv -y ../../rtl/
 
+ifdef DEBUG
+DEFINES += -DDEBUG
+endif
+
 TESTS = node_test logistic_test
 
 .PHONY: all test clean $(TESTS)
