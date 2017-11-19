@@ -1,4 +1,5 @@
 module threshold_test;
+  `include "test.svh"
 
   bit clock = 0;
   always #5 clock = ~clock;
@@ -10,55 +11,17 @@ module threshold_test;
   logic argument_ready;
   logic [15:0] argument_data;
 
-  task argument;
-    input [15:0] data;
-    begin
-      argument_valid = 1;
-      argument_data = data;
-      wait (argument_ready) @ (posedge clock);
-      #1 argument_valid = 0;
-    end
-  endtask
-
   logic feedback_valid = 0;
   logic feedback_ready;
   logic [15:0] feedback_data;
 
-  task feedback;
-    input [15:0] data;
-    begin
-      feedback_valid = 1;
-      feedback_data = data;
-      wait (feedback_ready) @ (posedge clock);
-      #1 feedback_valid = 0;
-    end
-  endtask
-
-  logic activation_valid;
-  logic activation_ready = 0;
-  logic [7:0] activation_data;
-
-  task activation;
-    output [7:0] data;
-    begin
-      wait (activation_valid) #1 activation_ready = 1;
-      @ (posedge clock) data = activation_data;
-      #1 activation_ready = 1;
-    end
-  endtask
+  logic result_valid;
+  logic result_ready = 0;
+  logic [7:0] result_data;
 
   logic delta_valid;
   logic delta_ready = 0;
   logic [15:0] delta_data;
-
-  task delta;
-    output [15:0] data;
-    begin
-      wait (delta_valid) #1 delta_ready = 1;
-      @ (posedge clock) data = delta_data;
-      #1 delta_ready = 1;
-    end
-  endtask
 
   logic [7:0] a;
   logic [15:0] d;
@@ -73,9 +36,9 @@ module threshold_test;
     .feedback_valid(feedback_valid),
     .feedback_data(feedback_data),
     .feedback_ready(feedback_ready),
-    .activation_valid(activation_valid),
-    .activation_data(activation_data),
-    .activation_ready(activation_ready),
+    .activation_valid(result_valid),
+    .activation_data(result_data),
+    .activation_ready(result_ready),
     .delta_valid(delta_valid),
     .delta_data(delta_data),
     .delta_ready(delta_ready)
@@ -91,21 +54,20 @@ module threshold_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     argument(0);
-    activation(a);
+    result(a);
     if (a != 8'hff) begin
-      $display("ERROR: activation invalid: %h", a);
+      $display("ERROR: result invalid: %h", a);
       $stop;
     end
-
     // Test 2
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
     argument(-1);
-    activation(a);
+    result(a);
     if (a != 8'h00) begin
-      $display("ERROR: activation invalid: %h", a);
+      $display("ERROR: result invalid: %h", a);
       $stop;
     end
     feedback(-1);
@@ -117,6 +79,4 @@ module threshold_test;
 
     $finish;
   end
-
-
 endmodule
