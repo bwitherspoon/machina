@@ -1,6 +1,4 @@
 module threshold_test;
-  timeunit 1ns;
-  timeprecision 1ps;
 
   bit clock = 0;
   always #5 clock = ~clock;
@@ -8,24 +6,23 @@ module threshold_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = '0;
+  logic argument_valid = 0;
   logic argument_ready;
   logic [15:0] argument_data;
 
-  logic feedback_valid = '0;
+  logic feedback_valid = 0;
   logic feedback_ready;
   logic [15:0] feedback_data;
 
   logic activation_valid;
-  logic activation_ready = '0;
+  logic activation_ready = 0;
   logic [7:0] activation_data;
 
   logic delta_valid;
-  logic delta_ready = '0;
+  logic delta_ready = 0;
   logic [15:0] delta_data;
 
-  logic [7:0] activation;
-  logic [15:0] delta;
+  logic [15:0] d;
 
   threshold dut (
     .clock(clock),
@@ -61,7 +58,7 @@ module threshold_test;
     wait (activation_valid == 1) #1 activation_ready = 1;
     @ (posedge clock);
     if (activation_data != 8'hff) begin
-      $error("activation invalid: %h", activation_data);
+      $display("ERROR: activation invalid: %h", activation_data);
       $stop;
     end
     #1 activation_ready = 0;
@@ -76,7 +73,7 @@ module threshold_test;
     wait (activation_valid == 1) #1 activation_ready = 1;
     @ (posedge clock);
     if (activation_data != 8'h00) begin
-      $error("activation invalid: %h", activation_data);
+      $display("ERROR: activation invalid: %h", activation_data);
       $stop;
     end
     #1 activation_ready = 0;
@@ -87,14 +84,14 @@ module threshold_test;
     #1 feedback_valid = 0;
 
     wait (delta_valid == 1) #1 delta_ready = 1;
-    @ (posedge clock) delta = delta_data;
-    if (delta != feedback_data) begin
-      $error("delta invalid: %h", delta);
+    @ (posedge clock) d = delta_data;
+    if (d != feedback_data) begin
+      $display("ERROR: delta invalid: %h", d);
       $stop;
     end
     #1 delta_ready = 0;
 
-    $finish(0);
+    $finish;
   end
 
 
