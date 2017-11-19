@@ -1,5 +1,5 @@
 module threshold_test;
-  `include "test.svh"
+`include "test.svh"
 
   bit clock = 0;
   always #5 clock = ~clock;
@@ -76,7 +76,7 @@ module threshold_test;
       $display("ERROR: delta invalid: %h", d);
       $stop;
     end
-
+    // Success
     $finish;
   end
 endmodule

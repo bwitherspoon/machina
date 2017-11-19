@@ -1,6 +1,5 @@
 module logistic_test;
-  timeunit 1ns;
-  timeprecision 1ps;
+`include "test.svh"
 
   bit clock = 0;
   always #5 clock = ~clock;
@@ -8,24 +7,24 @@ module logistic_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = '0;
+  logic argument_valid = 0;
   logic argument_ready;
   logic [15:0] argument_data;
 
-  logic feedback_valid = '0;
+  logic feedback_valid = 0;
   logic feedback_ready;
   logic [15:0] feedback_data;
 
-  logic activation_valid;
-  logic activation_ready = '0;
-  logic [7:0] activation_data;
+  logic result_valid;
+  logic result_ready = 0;
+  logic [7:0] result_data;
 
   logic delta_valid;
-  logic delta_ready = '0;
+  logic delta_ready = 0;
   logic [15:0] delta_data;
 
-  logic [7:0] activation;
-  logic [15:0] delta;
+  logic [7:0] a;
+  logic [15:0] d;
 
   logistic dut (
     .clock(clock),
@@ -37,9 +36,9 @@ module logistic_test;
     .feedback_valid(feedback_valid),
     .feedback_data(feedback_data),
     .feedback_ready(feedback_ready),
-    .activation_valid(activation_valid),
-    .activation_data(activation_data),
-    .activation_ready(activation_ready),
+    .activation_valid(result_valid),
+    .activation_data(result_data),
+    .activation_ready(result_ready),
     .delta_valid(delta_valid),
     .delta_data(delta_data),
     .delta_ready(delta_ready)
@@ -50,53 +49,35 @@ module logistic_test;
     $dumpfile(`"`DUMPFILE`");
     $dumpvars;
 `endif
-
+    // Test 1
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
-
-    @ (negedge clock) argument_valid = 1;
-    argument_data = 0;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (activation_valid == 1) #1 activation_ready = 1;
-    @ (posedge clock) activation = activation_data;
-    if (activation != 8'h80) begin
-      $error("activation invalid: %h", activation);
+    argument(0);
+    result(a);
+    if (a != 8'h80) begin
+      $error("result invalid: %h", a);
       $stop;
     end
-    #1 activation_ready = 0;
-
-    wait (argument_ready == 1) @ (posedge clock) #1 train = 1;
-
-    argument_valid = 1;
-    argument_data = 6 <<< 8;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (activation_valid == 1) #1 activation_ready = 1;
-    @ (posedge clock) activation = activation_data;
-    if (activation != 8'hff) begin
-      $error("activation invalid: %h", activation);
+    // Test 2
+    reset = 1;
+    repeat (2) @ (posedge clock);
+    #1 reset = 0;
+    train = 1;
+    argument(6 <<< 8);
+    result(a);
+    if (a != 8'hff) begin
+      $error("result invalid: %h", a);
       $stop;
     end
-    #1 activation_ready = 0;
-
-    feedback_valid = 1;
-    feedback_data = -(2**8) - 2**8;
-    wait (feedback_ready == 1) @ (posedge clock);
-    #1 feedback_valid = 0;
-
-    wait (delta_valid == 1) #1 delta_ready = 1;
-    @ (posedge clock) delta = delta_data;
-    if (delta != 8'h00) begin
-      $error("delta invalid: %h", delta);
+    feedback(-(2**8) - 2**8);
+    delta(d);
+    if (d != 8'h00) begin
+      $error("delta invalid: %h", d);
       $stop;
     end
-    #1 delta_ready = 0;
-
-    $finish(0);
+    // Success
+    $finish;
   end
 
 endmodule
