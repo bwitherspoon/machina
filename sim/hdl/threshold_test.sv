@@ -10,18 +10,57 @@ module threshold_test;
   logic argument_ready;
   logic [15:0] argument_data;
 
+  task argument;
+    input [15:0] data;
+    begin
+      argument_valid = 1;
+      argument_data = data;
+      wait (argument_ready) @ (posedge clock);
+      #1 argument_valid = 0;
+    end
+  endtask
+
   logic feedback_valid = 0;
   logic feedback_ready;
   logic [15:0] feedback_data;
+
+  task feedback;
+    input [15:0] data;
+    begin
+      feedback_valid = 1;
+      feedback_data = data;
+      wait (feedback_ready) @ (posedge clock);
+      #1 feedback_valid = 0;
+    end
+  endtask
 
   logic activation_valid;
   logic activation_ready = 0;
   logic [7:0] activation_data;
 
+  task activation;
+    output [7:0] data;
+    begin
+      wait (activation_valid) #1 activation_ready = 1;
+      @ (posedge clock) data = activation_data;
+      #1 activation_ready = 1;
+    end
+  endtask
+
   logic delta_valid;
   logic delta_ready = 0;
   logic [15:0] delta_data;
 
+  task delta;
+    output [15:0] data;
+    begin
+      wait (delta_valid) #1 delta_ready = 1;
+      @ (posedge clock) data = delta_data;
+      #1 delta_ready = 1;
+    end
+  endtask
+
+  logic [7:0] a;
   logic [15:0] d;
 
   threshold dut (
@@ -47,49 +86,34 @@ module threshold_test;
     $dumpfile(`"`DUMPFILE`");
     $dumpvars;
 `endif
+    // Test 1
     reset = 1;
-    #20 reset = 0;
-
-    #10 argument_valid = 1;
-    argument_data = 0;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (activation_valid == 1) #1 activation_ready = 1;
-    @ (posedge clock);
-    if (activation_data != 8'hff) begin
-      $display("ERROR: activation invalid: %h", activation_data);
+    repeat (2) @ (posedge clock);
+    #1 reset = 0;
+    argument(0);
+    activation(a);
+    if (a != 8'hff) begin
+      $display("ERROR: activation invalid: %h", a);
       $stop;
     end
-    #1 activation_ready = 0;
 
-    wait (argument_ready == 1) @ (posedge clock) #1 train = 1;
-
-    argument_valid = 1;
-    argument_data = -1;
-    wait (argument_ready == 1) @ (posedge clock);
-    #1 argument_valid = 0;
-
-    wait (activation_valid == 1) #1 activation_ready = 1;
-    @ (posedge clock);
-    if (activation_data != 8'h00) begin
-      $display("ERROR: activation invalid: %h", activation_data);
+    // Test 2
+    reset = 1;
+    repeat (2) @ (posedge clock);
+    #1 reset = 0;
+    train = 1;
+    argument(-1);
+    activation(a);
+    if (a != 8'h00) begin
+      $display("ERROR: activation invalid: %h", a);
       $stop;
     end
-    #1 activation_ready = 0;
-
-    feedback_valid = 1;
-    feedback_data = -1;
-    wait (feedback_ready == 1) @ (posedge clock);
-    #1 feedback_valid = 0;
-
-    wait (delta_valid == 1) #1 delta_ready = 1;
-    @ (posedge clock) d = delta_data;
-    if (d != feedback_data) begin
+    feedback(-1);
+    delta(d);
+    if ($signed(d) != -1) begin
       $display("ERROR: delta invalid: %h", d);
       $stop;
     end
-    #1 delta_ready = 0;
 
     $finish;
   end
