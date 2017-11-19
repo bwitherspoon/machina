@@ -23,8 +23,8 @@ module threshold_test;
   logic propagate_ready = 0;
   logic [15:0] propagate_data;
 
-  logic [7:0] a;
-  logic [15:0] d;
+  logic [7:0] res;
+  logic [15:0] prp;
 
   threshold dut (
     .clock(clock),
@@ -53,10 +53,9 @@ module threshold_test;
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
-    argument(0);
-    result(a);
-    if (a != 8'hff) begin
-      $display("ERROR: result invalid: %h", a);
+    forward(0, res);
+    if (res != 8'hff) begin
+      $display("ERROR: result invalid: %h", res);
       $stop;
     end
     // Test 2
@@ -64,16 +63,14 @@ module threshold_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
-    argument(-1);
-    result(a);
-    if (a != 8'h00) begin
-      $display("ERROR: result invalid: %h", a);
+    forward(-1, res);
+    if (res != 8'h00) begin
+      $display("ERROR: result invalid: %h", res);
       $stop;
     end
-    error(-1);
-    propagate(d);
-    if ($signed(d) != -1) begin
-      $display("ERROR: propagate invalid: %h", d);
+    backward(-1, prp);
+    if ($signed(prp) != -1) begin
+      $display("ERROR: propagation invalid: %h", prp);
       $stop;
     end
     // Success

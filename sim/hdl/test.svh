@@ -43,4 +43,22 @@ task propagate;
   end
 endtask
 
+task forward;
+  input [`TEST_WIDTH-1:0] arg;
+  output [`TEST_WIDTH-1:0] res;
+  begin
+    argument(arg);
+    result(res);
+  end
+endtask
+
+task backward;
+  input [`TEST_WIDTH-1:0] err;
+  output [`TEST_WIDTH-1:0] prp;
+  begin
+    error(err);
+    propagate(prp);
+  end
+endtask
+
 `endif

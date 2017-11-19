@@ -61,22 +61,19 @@ module node_test;
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
-    argument(16'h7f7f);
-    result(res);
+    forward(16'h7f7f, res);
     if (res != 16'hfff9) begin
       $display("ERROR: result invalid: %h", res);
       $stop;
     end
     train = 1;
-    argument(16'hffff);
-    result(res);
+    forward(16'hffff, res);
     if (res != 16'hfff4) begin
       $display("ERROR: result invalid: %h", res);
       $stop;
     end
 
-    error(16'h0000);
-    propagate(prp);
+    backward(16'h0000, prp);
     if (prp != 16'h00) begin
       $display("ERROR: propagation invalid: %h", prp);
       $stop;
@@ -97,16 +94,14 @@ module node_test;
     // Train
     repeat (25) begin
       for (int i = 0; i < 4; i++) begin
-        argument(arg[i]);
-        result(res);
-        error($unsigned($signed(tgt[i]) - $signed(res)));
-        propagate(prp);
+        forward(arg[i], res);
+        err = $signed(tgt[i]) - $signed(res);
+        backward(err, prp);
       end
     end
     // Validate
     for (int i = 0; i < 4; i++) begin
-      argument(arg[i]);
-      result(res);
+      forward(arg[i], res);
       err = $signed(tgt[i]) - $signed(res);
 `ifdef DEBUG
       $write("DEBUG: ");
@@ -119,8 +114,7 @@ module node_test;
         $display("ERROR: error out of range: %6.3f", err / 256.0);
         $stop;
       end
-      error(err);
-      propagate(prp);
+      backward(err, prp);
     end
     // Success
     $finish;
