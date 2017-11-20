@@ -33,13 +33,24 @@ task forward;
   input [`TEST_WIDTH-1:0] arg;
   output [`TEST_WIDTH-1:0] res;
   begin
-    argument_valid = 1;
-    argument_data = arg;
-    wait (argument_ready) @ (posedge clock);
-    #1 argument_valid = 0;
-    wait (result_valid) #1 result_ready = 1;
-    @ (posedge clock) res = result_data;
-    #1 result_ready = 0;
+    fork
+      begin : forward_timeout
+        #1000000 $display("ERROR: %s:%0d: forward pass timeout: %0t", `__FILE__, `__LINE__, $time);
+        $stop;
+      end
+      begin
+        argument_valid = 1;
+        argument_data = arg;
+        wait (argument_ready) @ (posedge clock);
+        #1 argument_valid = 0;
+      end
+      begin
+        wait (result_valid) #1 result_ready = 1;
+        @ (posedge clock) res = result_data;
+        #1 result_ready = 0;
+        disable forward_timeout;
+      end
+    join
   end
 endtask
 
@@ -47,13 +58,24 @@ task backward;
   input [`TEST_WIDTH-1:0] err;
   output [`TEST_WIDTH-1:0] prp;
   begin
-    error_valid = 1;
-    error_data = err;
-    wait (error_ready) @ (posedge clock);
-    #1 error_valid = 0;
-    wait (propagate_valid) #1 propagate_ready = 1;
-    @ (posedge clock) prp = propagate_data;
-    #1 propagate_ready = 0;
+    fork
+      begin : backward_timeout
+        #1000000 $display("ERROR: %s:%0d: backward pass timeout: %0t", `__FILE__, `__LINE__, $time);
+        $stop;
+      end
+      begin
+        error_valid = 1;
+        error_data = err;
+        wait (error_ready) @ (posedge clock);
+        #1 error_valid = 0;
+      end
+      begin
+        wait (propagate_valid) #1 propagate_ready = 1;
+        @ (posedge clock) prp = propagate_data;
+        #1 propagate_ready = 0;
+        disable backward_timeout;
+      end
+    join
   end
 endtask
 
