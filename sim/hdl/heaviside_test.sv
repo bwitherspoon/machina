@@ -1,4 +1,4 @@
-module threshold_test;
+module heaviside_test;
 `include "test.svh"
 
   bit clock = 0;
@@ -26,7 +26,7 @@ module threshold_test;
   logic [7:0] res;
   logic [15:0] prp;
 
-  threshold dut (
+  heaviside dut (
     .clock(clock),
     .reset(reset),
     .train(train),

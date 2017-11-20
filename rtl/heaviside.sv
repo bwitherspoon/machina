@@ -1,4 +1,4 @@
-module threshold (
+module heaviside (
   input logic clock,
   input logic reset,
   input logic train,
