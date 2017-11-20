@@ -73,4 +73,6 @@ task backward;
   end
 endtask
 
+`undef TEST_WIDTH
+
 `endif
