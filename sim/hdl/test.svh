@@ -32,7 +32,7 @@ task result;
   begin
     wait (result_valid) #1 result_ready = 1;
     @ (posedge clock) data = result_data;
-    #1 result_ready = 1;
+    #1 result_ready = 0;
   end
 endtask
 
@@ -51,7 +51,7 @@ task propagate;
   begin
     wait (propagate_valid) #1 propagate_ready = 1;
     @ (posedge clock) data = propagate_data;
-    #1 propagate_ready = 1;
+    #1 propagate_ready = 0;
   end
 endtask
 
