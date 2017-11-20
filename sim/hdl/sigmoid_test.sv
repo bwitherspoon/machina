@@ -1,4 +1,4 @@
-module logistic_test;
+module sigmoid_test;
 `include "test.svh"
 
   bit clock = 0;
@@ -26,7 +26,7 @@ module logistic_test;
   logic [7:0] res;
   logic [15:0] prp;
 
-  logistic dut (
+  sigmoid dut (
     .clock(clock),
     .reset(reset),
     .train(train),

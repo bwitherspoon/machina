@@ -1,4 +1,4 @@
-module logistic (
+module sigmoid (
   input logic clock,
   input logic reset,
   input logic train,
