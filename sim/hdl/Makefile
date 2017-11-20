@@ -19,17 +19,21 @@ include $(TESTS:=.dep)
 $(TESTS): % : %.vvp
 	vvp -N $< -none
 
-%.vcd: DEFINES += -DDUMPFILE=$*.vcd
 %.vcd: %.vcd.vvp
 	vvp -N $< -vcd
 
-%.lxt: DEFINES += -DDUMPFILE=$*.lxt
 %.lxt: %.lxt.vvp
 	vvp -N $< -lxt2
 
-%.fst: DEFINES += -DDUMPFILE=$*.fst
 %.fst: %.fst.vvp
 	vvp -N $< -fst
+
+%.vcd.vvp: DEFINES += -DDUMPFILE=$*.vcd
+%.lxt.vvp: DEFINES += -DDUMPFILE=$*.lxt
+%.fst.vvp: DEFINES += -DDUMPFILE=$*.fst
+
+%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.dep
+	iverilog $(SVFLAGS) -t vvp -o $@ $*.sv
 
 %.dep: %.sv
 	@trap 'rm -f "$@.$$$$"' EXIT; \
@@ -37,9 +41,6 @@ $(TESTS): % : %.vvp
 	sed -i '1i$*.vvp $@:' $@.$$$$; \
 	sed -i ':x ; N ; s/\n/ /g ; bx' $@.$$$$; \
 	mv -f $@.$$$$ $@
-
-%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.dep
-	iverilog $(SVFLAGS) -t vvp -o $@ $*.sv
 
 clean:
 	-$(RM) *.vvp *.vcd *.lx2 *.lxt *.lxt2 *.fst *.dep
