@@ -55,16 +55,20 @@ module product #(
   logic [3:0] state = ARG;
 `endif
 
-  // Initialize weights to small pseudorandom values and arguments to zero
+  // Initialize weights to small pseudorandom values
+`ifndef VERILATOR
   int seed = SEED;
   initial begin
     for (int n = 0; n < N; n = n + 1) begin
-`ifndef VERILATOR
       weight[n] = ext_t'($random(seed) % 2**4);
-`else
-      weight[n] = '0;
+    end
+  end
 `endif
-      argument[n] = '0;
+
+  // Initialize arguments to zero
+  initial begin
+    for (int n = 0; n < N; n = n + 1) begin
+      argument[n] = 0;
     end
   end
 
