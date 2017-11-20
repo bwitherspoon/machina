@@ -1,6 +1,6 @@
 *.vcd
 *.vvp
-*.d
+*.dep
 *.lxt
 *.fst
 .lint

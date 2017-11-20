@@ -14,7 +14,7 @@ all: $(TESTS:=.vvp)
 
 test: $(TESTS)
 
-include $(TESTS:=.d)
+include $(TESTS:=.dep)
 
 $(TESTS): % : %.vvp
 	vvp -N $< -none
@@ -31,15 +31,15 @@ $(TESTS): % : %.vvp
 %.fst: %.fst.vvp
 	vvp -N $< -fst
 
-%.d: %.sv
+%.dep: %.sv
 	@trap 'rm -f "$@.$$$$"' EXIT; \
 	iverilog $(SVFLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
 	sed -i '1i$*.vvp $@:' $@.$$$$; \
 	sed -i ':x ; N ; s/\n/ /g ; bx' $@.$$$$; \
 	mv -f $@.$$$$ $@
 
-%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.d
+%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.dep
 	iverilog $(SVFLAGS) -t vvp -o $@ $*.sv
 
 clean:
-	-$(RM) *.vvp *.vcd *.lx2 *.lxt *.lxt2 *.fst *.d
+	-$(RM) *.vvp *.vcd *.lx2 *.lxt *.lxt2 *.fst *.dep
