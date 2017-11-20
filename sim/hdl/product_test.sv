@@ -2,10 +2,6 @@ module product_test;
 `define TEST_WIDTH 32
 `include "test.svh"
 
-  function logic [15:0] abs(logic [15:0] val);
-    return (val[15]) ? -val : val;
-  endfunction
-
   bit clock = 0;
   always #5 clock = ~clock;
 

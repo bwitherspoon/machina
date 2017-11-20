@@ -5,6 +5,10 @@
 `define TEST_WIDTH 16
 `endif
 
+function logic [`TEST_WIDTH-1:0] abs(logic signed [`TEST_WIDTH-1:0] val);
+  return (val < 0) ? -val : val;
+endfunction
+
 task test;
   input exp;
   if (!exp) begin
