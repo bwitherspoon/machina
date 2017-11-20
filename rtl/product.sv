@@ -132,10 +132,13 @@ module product #(
 
   // Load delta
   assign error_ready = state == DEL;
+  wire signed [15:0] error = error_data;
 
   always @ (posedge clock) begin
-    if (error_valid & error_ready)
-      delta <= ext_t'($signed(error_data));
+    if (error_valid & error_ready) begin
+      delta <= ext_t'(error);
+      bias <= bias + (error >>> S);
+    end
   end
 
   // Compute error terms
@@ -172,7 +175,6 @@ module product #(
   always @ (posedge clock) begin
     if (state == UPD) begin
       weight[counter] <= weight[counter] + (delta * argument[counter] >>> S + W);
-      bias <= bias + (delta >>> S);
     end
   end
 
