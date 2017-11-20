@@ -38,7 +38,6 @@ module perceptron_test;
     $dumpfile(`"`DUMPFILE`");
     $dumpvars;
 `endif
-    $monitor(neuron.associate.state, " : ", neuron.associate.counter);
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     // Test 1 (AND)
     tgt[0] = 8'h00; tgt[1] = 8'h00; tgt[2] = 8'h00; tgt[3] = 8'hff;
@@ -50,19 +49,15 @@ module perceptron_test;
     count = 0;
     while (abs(err) > 5 && count < 1000) begin
       for (int i = 0; i < 4; i++) begin
-        $display(i);
         forward(arg[i], res);
-        $display(i);
         err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
         backward(err, prp);
-        $display(i);
 `ifdef DEBUG
         $write("DEBUG: %3d: ", count);
         $write("%6.3f * %6.3f + ", neuron.associate.weight[1]/256.0, arg[i][1]/256.0);
         $write("%6.3f * %6.3f + ", neuron.associate.weight[0]/256.0, arg[i][0]/256.0);
         $write("%6.3f = %6.3f ? ", neuron.associate.bias/256.0, res/256.0);
         $write("%6.3f ! %6.3f\n", tgt[i]/256.0, err/256.0);
-        $display(neuron.associate.delta, ",", neuron.associate.bias, ",", err);
 `endif
       end
       count++;
