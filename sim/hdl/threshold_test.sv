@@ -54,25 +54,16 @@ module threshold_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(0, res);
-    if (res != 8'hff) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
+    test(res == 8'hff);
     // Test 2
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
     forward(-1, res);
-    if (res != 8'h00) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
+    test(res == 8'h00);
     backward(-1, prp);
-    if ($signed(prp) != -1) begin
-      $display("ERROR: propagation invalid: %h", prp);
-      $stop;
-    end
+    test($signed(prp) == -1);
     // Success
     $finish;
   end

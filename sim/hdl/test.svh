@@ -5,6 +5,14 @@
 `define TEST_WIDTH 16
 `endif
 
+task test;
+  input exp;
+  if (!exp) begin
+    $display("ERROR: ", `__FILE__, ": failed test");
+    $stop;
+  end
+endtask
+
 task argument;
   input [`TEST_WIDTH-1:0] data;
   begin

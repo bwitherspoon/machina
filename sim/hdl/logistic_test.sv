@@ -54,25 +54,16 @@ module logistic_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(0, res);
-    if (res != 8'h80) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
+    test(res == 8'h80);
     // Test 2
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
     forward(6 <<< 8, res);
-    if (res != 8'hff) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
+    test(res == 8'hff);
     backward(-(2**8) - 2**8, prp);
-    if (prp != 8'h00) begin
-      $display("ERROR: propagation invalid: %h", prp);
-      $stop;
-    end
+    test(prp == 8'h00);
     // Success
     $finish;
   end

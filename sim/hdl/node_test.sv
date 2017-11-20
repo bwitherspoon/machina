@@ -62,36 +62,19 @@ module node_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(16'h7f7f, res);
-    if (res != 16'hfff9) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
+    test(res == 16'hfff9);
     train = 1;
     forward(16'hffff, res);
-    if (res != 16'hfff4) begin
-      $display("ERROR: result invalid: %h", res);
-      $stop;
-    end
-
+    test(res == 16'hfff4);
     backward(16'h0000, prp);
-    if (prp != 16'h00) begin
-      $display("ERROR: propagation invalid: %h", prp);
-      $stop;
-    end
+    test(prp == 16'h00);
     // Test 2
     // FIXME Use array assignment patterns when supported
-    arg[0] = 16'h0000;
-    arg[1] = 16'h00ff;
-    arg[2] = 16'hff00;
-    arg[3] = 16'hffff;
-    tgt[0] = 16'hff00;
-    tgt[1] = 16'h007f;
-    tgt[2] = 16'hff00;
-    tgt[3] = 16'h007f;
+    arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
+    tgt[0] = 16'hff00; tgt[1] = 16'h007f; tgt[2] = 16'hff00; tgt[3] = 16'h007f;
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
-    // Train
     repeat (25) begin
       for (int i = 0; i < 4; i++) begin
         forward(arg[i], res);
@@ -99,7 +82,6 @@ module node_test;
         backward(err, prp);
       end
     end
-    // Validate
     for (int i = 0; i < 4; i++) begin
       forward(arg[i], res);
       err = $signed(tgt[i]) - $signed(res);
@@ -110,10 +92,7 @@ module node_test;
       $write("%6.3f = %6.3f ? ", dut.bias / 256.0, $signed(res) / 256.0);
       $write("%6.3f ! %6.3f\n", $signed(tgt[i]) / 256.0, $signed(err) / 256.0);
 `endif
-      if (abs(err) > 4) begin
-        $display("ERROR: error out of range: %6.3f", err / 256.0);
-        $stop;
-      end
+      test(abs(err) < 5);
       backward(err, prp);
     end
     // Success
