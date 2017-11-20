@@ -30,23 +30,7 @@ module product_test;
   logic signed [15:0] err;
   logic [1:0][15:0] prp;
 
-  product #(.N(2), .S(2), .SEED(0)) dut (
-    .clock(clock),
-    .reset(reset),
-    .train(train),
-    .argument_valid(argument_valid),
-    .argument_data(argument_data),
-    .argument_ready(argument_ready),
-    .result_valid(result_valid),
-    .result_data(result_data),
-    .result_ready(result_ready),
-    .error_valid(error_valid),
-    .error_data(error_data),
-    .error_ready(error_ready),
-    .propagate_valid(propagate_valid),
-    .propagate_data(propagate_data),
-    .propagate_ready(propagate_ready)
-  );
+  product #(.N(2), .S(2), .SEED(0)) dut (.*);
 
   initial begin
 `ifdef DUMPFILE
@@ -78,6 +62,7 @@ module product_test;
         backward(err, prp);
       end
     end
+    train = 0;
     for (int i = 0; i < 4; i++) begin
       forward(arg[i], res);
       err = $signed(tgt[i]) - $signed(res);
@@ -89,7 +74,6 @@ module product_test;
       $write("%6.3f ! %6.3f\n", $signed(tgt[i]) / 256.0, $signed(err) / 256.0);
 `endif
       test(abs(err) < 5);
-      backward(err, prp);
     end
     // Success
     $finish;
