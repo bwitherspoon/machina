@@ -24,34 +24,36 @@ module product #(
   input  logic propagate_ready
 );
   localparam W = 8;
-  typedef logic signed [W:0] std_t;
-  typedef logic signed [2*$bits(std_t)-1:0] ext_t;
+
+  typedef logic signed [ 9:0] arg_t;
+  typedef logic signed [15:0] res_t;
+  typedef logic signed [23:0] ext_t;
 
   typedef logic [$clog2(N)-1:0] cnt_t;
   localparam CNT = cnt_t'(N - 1);
-  cnt_t counter;
+  cnt_t counter = 0;
 
-  std_t argument [N];
-  ext_t weight [N];
-  ext_t bias = 0;
+  arg_t argument [N];
+  res_t weight [N];
+  res_t bias = 0;
+  res_t delta = 0;
   ext_t summand = 0;
   ext_t accumulator = 0;
-  ext_t delta = 0;
 
-  logic [15:0] errors [N];
+  logic [$bits(res_t)-1:0] errors [N];
 
 `ifndef NOENUM
-  enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, PRP, UPD } state;
+  enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, PRP, UPD } state = ARG;
 `else
-  localparam ARG = 2'd0;
-  localparam MUL = 2'd1;
-  localparam MAC = 2'd2;
-  localparam ACC = 2'd3;
-  localparam RES = 2'd4;
-  localparam DEL = 2'd5;
-  localparam ERR = 2'd6;
-  localparam PRP = 2'd7;
-  localparam UPD = 2'd8;
+  localparam ARG = 4'd0;
+  localparam MUL = 4'd1;
+  localparam MAC = 4'd2;
+  localparam ACC = 4'd3;
+  localparam RES = 4'd4;
+  localparam DEL = 4'd5;
+  localparam ERR = 4'd6;
+  localparam PRP = 4'd7;
+  localparam UPD = 4'd8;
   logic [3:0] state = ARG;
 `endif
 
@@ -60,7 +62,7 @@ module product #(
   int seed = SEED;
   initial begin
     for (int n = 0; n < N; n = n + 1) begin
-      weight[n] = ext_t'($random(seed) % 2**4);
+      weight[n] = res_t'($random(seed) % 2**(W-4));
     end
   end
 `endif
@@ -74,13 +76,12 @@ module product #(
 
   // Load arguments
   assign argument_ready = state == ARG;
-
   genvar m;
   generate
     for (m = 0; m < N; m = m + 1) begin
       always @(posedge clock) begin
         if (argument_valid & argument_ready) begin
-          argument[m] <= std_t'(argument_data[m]);
+          argument[m] <= arg_t'(argument_data[m]);
         end
       end
     end
@@ -89,10 +90,10 @@ module product #(
   // Cycle counter
   always @(posedge clock) begin
     if (reset) begin
-      counter <= '0;
+      counter <= 0;
     end else if (state == MUL || state == MAC || state == ERR || state == UPD) begin
       if (counter == CNT) begin
-        counter <= '0;
+        counter <= 0;
       end else begin
         counter <= counter + 1;
       end
@@ -102,42 +103,41 @@ module product #(
   // Multiply and accumulate
   always @(posedge clock) begin
     if (state == MUL || state == MAC) begin
-      summand <= (weight[counter] * argument[counter]) >>> W;
+      summand <= ext_t'(weight[counter]) * ext_t'(argument[counter]) >>> W;
     end
   end
 
   always @(posedge clock) begin
     if (reset) begin
-      accumulator <= '0;
+      accumulator <= 0;
     end else if (state == ARG) begin
-      accumulator <= bias;
+      accumulator <= ext_t'(bias);
     end else if (state == MAC || state == ACC) begin
       accumulator <= accumulator + summand;
     end
   end
 
   // Output inner product
+  initial result_valid = 0;
   always @(posedge clock) begin
-    if (reset) begin
-      result_valid <= '0;
-    end else if (state == RES) begin
+    if (state == RES) begin
       if (!result_valid) begin
-        result_valid <= '1;
-        result_data <= accumulator[15:0];
+        result_valid <= 1;
+        result_data <= accumulator[$bits(result_data)-1:0];
       end else if (result_ready) begin
-        result_valid <= '0;
+        result_valid <= 0;
       end
+    end else begin
+      result_valid <= 0;
     end
   end
 
   // Load delta
   assign error_ready = state == DEL;
-  wire signed [15:0] error = error_data;
-
   always @ (posedge clock) begin
     if (error_valid & error_ready) begin
-      delta <= ext_t'(error);
-      bias <= bias + (error >>> S);
+      delta <= res_t'(error_data);
+      bias <= bias + (res_t'(error_data) >>> S);
     end
   end
 
@@ -148,15 +148,16 @@ module product #(
   end
 
   // Backward propagate errors
+  initial propagate_valid = 0;
   always @ (posedge clock) begin
-    if (reset) begin
-      propagate_valid <= '0;
-    end else if (state == PRP) begin
+    if (state == PRP) begin
       if (!propagate_valid) begin
-        propagate_valid <= '1;
+        propagate_valid <= 1;
       end else if (propagate_ready) begin
-        propagate_valid <= '0;
+        propagate_valid <= 0;
       end
+    end else begin
+      propagate_valid <= 0;
     end
   end
 
@@ -164,7 +165,7 @@ module product #(
   generate
     for (k = 0; k < N; k = k + 1) begin
       always @ (posedge clock) begin
-        if (state == PRP && propagate_valid != '1)
+        if (state == PRP && propagate_valid != 1)
             propagate_data[k] <= errors[k];
       end
     end
@@ -172,9 +173,14 @@ module product #(
 
   // Update weights and bias
   // TODO reset
+  // FIXME iverilog work around, fails verilator lint
+  ext_t operand;
+  res_t update;
+  assign operand = delta;
+  assign update = operand * argument[counter] >>> W + S;
   always @ (posedge clock) begin
     if (state == UPD) begin
-      weight[counter] <= weight[counter] + (delta * argument[counter] >>> S + W);
+      weight[counter] <= weight[counter] + update;
     end
   end
 
@@ -209,8 +215,10 @@ module product #(
         UPD:
           if (counter == CNT)
             state <= ARG;
-        default:
-          $fatal(0, "invalid state: %h", state);
+        default: begin
+          $display("ERROR: %s:%0d invalid state: %0h", `__FILE__, `__LINE__, state);
+          $stop;
+        end
       endcase
     end
   end
