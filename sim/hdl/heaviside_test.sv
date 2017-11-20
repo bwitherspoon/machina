@@ -54,16 +54,16 @@ module heaviside_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(0, res);
-    test(res == 8'hff);
+    `TEST(res == 8'hff);
     // Test 2
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
     forward(-1, res);
-    test(res == 8'h00);
+    `TEST(res == 8'h00);
     backward(-1, prp);
-    test($signed(prp) == -1);
+    `TEST($signed(prp) == -1);
     // Success
     $finish;
   end

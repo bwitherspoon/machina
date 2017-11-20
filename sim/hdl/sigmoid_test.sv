@@ -38,16 +38,16 @@ module sigmoid_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(0, res);
-    test(res == 8'h80);
+    `TEST(res == 8'h80);
     // Test 2
     reset = 1;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     train = 1;
     forward(6 <<< 8, res);
-    test(res == 8'hff);
+    `TEST(res == 8'hff);
     backward(-(2**8) - 2**8, prp);
-    test(prp == 8'h00);
+    `TEST(prp == 8'h00);
     // Success
     $finish;
   end

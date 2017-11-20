@@ -42,12 +42,12 @@ module product_test;
     repeat (2) @ (posedge clock);
     #1 reset = 0;
     forward(16'h7f7f, res);
-    test(res == 16'hfff9);
+    `TEST(res == 16'hfff9);
     train = 1;
     forward(16'hffff, res);
-    test(res == 16'hfff4);
+    `TEST(res == 16'hfff4);
     backward(16'h0000, prp);
-    test(prp == 16'h00);
+    `TEST(prp == 16'h00);
     // Test 2
     // FIXME Use array assignment patterns when supported
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
@@ -73,7 +73,7 @@ module product_test;
       $write("%6.3f = %6.3f ? ", dut.bias / 256.0, $signed(res) / 256.0);
       $write("%6.3f ! %6.3f\n", $signed(tgt[i]) / 256.0, $signed(err) / 256.0);
 `endif
-      test(abs(err) < 5);
+      `TEST(abs(err) < 5);
     end
     // Success
     $finish;

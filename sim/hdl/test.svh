@@ -5,6 +5,18 @@
 `define TEST_WIDTH 16
 `endif
 
+`ifndef SYNTHESIS
+  `define TEST(exp, msg="failed test") \
+    do begin \
+      if (!(exp)) begin \
+        $display("ERROR: %s:%0d: %s: %s", `__FILE__, `__LINE__, msg, `"exp`"); \
+        $stop; \
+      end \
+    end while (0)
+`else
+  `define TEST(exp) do while (0)
+`endif
+
 function logic [`TEST_WIDTH-1:0] abs(logic signed [`TEST_WIDTH-1:0] val);
   return (val < 0) ? -val : val;
 endfunction
