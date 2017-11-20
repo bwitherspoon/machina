@@ -7,9 +7,9 @@ module sigmoid (
   input logic [15:0] argument_data,
   output logic argument_ready,
 
-  output logic activation_valid,
-  output logic [7:0] activation_data,
-  input logic activation_ready,
+  output logic result_valid,
+  output logic [7:0] result_data,
+  input logic result_ready,
 
   input logic error_valid,
   input logic [15:0] error_data,
@@ -29,10 +29,10 @@ module sigmoid (
   logic signed [15:0] error;
 
 `ifndef NOENUM
-  enum logic [1:0] { ARG, ACT, ERR, PRP } state = ARG;
+  enum logic [1:0] { ARG, RES, ERR, PRP } state = ARG;
 `else
   localparam ARG = 2'd0;
-  localparam ACT = 2'd1;
+  localparam RES = 2'd1;
   localparam ERR = 2'd2;
   localparam PRP = 2'd3;
   logic [1:0] state = ARG;
@@ -47,9 +47,9 @@ module sigmoid (
     case (state)
       ARG:
         if (argument_valid & argument_ready)
-          state <= ACT;
-      ACT:
-        if (activation_valid & activation_ready)
+          state <= RES;
+      RES:
+        if (result_valid & result_ready)
           state <= (train) ? ERR : ARG;
       ERR:
         if (error_valid & error_ready)
@@ -77,13 +77,13 @@ module sigmoid (
 
   always @ (posedge clock) begin
     if (reset) begin
-      activation_valid <= '0;
-    end else if (state == ACT) begin
-      if (!activation_valid) begin
-        activation_valid <= '1;
-        activation_data <= result;
-      end else if (activation_ready) begin
-        activation_valid <= '0;
+      result_valid <= '0;
+    end else if (state == RES) begin
+      if (!result_valid) begin
+        result_valid <= '1;
+        result_data <= result;
+      end else if (result_ready) begin
+        result_valid <= '0;
       end
     end
   end

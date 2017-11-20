@@ -26,23 +26,7 @@ module sigmoid_test;
   logic [7:0] res;
   logic [15:0] prp;
 
-  sigmoid dut (
-    .clock(clock),
-    .reset(reset),
-    .train(train),
-    .argument_valid(argument_valid),
-    .argument_data(argument_data),
-    .argument_ready(argument_ready),
-    .error_valid(error_valid),
-    .error_data(error_data),
-    .error_ready(error_ready),
-    .activation_valid(result_valid),
-    .activation_data(result_data),
-    .activation_ready(result_ready),
-    .propagate_valid(propagate_valid),
-    .propagate_data(propagate_data),
-    .propagate_ready(propagate_ready)
-  );
+  sigmoid dut (.*);
 
   initial begin
 `ifdef DUMPFILE
