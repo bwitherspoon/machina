@@ -84,7 +84,7 @@ module heaviside (
         propagate_valid <= 1;
         propagate_data <= delta;
       end else if (propagate_ready) begin
-        propagate_valid <= 1;
+        propagate_valid <= 0;
       end
     end
   end
