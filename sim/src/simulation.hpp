@@ -40,16 +40,20 @@ public:
   }
 
   virtual void step() {
-    m_module->clock = !m_module->clock;
     m_module->eval();
     if (m_trace)
       m_trace->dump(m_time);
     m_time++;
   }
 
+  virtual void tick() {
+    m_module->clock = !m_module->clock;
+    step();
+  }
+
   virtual void cycle() {
-    step();
-    step();
+    tick();
+    tick();
   }
 
   virtual void reset() {

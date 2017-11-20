@@ -1,4 +1,4 @@
-module node_test;
+module product_test;
 `define TEST_WIDTH 32
 `include "test.svh"
 
@@ -34,7 +34,7 @@ module node_test;
   logic signed [15:0] err;
   logic [1:0][15:0] prp;
 
-  node #(.N(2), .S(2), .SEED(0)) dut (
+  product #(.N(2), .S(2), .SEED(0)) dut (
     .clock(clock),
     .reset(reset),
     .train(train),

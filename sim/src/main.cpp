@@ -3,15 +3,15 @@
 #include "verilated.h"
 
 #include "simulation.hpp"
-#include "node.hpp"
+#include "product.hpp"
 
 using namespace net;
 
-static Node* node = nullptr;
+static Product* prod = nullptr;
 
 double sc_time_stamp() {
-  if (node)
-    return static_cast<double>(node->time());
+  if (prod)
+    return static_cast<double>(prod->time());
   else
     return 0;
 }
@@ -19,22 +19,21 @@ double sc_time_stamp() {
 int main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
-  Node::product_type data;
+  Product::result_type res;
 
-  node = new Node;
-  if (!node)
+  prod = new Product;
+  if (!prod)
     return 1;
-  node->trace("node.vcd");
-  node->reset();
-  node->cycle();
+  prod->trace("product.vcd");
+  prod->reset();
+  prod->tick();
 
   while (!Verilated::gotFinish()) {
-    if (node->time() > 500)
+    if (prod->time() > 500)
       break;
-    node->operand(0x7f7f);
-    data = node->product();
-    std::cout << data << " : ";
-    std::cout << "0x" << data << std::endl;
+    res = prod->forward(0x7f7f);
+    std::cout << res << " : ";
+    std::cout << "0x" << res << std::endl;
   }
 
   return 0;

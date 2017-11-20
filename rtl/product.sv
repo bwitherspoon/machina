@@ -1,4 +1,4 @@
-module node #(
+module product #(
   parameter N = 2,
   parameter S = 2,
   parameter SEED = 0
@@ -38,10 +38,10 @@ module node #(
   ext_t accumulator = 0;
   ext_t delta = 0;
 
-  logic [15:0] propagate [N];
+  logic [15:0] errors [N];
 
 `ifndef NOENUM
-  enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, FBK, UPD } state;
+  enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, PRP, UPD } state;
 `else
   localparam ARG = 2'd0;
   localparam MUL = 2'd1;
@@ -50,7 +50,7 @@ module node #(
   localparam RES = 2'd4;
   localparam DEL = 2'd5;
   localparam ERR = 2'd6;
-  localparam FBK = 2'd7;
+  localparam PRP = 2'd7;
   localparam UPD = 2'd8;
   logic [3:0] state = ARG;
 `endif
@@ -58,25 +58,25 @@ module node #(
   // Initialize weights to small pseudorandom values and arguments to zero
   int seed = SEED;
   initial begin
-    for (int i = 0; i < N; i = i + 1) begin
+    for (int n = 0; n < N; n = n + 1) begin
 `ifndef VERILATOR
-      weight[i] = ext_t'($random(seed) % 2**4);
+      weight[n] = ext_t'($random(seed) % 2**4);
 `else
-      weight[i] = '0;
+      weight[n] = '0;
 `endif
-      argument[i] = '0;
+      argument[n] = '0;
     end
   end
 
   // Load arguments
   assign argument_ready = state == ARG;
 
-  genvar n;
+  genvar m;
   generate
-    for (n = 0; n < N; n = n + 1) begin
+    for (m = 0; m < N; m = m + 1) begin
       always @(posedge clock) begin
         if (argument_valid & argument_ready) begin
-          argument[n] <= std_t'(argument_data[n]);
+          argument[m] <= std_t'(argument_data[m]);
         end
       end
     end
@@ -112,7 +112,7 @@ module node #(
     end
   end
 
-  // Output cross product
+  // Output inner product
   always @(posedge clock) begin
     if (reset) begin
       result_valid <= '0;
@@ -126,7 +126,7 @@ module node #(
     end
   end
 
-  // Load error
+  // Load delta
   assign error_ready = state == DEL;
 
   always @ (posedge clock) begin
@@ -137,14 +137,14 @@ module node #(
   // Compute error terms
   always @ (posedge clock) begin
     if (state == ERR)
-      propagate[counter] <= 16'(weight[counter] * delta >>> W);
+      errors[counter] <= 16'(weight[counter] * delta >>> W);
   end
 
   // Backward propagate errors
   always @ (posedge clock) begin
     if (reset) begin
       propagate_valid <= '0;
-    end else if (state == FBK) begin
+    end else if (state == PRP) begin
       if (!propagate_valid) begin
         propagate_valid <= '1;
       end else if (propagate_ready) begin
@@ -157,8 +157,8 @@ module node #(
   generate
     for (k = 0; k < N; k = k + 1) begin
       always @ (posedge clock) begin
-        if (state == FBK && propagate_valid != '1)
-            propagate_data[k] <= propagate[k];
+        if (state == PRP && propagate_valid != '1)
+            propagate_data[k] <= errors[k];
       end
     end
   endgenerate
@@ -196,8 +196,8 @@ module node #(
             state <= ERR;
         ERR:
           if (counter == CNT)
-            state <= FBK;
-        FBK:
+            state <= PRP;
+        PRP:
           if (propagate_valid & propagate_ready)
             state <= UPD;
         UPD:
