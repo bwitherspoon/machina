@@ -31,39 +31,23 @@ module perceptron #(
   wire error_propagate_ready;
 
   associate #(.NARG(N), .RATE(0)) associator (
-    .clock,
-    .reset,
-    .train,
-    .argument_valid,
-    .argument_data,
-    .argument_ready,
     .result_valid(result_argument_valid),
     .result_data(result_argument_data),
     .result_ready(result_argument_ready),
     .error_valid(error_propagate_valid),
     .error_data(error_propagate_data),
     .error_ready(error_propagate_ready),
-    .propagate_valid,
-    .propagate_data,
-    .propagate_ready
+    .*
   );
 
   heaviside activator (
-    .clock,
-    .reset,
-    .train,
     .argument_valid(result_argument_valid),
     .argument_data(result_argument_data),
     .argument_ready(result_argument_ready),
-    .result_valid,
-    .result_data,
-    .result_ready,
-    .error_valid,
-    .error_data,
-    .error_ready,
     .propagate_valid(error_propagate_valid),
     .propagate_data(error_propagate_data),
-    .propagate_ready(error_propagate_ready)
+    .propagate_ready(error_propagate_ready),
+    .*
   );
 
 endmodule
