@@ -1,4 +1,5 @@
-SUBDIR = sim
+SUBDIR = rtl sim
+
 .PHONY: all test clean
 
 all:
