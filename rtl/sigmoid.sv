@@ -1,4 +1,6 @@
-module sigmoid (
+module sigmoid #(
+  parameter RATE = 1.0
+)(
   input logic clock,
   input logic reset,
   input logic train,
@@ -19,8 +21,8 @@ module sigmoid (
   output logic [15:0] propagate_data,
   input logic propagate_ready
 );
-  function real f(int value, real rate = 1.0);
-    return 1.0 / (1.0 + $exp(-rate * $itor(value) / 2.0**8));
+  function real f(int value);
+    return 1.0 / (1.0 + $exp(-RATE * $itor(value) / 2.0**8));
   endfunction
 
   logic [7:0] activation [2**12];
@@ -57,13 +59,10 @@ module sigmoid (
       PRP:
         if (propagate_valid & propagate_ready)
           state <= ARG;
-      default:
-        $error("Invalid state: %h", state);
     endcase
   end
 
   assign argument_ready = state == ARG;
-
   always @ (posedge clock) begin
     if (argument_valid & argument_ready) begin
       if ($signed(argument_data) >= 6 <<< 8)
@@ -76,20 +75,19 @@ module sigmoid (
   end
 
   always @ (posedge clock) begin
-    if (reset) begin
-      result_valid <= '0;
-    end else if (state == RES) begin
+    if (state == RES) begin
       if (!result_valid) begin
-        result_valid <= '1;
+        result_valid <= 1;
         result_data <= result;
       end else if (result_ready) begin
-        result_valid <= '0;
+        result_valid <= 0;
       end
+    end else begin
+      result_valid <= 0;
     end
   end
 
   assign error_ready = state == ERR;
-
   always @ (posedge clock) begin
     if (error_valid & error_ready) begin
       error <= error_data;
@@ -98,15 +96,15 @@ module sigmoid (
   end
 
   always @ (posedge clock) begin
-    if (reset) begin
-      propagate_valid <= '0;
-    end else if (state == PRP) begin
+    if (state == PRP) begin
       if (!propagate_valid) begin
-        propagate_valid <= '1;
+        propagate_valid <= 1;
         propagate_data <= error * $signed({1'b0, derivative}) >>> 8;
       end else if (propagate_ready) begin
-        propagate_valid <= '1;
+        propagate_valid <= 0;
       end
+    end else begin
+      propagate_valid <= 0;
     end
   end
 
