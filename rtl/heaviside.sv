@@ -57,15 +57,15 @@ module heaviside (
   end
 
   always @ (posedge clock) begin
-    if (reset) begin
-      result_valid <= 0;
-    end else if (state == RES) begin
+    if (state == RES) begin
       if (!result_valid) begin
         result_valid <= 1;
-        result_data <= (argument >= 0) ? 8'hff : 8'h00;
+        result_data <= (argument < 0) ? 8'h00 : 8'hff;
       end else if (result_ready) begin
         result_valid <= 0;
       end
+    end else begin
+      result_valid <= 0;
     end
   end
 
@@ -77,15 +77,15 @@ module heaviside (
   end
 
   always @ (posedge clock) begin
-    if (reset) begin
-      propagate_valid <= 0;
-    end else if (state == PRP) begin
+    if (state == PRP) begin
       if (!propagate_valid) begin
         propagate_valid <= 1;
         propagate_data <= delta;
       end else if (propagate_ready) begin
         propagate_valid <= 0;
       end
+    end else begin
+      propagate_valid <= 0;
     end
   end
 
