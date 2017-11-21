@@ -29,7 +29,7 @@ module associate #(
 
   typedef logic signed [ 8:0] arg_t;
   typedef logic signed [15:0] res_t;
-  typedef logic signed [23:0] ext_t;
+  typedef logic signed [23:0] mac_t;
 
   arg_t argument [NARG];
   res_t weight [NARG];
@@ -98,22 +98,29 @@ module associate #(
   endgenerate
 
   // Multiply and accumulate
-  ext_t summand = 0;
+  mac_t summand = 0;
   always @(posedge clock) begin
     if (state == MUL || state == MAC) begin
-      summand <= ext_t'(weight[count]) * ext_t'(argument[count]) >>> BITS;
+      summand <= mac_t'(weight[count]) * mac_t'(argument[count]) >>> BITS;
     end
   end
 
   // TODO overflow / underflow signals
-  ext_t accumulator = 0;
+  mac_t accumulator = 0;
+  mac_t accumulation;
+  assign accumulation = accumulator + summand;
   always @(posedge clock) begin
     if (reset) begin
       accumulator <= 0;
     end else if (state == ARG) begin
-      accumulator <= ext_t'(bias);
+      accumulator <= mac_t'(bias);
     end else if (state == MAC || state == ACC) begin
-      accumulator <= accumulator + summand;
+      if (accumulation < MIN)
+        accumulator <= mac_t'(MIN);
+      else if (accumulation > MAX)
+        accumulator <= mac_t'(MAX);
+      else
+        accumulator <= accumulation;
     end
   end
 
@@ -140,17 +147,17 @@ module associate #(
     end
   end
 
-  // Compute and saturate errors
-  ext_t err;
-  assign err = ext_t'(weight[count]) * ext_t'(delta) >>> BITS;
+  // Evaluate and saturate errors
+  mac_t error;
+  assign error = mac_t'(weight[count]) * mac_t'(delta) >>> BITS;
   always @ (posedge clock) begin
     if (state == ERR) begin
-      if (err < ext_t'(MIN))
+      if (error < mac_t'(MIN))
         propagation[count] <= $unsigned(MIN);
-      else if (err > ext_t'(MAX))
+      else if (error > mac_t'(MAX))
         propagation[count] <= $unsigned(MAX);
       else
-        propagation[count] <= err[15:0];
+        propagation[count] <= error[15:0];
     end
   end
 
@@ -180,15 +187,16 @@ module associate #(
   endgenerate
 
   // Update weights and bias
-  // TODO overflow / underflow signals
-  ext_t operand;
-  ext_t product;
+  // TODO handle overflow / underflow in addition
+  mac_t operand;
+  mac_t product;
   res_t update;
+  // FIXME workaround for icarus verilog
   /* verilator lint_off WIDTH */
-  assign operand = argument[count]; // FIXME
+  assign operand = argument[count];
   /* verilator lint_on WIDTH */
   assign product = delta * operand >>> BITS + RATE;
-  assign update = (product < ext_t'(MIN)) ? MIN : (product > ext_t'(MAX)) ? MAX : res_t'(product);
+  assign update = (product < mac_t'(MIN)) ? MIN : (product > mac_t'(MAX)) ? MAX : res_t'(product);
   always @ (posedge clock) begin
     if (state == UPD) begin
       weight[count] <= weight[count] + update;
