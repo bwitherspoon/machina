@@ -115,9 +115,9 @@ module associate #(
     end else if (state == ARG) begin
       accumulator <= mac_t'(bias);
     end else if (state == MAC || state == ACC) begin
-      if (accumulation < MIN)
+      if (accumulation < mac_t'(MIN))
         accumulator <= mac_t'(MIN);
-      else if (accumulation > MAX)
+      else if (accumulation > mac_t'(MAX))
         accumulator <= mac_t'(MAX);
       else
         accumulator <= accumulation;
