@@ -1,10 +1,10 @@
-#include "Vproduct.h"
+#include "Vassociate.h"
 
 namespace net {
 
-class Product : public Simulation<Vproduct> {
+class Associate : public Simulation<Vassociate> {
 public:
-  Product() : Simulation<Vproduct>::Simulation("product") {
+  Associate() : Simulation<Vassociate>::Simulation("associate") {
     m_module->train = 0;
     m_module->argument_valid = 0;
     m_module->error_valid = 0;
@@ -12,18 +12,18 @@ public:
     m_module->propagate_ready = 0;
   }
 
-  Product& operator= (const Product&) = delete;
+  Associate& operator= (const Associate&) = delete;
 
-  Product(const Product&) = delete;
+  Associate(const Associate&) = delete;
 
-  using argument_type = decltype(Vproduct::argument_data);
+  using argument_type = decltype(Vassociate::argument_data);
 
-  using result_type = decltype(Vproduct::result_data);
+  using result_type = decltype(Vassociate::result_data);
 
   result_type forward(argument_type arg);
 };
 
-Product::result_type Product::forward(argument_type data) {
+Associate::result_type Associate::forward(argument_type data) {
   m_module->argument_data = data;
   m_module->argument_valid = 1;
   tick();
