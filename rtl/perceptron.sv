@@ -30,7 +30,7 @@ module perceptron #(
   wire [15:0] error_propagate_data;
   wire error_propagate_ready;
 
-  associate #(.N(N), .S(0)) associator (
+  associate #(.NARG(N), .RATE(0)) associator (
     .clock,
     .reset,
     .train,

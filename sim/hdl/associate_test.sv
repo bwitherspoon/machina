@@ -31,7 +31,7 @@ module associate_test;
   logic signed [15:0] err;
   logic [1:0][15:0] prp;
 
-  associate #(.N(2), .S(0), .SEED(0)) associator (.*);
+  associate #(.NARG(2), .RATE(0), .SEED(0)) associator (.*);
 
   task trainer;
   begin

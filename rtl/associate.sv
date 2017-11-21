@@ -1,6 +1,6 @@
 module associate #(
-  parameter N = 2,
-  parameter S = 2,
+  parameter NARG = 2,
+  parameter RATE = 2,
   parameter SEED = 0
 )(
   input logic clock,
@@ -8,7 +8,7 @@ module associate #(
   input logic train,
 
   input  logic argument_valid,
-  input  logic [N-1:0][7:0] argument_data,
+  input  logic [NARG-1:0][7:0] argument_data,
   output logic argument_ready,
 
   output logic result_valid,
@@ -20,27 +20,27 @@ module associate #(
   output logic error_ready,
 
   output logic propagate_valid,
-  output logic [N-1:0][15:0] propagate_data,
+  output logic [NARG-1:0][15:0] propagate_data,
   input  logic propagate_ready
 );
-  localparam W = 8;
+  localparam BITS = 8;
 
   typedef logic signed [ 9:0] arg_t;
   typedef logic signed [15:0] res_t;
   typedef logic signed [23:0] ext_t;
 
-  typedef logic [$clog2(N)-1:0] cnt_t;
-  localparam CNT = cnt_t'(N - 1);
+  typedef logic [$clog2(NARG)-1:0] cnt_t;
+  localparam CNT = cnt_t'(NARG - 1);
   cnt_t counter = 0;
 
-  arg_t argument [N];
-  res_t weight [N];
+  arg_t argument [NARG];
+  res_t weight [NARG];
   res_t bias = 0;
   res_t delta = 0;
   ext_t summand = 0;
   ext_t accumulator = 0;
 
-  logic [$bits(res_t)-1:0] errors [N];
+  logic [$bits(res_t)-1:0] errors [NARG];
 
 `ifndef NOENUM
   enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, PRP, UPD } state = ARG;
@@ -57,31 +57,37 @@ module associate #(
   logic [3:0] state = ARG;
 `endif
 
-  // Initialize weights to small pseudorandom values
+  // Initialize weights to small pseudorandom values or zero
 `ifndef VERILATOR
   int seed = SEED;
   initial begin
-    for (int n = 0; n < N; n = n + 1) begin
-      weight[n] = res_t'($random(seed) % 2**(W-4));
+    for (int n = 0; n < NARG; n = n + 1) begin
+      weight[n] = res_t'($random(seed) % 2**(BITS-4));
+    end
+  end
+`else
+  initial begin
+    for (int n = 0; n < NARG; n = n + 1) begin
+      weight[n] = 0;
     end
   end
 `endif
 
   // Initialize arguments to zero
   initial begin
-    for (int n = 0; n < N; n = n + 1) begin
+    for (int n = 0; n < NARG; n = n + 1) begin
       argument[n] = 0;
     end
   end
 
   // Load arguments
   assign argument_ready = state == ARG;
-  genvar m;
+  genvar a;
   generate
-    for (m = 0; m < N; m = m + 1) begin
+    for (a = 0; a < NARG; a = a + 1) begin
       always @(posedge clock) begin
         if (argument_valid & argument_ready) begin
-          argument[m] <= arg_t'(argument_data[m]);
+          argument[a] <= arg_t'(argument_data[a]);
         end
       end
     end
@@ -103,7 +109,7 @@ module associate #(
   // Multiply and accumulate
   always @(posedge clock) begin
     if (state == MUL || state == MAC) begin
-      summand <= ext_t'(weight[counter]) * ext_t'(argument[counter]) >>> W;
+      summand <= ext_t'(weight[counter]) * ext_t'(argument[counter]) >>> BITS;
     end
   end
 
@@ -137,14 +143,14 @@ module associate #(
   always @ (posedge clock) begin
     if (error_valid & error_ready) begin
       delta <= res_t'(error_data);
-      bias <= bias + (res_t'(error_data) >>> S);
+      bias <= bias + (res_t'(error_data) >>> RATE);
     end
   end
 
   // Compute error terms
   always @ (posedge clock) begin
     if (state == ERR)
-      errors[counter] <= 16'(weight[counter] * delta >>> W);
+      errors[counter] <= 16'(weight[counter] * delta >>> BITS);
   end
 
   // Backward propagate errors
@@ -161,12 +167,12 @@ module associate #(
     end
   end
 
-  genvar k;
+  genvar p;
   generate
-    for (k = 0; k < N; k = k + 1) begin
+    for (p = 0; p < NARG; p = p + 1) begin
       always @ (posedge clock) begin
         if (state == PRP && propagate_valid != 1)
-            propagate_data[k] <= errors[k];
+            propagate_data[p] <= errors[p];
       end
     end
   endgenerate
@@ -177,7 +183,7 @@ module associate #(
   ext_t operand;
   res_t update;
   assign operand = delta;
-  assign update = operand * argument[counter] >>> W + S;
+  assign update = operand * argument[counter] >>> BITS + RATE;
   always @ (posedge clock) begin
     if (state == UPD) begin
       weight[counter] <= weight[counter] + update;
