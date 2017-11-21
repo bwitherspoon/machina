@@ -24,23 +24,19 @@ module associate #(
   input  logic propagate_ready
 );
   localparam BITS = 8;
+  localparam MAX = $signed(16'h7fff);
+  localparam MIN = $signed(16'h8000);
 
-  typedef logic signed [ 9:0] arg_t;
+  typedef logic signed [ 8:0] arg_t;
   typedef logic signed [15:0] res_t;
   typedef logic signed [23:0] ext_t;
-
-  typedef logic [$clog2(NARG)-1:0] cnt_t;
-  localparam CNT = cnt_t'(NARG - 1);
-  cnt_t counter = 0;
 
   arg_t argument [NARG];
   res_t weight [NARG];
   res_t bias = 0;
   res_t delta = 0;
-  ext_t summand = 0;
-  ext_t accumulator = 0;
 
-  logic [$bits(res_t)-1:0] errors [NARG];
+  logic [$bits(res_t)-1:0] propagation [NARG];
 
 `ifndef NOENUM
   enum logic [3:0] { ARG, MUL, MAC, ACC, RES, DEL, ERR, PRP, UPD } state = ARG;
@@ -56,6 +52,22 @@ module associate #(
   localparam UPD = 4'd8;
   logic [3:0] state = ARG;
 `endif
+
+  // Cycle counter
+  typedef logic [$clog2(NARG)-1:0] cnt_t;
+  localparam CNT = cnt_t'(NARG - 1);
+  cnt_t count = 0;
+  always @(posedge clock) begin
+    if (state == MUL || state == MAC || state == ERR || state == UPD) begin
+      if (count == CNT) begin
+        count <= 0;
+      end else begin
+        count <= count + 1;
+      end
+    end else begin
+      count <= 0;
+    end
+  end
 
   // Initialize weights to small pseudorandom values or zero
 `ifndef VERILATOR
@@ -73,14 +85,6 @@ module associate #(
   end
 `endif
 
-  // Initialize arguments to zero
-  initial begin
-    for (int n = 0; n < NARG; n = n + 1) begin
-      argument[n] = 0;
-    end
-  end
-
-  // Load arguments
   assign argument_ready = state == ARG;
   genvar a;
   generate
@@ -93,26 +97,16 @@ module associate #(
     end
   endgenerate
 
-  // Cycle counter
-  always @(posedge clock) begin
-    if (reset) begin
-      counter <= 0;
-    end else if (state == MUL || state == MAC || state == ERR || state == UPD) begin
-      if (counter == CNT) begin
-        counter <= 0;
-      end else begin
-        counter <= counter + 1;
-      end
-    end
-  end
-
   // Multiply and accumulate
+  ext_t summand = 0;
   always @(posedge clock) begin
     if (state == MUL || state == MAC) begin
-      summand <= ext_t'(weight[counter]) * ext_t'(argument[counter]) >>> BITS;
+      summand <= ext_t'(weight[count]) * ext_t'(argument[count]) >>> BITS;
     end
   end
 
+  // TODO overflow / underflow signals
+  ext_t accumulator = 0;
   always @(posedge clock) begin
     if (reset) begin
       accumulator <= 0;
@@ -143,14 +137,21 @@ module associate #(
   always @ (posedge clock) begin
     if (error_valid & error_ready) begin
       delta <= res_t'(error_data);
-      bias <= bias + (res_t'(error_data) >>> RATE);
     end
   end
 
-  // Compute error terms
+  // Compute and saturate errors
+  ext_t err;
+  assign err = ext_t'(weight[count]) * ext_t'(delta) >>> BITS;
   always @ (posedge clock) begin
-    if (state == ERR)
-      errors[counter] <= 16'(weight[counter] * delta >>> BITS);
+    if (state == ERR) begin
+      if (err < ext_t'(MIN))
+        propagation[count] <= $unsigned(MIN);
+      else if (err > ext_t'(MAX))
+        propagation[count] <= $unsigned(MAX);
+      else
+        propagation[count] <= err[15:0];
+    end
   end
 
   // Backward propagate errors
@@ -171,22 +172,32 @@ module associate #(
   generate
     for (p = 0; p < NARG; p = p + 1) begin
       always @ (posedge clock) begin
-        if (state == PRP && propagate_valid != 1)
-            propagate_data[p] <= errors[p];
+        if (state == PRP) begin
+          propagate_data[p] <= propagation[p];
+        end
       end
     end
   endgenerate
 
   // Update weights and bias
-  // TODO reset
-  // FIXME iverilog work around, fails verilator lint
+  // TODO overflow / underflow signals
   ext_t operand;
+  ext_t product;
   res_t update;
-  assign operand = delta;
-  assign update = operand * argument[counter] >>> BITS + RATE;
+  /* verilator lint_off WIDTH */
+  assign operand = argument[count]; // FIXME
+  /* verilator lint_on WIDTH */
+  assign product = delta * operand >>> BITS + RATE;
+  assign update = (product < ext_t'(MIN)) ? MIN : (product > ext_t'(MAX)) ? MAX : res_t'(product);
   always @ (posedge clock) begin
     if (state == UPD) begin
-      weight[counter] <= weight[counter] + update;
+      weight[count] <= weight[count] + update;
+    end
+  end
+
+  always @ (posedge clock) begin
+    if (state == UPD && count == 0) begin
+      bias <= bias + (delta >>> RATE);
     end
   end
 
@@ -202,7 +213,7 @@ module associate #(
         MUL:
           state <= MAC;
         MAC:
-          if (counter == CNT)
+          if (count == CNT)
             state <= ACC;
         ACC:
           state <= RES;
@@ -213,13 +224,13 @@ module associate #(
           if (error_valid & error_ready)
             state <= ERR;
         ERR:
-          if (counter == CNT)
+          if (count == CNT)
             state <= PRP;
         PRP:
           if (propagate_valid & propagate_ready)
             state <= UPD;
         UPD:
-          if (counter == CNT)
+          if (count == CNT)
             state <= ARG;
         default: begin
           $display("ERROR: %s:%0d invalid state: %0h", `__FILE__, `__LINE__, state);
