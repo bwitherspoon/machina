@@ -1,4 +1,4 @@
-module product #(
+module associate #(
   parameter N = 2,
   parameter S = 2,
   parameter SEED = 0

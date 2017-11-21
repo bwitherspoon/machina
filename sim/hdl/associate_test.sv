@@ -1,4 +1,4 @@
-module product_test;
+module associate_test;
 `define TEST_WIDTH 32
 `include "test.svh"
 
@@ -31,7 +31,7 @@ module product_test;
   logic signed [15:0] err;
   logic [1:0][15:0] prp;
 
-  product #(.N(2), .S(0), .SEED(0)) dut (.*);
+  associate #(.N(2), .S(0), .SEED(0)) associator (.*);
 
   task trainer;
   begin
@@ -51,9 +51,9 @@ module product_test;
       err = tgt[i] - act;
       `ifdef DEBUG
         $write("DEBUG: ");
-        $write("%4.1f * %2.1f + ", dut.weight[1]/256.0, arg[i][1]/256.0);
-        $write("%4.1f * %2.1f + ", dut.weight[0]/256.0, arg[i][0]/256.0);
-        $write("%4.1f = %4.1f -> ", dut.bias/256.0, $signed(res)/256.0);
+        $write("%4.1f * %2.1f + ", associator.weight[1]/256.0, arg[i][1]/256.0);
+        $write("%4.1f * %2.1f + ", associator.weight[0]/256.0, arg[i][0]/256.0);
+        $write("%4.1f = %4.1f -> ", associator.bias/256.0, $signed(res)/256.0);
         $write("%2.1f ? %2.1f ! %4.1f\n", act/256.0, tgt[i]/256.0, err/256.0);
       `endif
     `TEST(abs(err) == 0);

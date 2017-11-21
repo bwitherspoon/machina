@@ -30,7 +30,7 @@ module perceptron #(
   wire [15:0] error_propagate_data;
   wire error_propagate_ready;
 
-  product #(.N(N), .S(0)) associate (
+  associate #(.N(N), .S(0)) associator (
     .clock,
     .reset,
     .train,
@@ -48,7 +48,7 @@ module perceptron #(
     .propagate_ready
   );
 
-  heaviside activate (
+  heaviside activator (
     .clock,
     .reset,
     .train,
