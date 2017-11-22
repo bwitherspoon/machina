@@ -16,11 +16,11 @@ public:
 
   Associate(const Associate&) = delete;
 
-  using argument_type = decltype(Vassociate::argument_data);
+  using arg_t = decltype(Vassociate::argument_data);
 
-  using result_type = decltype(Vassociate::result_data);
+  using res_t = decltype(Vassociate::result_data);
 
-  result_type forward(argument_type arg);
+  res_t forward(arg_t arg);
 };
 
 } // namespace machina

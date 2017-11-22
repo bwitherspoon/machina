@@ -19,7 +19,7 @@ double sc_time_stamp() {
 int main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
-  Associate::result_type res;
+  Associate::res_t res;
 
   associator = new Associate;
   if (!associator)
