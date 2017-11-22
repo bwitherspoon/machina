@@ -5,7 +5,7 @@
 #include "simulation.h"
 #include "associate.h"
 
-using namespace machina;
+using machina::Associate;
 
 static Associate* associator = nullptr;
 
@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
   Associate::res_t res;
+  Associate::prp_t prp;
 
   associator = new Associate;
   if (!associator)
@@ -32,8 +33,8 @@ int main(int argc, char *argv[]) {
     if (associator->time() > 500)
       break;
     res = associator->forward(0x7f7f);
-    std::cout << res << " : ";
-    std::cout << "0x" << res << std::endl;
+    std::cout << "Result: " << res << " : ";
+    std::cout << "0x" << std::hex << res << std::endl;
   }
 
   return 0;
