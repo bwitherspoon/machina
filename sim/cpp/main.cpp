@@ -2,8 +2,8 @@
 
 #include "verilated.h"
 
-#include "simulation.hpp"
-#include "associate.hpp"
+#include "simulation.h"
+#include "associate.h"
 
 using namespace machina;
 

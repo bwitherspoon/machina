@@ -1,8 +1,17 @@
-.PHONY: all clean
+TARGET = associate
+SOURCE = associate.cpp main.cpp
+MODULE = associate.sv
+SRCDIR = .
+LIBDIR = ../../rtl
+OBJDIR = ./obj
+VFLAGS = -Wall
+OPTION = $(VFLAGS) -Mdir $(OBJDIR) -y $(LIBDIR) -o $(TARGET) --trace --cc --exe
 
 all:
-	verilator -Wall --trace -Mdir obj --cc ../../rtl/associate.sv --exe ./main.cpp
-	make -C obj -f Vassociate.mk Vassociate
+	verilator $(OPTION) $(MODULE) $(SOURCE)
+	make -C $(OBJDIR) -f V$(TARGET).mk $(TARGET)
 
 clean:
 	-$(RM) -r obj *.vcd
+
+.PHONY: all clean
