@@ -5,7 +5,7 @@
 #include "simulation.hpp"
 #include "associate.hpp"
 
-using namespace net;
+using namespace machina;
 
 static Associate* associator = nullptr;
 

@@ -6,7 +6,7 @@
   #include <verilated_vcd_c.h>
 #endif
 
-namespace net {
+namespace machina {
 
 template<typename MODULE>
 class Simulation {
@@ -22,7 +22,7 @@ public:
     m_module->final();
     delete m_module;
     if (m_trace) {
-      m_trace-> close();
+      m_trace->close();
       delete m_trace;
       m_trace = nullptr;
     }
@@ -41,8 +41,10 @@ public:
 
   virtual void step() {
     m_module->eval();
-    if (m_trace)
+    if (m_trace) {
       m_trace->dump(m_time);
+      m_trace->flush();
+    }
     m_time++;
   }
 
