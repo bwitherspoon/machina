@@ -110,9 +110,7 @@ module associate #(
   mac_t accumulation;
   assign accumulation = accumulator + summand;
   always @(posedge clock) begin
-    if (reset) begin
-      accumulator <= 0;
-    end else if (state == ARG) begin
+    if (state == ARG) begin
       accumulator <= mac_t'(bias);
     end else if (state == MAC || state == ACC) begin
       if (accumulation < mac_t'(MIN))
@@ -206,7 +204,9 @@ module associate #(
   end
 
   always @ (posedge clock) begin
-    if (state == UPD && count == 0) begin
+    if (reset) begin
+      bias <= 0;
+    end else if (state == UPD && count == 0) begin
       bias <= bias + (delta >>> RATE);
     end
   end
