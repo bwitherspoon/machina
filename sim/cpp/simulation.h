@@ -41,10 +41,8 @@ public:
 
   virtual void step() {
     m_module->eval();
-    if (m_trace) {
+    if (m_trace)
       m_trace->dump(m_time);
-      m_trace->flush();
-    }
     m_time++;
   }
 

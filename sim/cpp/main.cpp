@@ -34,5 +34,7 @@ int main(int argc, char *argv[]) {
     std::cout << "0x" << std::hex << res << std::endl;
   }
 
+  delete associator;
+
   return 0;
 }
