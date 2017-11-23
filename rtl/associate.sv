@@ -198,7 +198,9 @@ module associate #(
   assign product = delta * operand >>> W + RATE;
   assign update = (product < mac_t'(MIN)) ? MIN : (product > mac_t'(MAX)) ? MAX : res_t'(product);
   always @ (posedge clock) begin
-    if (state == UPD) begin
+    if (reset) begin
+      for (int n = 0; n < N; n = n + 1) weight[n] = 0;
+    end else if (state == UPD) begin
       weight[count] <= weight[count] + update;
     end
   end
