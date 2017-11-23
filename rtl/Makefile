@@ -7,6 +7,7 @@ lint: .lint
 .lint: $(SOURCES)
 	@for src in $?; \
 	do \
+		set -e; \
 		verilator --lint-only $$src; \
 		iverilog -Wall -g2012 -tnull -Y.sv -y. $$src; \
 	done
