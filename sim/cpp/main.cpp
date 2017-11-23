@@ -7,7 +7,7 @@
 
 using machina::Associate;
 
-static Associate* associator = nullptr;
+namespace { Associate* associator = nullptr; }
 
 double sc_time_stamp() {
   if (associator)
