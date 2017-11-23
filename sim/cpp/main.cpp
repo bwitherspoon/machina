@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
   }
 
   delete associator;
+  associator = nullptr;
 
   return 0;
 }
