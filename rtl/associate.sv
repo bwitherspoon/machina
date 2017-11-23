@@ -189,10 +189,11 @@ module associate #(
   mac_t operand;
   mac_t product;
   res_t update;
-  // FIXME workaround for icarus verilog
-  /* verilator lint_off WIDTH */
+`ifdef __ICARUS__
   assign operand = argument[count];
-  /* verilator lint_on WIDTH */
+`else
+  assign operand = mac_t'(argument[count]);
+`endif
   assign product = delta * operand >>> W + RATE;
   assign update = (product < mac_t'(MIN)) ? MIN : (product > mac_t'(MAX)) ? MAX : res_t'(product);
   always @ (posedge clock) begin
