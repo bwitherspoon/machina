@@ -5,48 +5,48 @@ module perceptron #(
   input logic reset,
   input logic train,
 
-  input logic argument_valid,
-  input logic [N-1:0][7:0] argument_data,
-  output logic argument_ready,
+  input logic arg_valid,
+  input logic [N-1:0][7:0] arg_data,
+  output logic arg_ready,
 
-  output logic result_valid,
-  output logic [7:0] result_data,
-  input logic result_ready,
+  output logic res_valid,
+  output logic [7:0] res_data,
+  input logic res_ready,
 
-  input logic error_valid,
-  input logic [15:0] error_data,
-  output logic error_ready,
+  input logic err_valid,
+  input logic [15:0] err_data,
+  output logic err_ready,
 
-  output logic propagate_valid,
-  output logic [N-1:0][15:0] propagate_data,
-  input logic propagate_ready
+  output logic fbk_valid,
+  output logic [N-1:0][15:0] fbk_data,
+  input logic fbk_ready
 );
 
-  wire result_argument_valid;
-  wire [15:0] result_argument_data;
-  wire result_argument_ready;
+  wire res_arg_valid;
+  wire [15:0] res_arg_data;
+  wire res_arg_ready;
 
-  wire error_propagate_valid;
-  wire [15:0] error_propagate_data;
-  wire error_propagate_ready;
+  wire err_fbk_valid;
+  wire [15:0] err_fbk_data;
+  wire err_fbk_ready;
 
-  associate #(.NARG(N), .RATE(0)) associator (
-    .result_valid(result_argument_valid),
-    .result_data(result_argument_data),
-    .result_ready(result_argument_ready),
-    .error_valid(error_propagate_valid),
-    .error_data(error_propagate_data),
-    .error_ready(error_propagate_ready),
+  associate #(.N(N), .RATE(0)) associator (
+    .res_valid(res_arg_valid),
+    .res_data(res_arg_data),
+    .res_ready(res_arg_ready),
+    .err_valid(err_fbk_valid),
+    .err_data(err_fbk_data),
+    .err_ready(err_fbk_ready),
     .*
   );
 
   heaviside activator (
-    .argument_valid(result_argument_valid),
-    .argument_data(result_argument_data),
-    .argument_ready(result_argument_ready),
-    .propagate_valid(error_propagate_valid),
-    .propagate_data(error_propagate_data),
-    .propagate_ready(error_propagate_ready),
+    .arg_valid(res_arg_valid),
+    .arg_data(res_arg_data),
+    .arg_ready(res_arg_ready),
+    .fbk_valid(err_fbk_valid),
+    .fbk_data(err_fbk_data),
+    .fbk_ready(err_fbk_ready),
     .*
   );
 

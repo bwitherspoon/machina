@@ -7,41 +7,41 @@ module heaviside_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = 0;
-  logic argument_ready;
-  logic [15:0] argument_data;
+  logic arg_valid = 0;
+  logic arg_ready;
+  logic [15:0] arg_data;
 
-  logic result_valid;
-  logic result_ready = 0;
-  logic [7:0] result_data;
+  logic res_valid;
+  logic res_ready = 0;
+  logic [7:0] res_data;
 
-  logic error_valid = 0;
-  logic error_ready;
-  logic [15:0] error_data;
+  logic err_valid = 0;
+  logic err_ready;
+  logic [15:0] err_data;
 
-  logic propagate_valid;
-  logic propagate_ready = 0;
-  logic [15:0] propagate_data;
+  logic fbk_valid;
+  logic fbk_ready = 0;
+  logic [15:0] fbk_data;
 
   logic [7:0] res;
-  logic [15:0] prp;
+  logic [15:0] fbk;
 
   heaviside dut (
     .clock(clock),
     .reset(reset),
     .train(train),
-    .argument_valid(argument_valid),
-    .argument_data(argument_data),
-    .argument_ready(argument_ready),
-    .result_valid(result_valid),
-    .result_data(result_data),
-    .result_ready(result_ready),
-    .error_valid(error_valid),
-    .error_data(error_data),
-    .error_ready(error_ready),
-    .propagate_valid(propagate_valid),
-    .propagate_data(propagate_data),
-    .propagate_ready(propagate_ready)
+    .arg_valid(arg_valid),
+    .arg_data(arg_data),
+    .arg_ready(arg_ready),
+    .res_valid(res_valid),
+    .res_data(res_data),
+    .res_ready(res_ready),
+    .err_valid(err_valid),
+    .err_data(err_data),
+    .err_ready(err_ready),
+    .fbk_valid(fbk_valid),
+    .fbk_data(fbk_data),
+    .fbk_ready(fbk_ready)
   );
 
   initial begin
@@ -62,8 +62,8 @@ module heaviside_test;
     train = 1;
     forward(-1, res);
     `TEST(res == 8'h00);
-    backward(-1, prp);
-    `TEST($signed(prp) == -1);
+    backward(-1, fbk);
+    `TEST($signed(fbk) == -1);
     // Success
     $finish;
   end

@@ -7,24 +7,24 @@ module sigmoid_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = 0;
-  logic argument_ready;
-  logic [15:0] argument_data;
+  logic arg_valid = 0;
+  logic arg_ready;
+  logic [15:0] arg_data;
 
-  logic result_valid;
-  logic result_ready = 0;
-  logic [7:0] result_data;
+  logic res_valid;
+  logic res_ready = 0;
+  logic [7:0] res_data;
 
-  logic error_valid = 0;
-  logic error_ready;
-  logic [15:0] error_data;
+  logic err_valid = 0;
+  logic err_ready;
+  logic [15:0] err_data;
 
-  logic propagate_valid;
-  logic propagate_ready = 0;
-  logic [15:0] propagate_data;
+  logic fbk_valid;
+  logic fbk_ready = 0;
+  logic [15:0] fbk_data;
 
   logic [7:0] res;
-  logic [15:0] prp;
+  logic [15:0] fbk;
 
   sigmoid dut (.*);
 
@@ -46,8 +46,8 @@ module sigmoid_test;
     train = 1;
     forward(6 <<< 8, res);
     `TEST(res == 8'hff);
-    backward(-(2**8) - 2**8, prp);
-    `TEST(prp == 8'h00);
+    backward(-(2**8) - 2**8, fbk);
+    `TEST(fbk == 8'h00);
     // Success
     $finish;
   end

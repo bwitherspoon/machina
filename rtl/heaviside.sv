@@ -3,89 +3,89 @@ module heaviside (
   input logic reset,
   input logic train,
 
-  input logic argument_valid,
-  input logic [15:0] argument_data,
-  output logic argument_ready,
+  input logic arg_valid,
+  input logic [15:0] arg_data,
+  output logic arg_ready,
 
-  output logic result_valid,
-  output logic [7:0] result_data,
-  input logic result_ready,
+  output logic res_valid,
+  output logic [7:0] res_data,
+  input logic res_ready,
 
-  input logic error_valid,
-  input logic [15:0] error_data,
-  output logic error_ready,
+  input logic err_valid,
+  input logic [15:0] err_data,
+  output logic err_ready,
 
-  output logic propagate_valid,
-  output logic [15:0] propagate_data,
-  input logic propagate_ready
+  output logic fbk_valid,
+  output logic [15:0] fbk_data,
+  input logic fbk_ready
 );
   logic signed [15:0] argument;
   logic [15:0] delta;
 
 `ifndef NOENUM
-  enum logic [1:0] { ARG, RES, ERR, PRP } state = ARG;
+  enum logic [1:0] { ARG, RES, ERR, FBK } state = ARG;
 `else
   localparam ARG = 2'd0;
   localparam RES = 2'd1;
   localparam ERR = 2'd2;
-  localparam PRP = 2'd3;
+  localparam FBK = 2'd3;
   logic [1:0] state = ARG;
 `endif
 
   always @ (posedge clock) begin
     case (state)
       ARG:
-        if (argument_valid & argument_ready)
+        if (arg_valid & arg_ready)
           state <= RES;
       RES:
-        if (result_valid & result_ready)
+        if (res_valid & res_ready)
           state <= (train) ? ERR : ARG;
       ERR:
-        if (error_valid & error_ready)
-          state <= PRP;
-      PRP:
-        if (propagate_valid & propagate_ready)
+        if (err_valid & err_ready)
+          state <= FBK;
+      FBK:
+        if (fbk_valid & fbk_ready)
           state <= ARG;
     endcase
   end
 
-  assign argument_ready = state == ARG;
+  assign arg_ready = state == ARG;
 
   always @ (posedge clock) begin
-    if (argument_valid & argument_ready)
-      argument <= argument_data;
+    if (arg_valid & arg_ready)
+      argument <= arg_data;
   end
 
   always @ (posedge clock) begin
     if (state == RES) begin
-      if (!result_valid) begin
-        result_valid <= 1;
-        result_data <= (argument < 0) ? 8'h00 : 8'hff;
-      end else if (result_ready) begin
-        result_valid <= 0;
+      if (!res_valid) begin
+        res_valid <= 1;
+        res_data <= (argument < 0) ? 8'h00 : 8'hff;
+      end else if (res_ready) begin
+        res_valid <= 0;
       end
     end else begin
-      result_valid <= 0;
+      res_valid <= 0;
     end
   end
 
-  assign error_ready = state == ERR;
+  assign err_ready = state == ERR;
 
   always @ (posedge clock) begin
-    if (error_valid & error_ready)
-      delta <= error_data;
+    if (err_valid & err_ready)
+      delta <= err_data;
   end
 
   always @ (posedge clock) begin
-    if (state == PRP) begin
-      if (!propagate_valid) begin
-        propagate_valid <= 1;
-        propagate_data <= delta;
-      end else if (propagate_ready) begin
-        propagate_valid <= 0;
+    if (state == FBK) begin
+      if (!fbk_valid) begin
+        fbk_valid <= 1;
+        fbk_data <= delta;
+      end else if (fbk_ready) begin
+        fbk_valid <= 0;
       end
     end else begin
-      propagate_valid <= 0;
+      fbk_valid <= 0;
     end
   end
 

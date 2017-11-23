@@ -7,21 +7,21 @@ module perceptron_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = 0;
-  logic argument_ready;
-  logic [1:0][7:0] argument_data;
+  logic arg_valid = 0;
+  logic arg_ready;
+  logic [1:0][7:0] arg_data;
 
-  logic result_valid;
-  logic result_ready = 0;
-  logic [7:0] result_data;
+  logic res_valid;
+  logic res_ready = 0;
+  logic [7:0] res_data;
 
-  logic error_valid = 0;
-  logic error_ready;
-  logic [15:0] error_data;
+  logic err_valid = 0;
+  logic err_ready;
+  logic [15:0] err_data;
 
-  logic propagate_valid;
-  logic propagate_ready = 0;
-  logic [1:0][15:0] propagate_data;
+  logic fbk_valid;
+  logic fbk_ready = 0;
+  logic [1:0][15:0] fbk_data;
 
   perceptron #(.N(2)) neuron (.*);
 
@@ -29,7 +29,7 @@ module perceptron_test;
   logic [7:0] tgt [4];
   logic [7:0] res;
   logic signed [15:0] err;
-  logic [1:0][15:0] prp;
+  logic [1:0][15:0] fbk;
 
   initial begin
 `ifdef DUMPFILE
@@ -48,7 +48,7 @@ module perceptron_test;
       for (int i = 0; i < 4; i++) begin
         forward(arg[i], res);
         err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
-        backward(err, prp);
+        backward(err, fbk);
       end
     end
     train = 0;

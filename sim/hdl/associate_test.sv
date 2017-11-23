@@ -8,30 +8,30 @@ module associate_test;
   bit reset = 0;
   bit train = 0;
 
-  logic argument_valid = 0;
-  logic argument_ready;
-  logic [1:0][7:0] argument_data;
+  logic arg_valid = 0;
+  logic arg_ready;
+  logic [1:0][7:0] arg_data;
 
-  logic result_valid;
-  logic result_ready = 0;
-  logic [15:0] result_data;
+  logic res_valid;
+  logic res_ready = 0;
+  logic [15:0] res_data;
 
-  logic error_valid = 0;
-  logic error_ready;
-  logic [15:0] error_data;
+  logic err_valid = 0;
+  logic err_ready;
+  logic [15:0] err_data;
 
-  logic propagate_valid;
-  logic propagate_ready = 0;
-  logic [1:0][15:0] propagate_data;
+  logic fbk_valid;
+  logic fbk_ready = 0;
+  logic [1:0][15:0] fbk_data;
 
   logic [1:0][7:0] arg [4];
   logic [15:0] res;
   logic signed [15:0] tgt [4];
   logic signed [15:0] act;
   logic signed [15:0] err;
-  logic [1:0][15:0] prp;
+  logic [1:0][15:0] fbk;
 
-  associate #(.NARG(2), .RATE(0), .SEED(0)) associator (.*);
+  associate #(.N(2), .RATE(0), .SEED(0)) associator (.*);
 
   task trainer;
   begin
@@ -41,7 +41,7 @@ module associate_test;
         forward(arg[i], res);
         act = ($signed(res) < 0) ? 16'h0000 : 16'h00ff;
         err = tgt[i] - act;
-        backward(err, prp);
+        backward(err, fbk);
       end
     end
     train = 0;
@@ -72,8 +72,8 @@ module associate_test;
     train = 1;
     forward(16'h0000, res);
     `TEST(res == 16'h0000);
-    backward(16'h0000, prp);
-    `TEST(prp == 16'h0000);
+    backward(16'h0000, fbk);
+    `TEST(fbk == 16'h0000);
     // Test 2 (AND with linear threshold)
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;

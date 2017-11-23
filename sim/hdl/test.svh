@@ -39,15 +39,15 @@ task forward;
         $stop;
       end
       begin
-        argument_valid = 1;
-        argument_data = arg;
-        wait (argument_ready) @ (posedge clock);
-        #1 argument_valid = 0;
+        arg_valid = 1;
+        arg_data = arg;
+        wait (arg_ready) @ (posedge clock);
+        #1 arg_valid = 0;
       end
       begin
-        wait (result_valid) #1 result_ready = 1;
-        @ (posedge clock) res = result_data;
-        #1 result_ready = 0;
+        wait (res_valid) #1 res_ready = 1;
+        @ (posedge clock) res = res_data;
+        #1 res_ready = 0;
         disable forward_timeout;
       end
     join
@@ -64,15 +64,15 @@ task backward;
         $stop;
       end
       begin
-        error_valid = 1;
-        error_data = err;
-        wait (error_ready) @ (posedge clock);
-        #1 error_valid = 0;
+        err_valid = 1;
+        err_data = err;
+        wait (err_ready) @ (posedge clock);
+        #1 err_valid = 0;
       end
       begin
-        wait (propagate_valid) #1 propagate_ready = 1;
-        @ (posedge clock) prp = propagate_data;
-        #1 propagate_ready = 0;
+        wait (fbk_valid) #1 fbk_ready = 1;
+        @ (posedge clock) prp = fbk_data;
+        #1 fbk_ready = 0;
         disable backward_timeout;
       end
     join

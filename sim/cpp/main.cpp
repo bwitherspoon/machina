@@ -19,9 +19,6 @@ double sc_time_stamp() {
 int main(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
 
-  Associate::res_t res;
-  Associate::prp_t prp;
-
   associator = new Associate;
   if (!associator)
     return 1;
@@ -32,7 +29,7 @@ int main(int argc, char *argv[]) {
   while (!Verilated::gotFinish()) {
     if (associator->time() > 500)
       break;
-    res = associator->forward(0x7f7f);
+    auto res = associator->forward(0x7f7f);
     std::cout << "Result: " << res << " : ";
     std::cout << "0x" << std::hex << res << std::endl;
   }
