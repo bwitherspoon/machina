@@ -12,7 +12,7 @@ Associate::Associate() : Simulation<Vassociate>::Simulation("associate") {
   m_module->fbk_ready = 0;
 }
 
-Associate::res_t Associate::forward(arg_t arg) {
+Associate::res_t Associate::forward(const arg_t arg) {
   auto timeout = time() + TIMEOUT;
   m_module->arg_data = arg;
   m_module->arg_valid = 1;
@@ -38,7 +38,7 @@ Associate::res_t Associate::forward(arg_t arg) {
   return res;
 }
 
-Associate::fbk_t Associate::backward(err_t err) {
+Associate::fbk_t Associate::backward(const err_t err) {
   if (m_module->train == 0)
     throw std::runtime_error("A backward pass requires training to be enabled.");
   auto timeout = time() + TIMEOUT;

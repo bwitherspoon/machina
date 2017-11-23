@@ -21,12 +21,12 @@ public:
 
   Associate(const Associate&) = delete;
 
-  res_t forward(arg_t arg);
+  res_t forward(const arg_t arg);
 
-  fbk_t backward(err_t err);
+  fbk_t backward(const err_t err);
 
 private:
-  static const unsigned int TIMEOUT = 1000;
+  static const auto TIMEOUT = 1000U;
 };
 
 } // namespace machina
