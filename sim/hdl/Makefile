@@ -1,43 +1,47 @@
-TESTS := $(patsubst %.sv,%,$(wildcard *_test.sv))
+LIBDIR = ../../rtl
+SRCDIR = .
+SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_test.sv))
+VFLAGS = $(DEFINES) -Wall -g2012 -Y.sv -y$(LIBDIR)
 
-SVFLAGS = $(DEFINES) -Wall -g 2012 -Y .sv -y ../../rtl/
+IVERILOG ?= iverilog
+VVP ?= vvp
 
 ifdef DEBUG
 DEFINES += -DDEBUG
 endif
 
-.PHONY: all test clean $(TESTS)
+.PHONY: all test clean $(SOURCE)
 
 .DELETE_ON_ERROR:
 
-all: $(TESTS:=.vvp)
+all: $(SOURCE:=.vvp)
 
-test: $(TESTS)
+test: $(SOURCE)
 
-include $(TESTS:=.dep)
+include $(SOURCE:=.dep)
 
-$(TESTS): % : %.vvp
-	vvp -N $< -none
+$(SOURCE): % : %.vvp
+	$(VVP) -N $< -none
 
 %.vcd: %.vcd.vvp
-	vvp -N $< -vcd
+	$(VVP) -N $< -vcd
 
 %.lxt: %.lxt.vvp
-	vvp -N $< -lxt2
+	$(VVP) -N $< -lxt2
 
 %.fst: %.fst.vvp
-	vvp -N $< -fst
+	$(VVP) -N $< -fst
 
 %.vcd.vvp: DEFINES += -DDUMPFILE=$*.vcd
 %.lxt.vvp: DEFINES += -DDUMPFILE=$*.lxt
 %.fst.vvp: DEFINES += -DDUMPFILE=$*.fst
 
 %.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.dep
-	iverilog $(SVFLAGS) -t vvp -o $@ $*.sv
+	$(IVERILOG) $(VFLAGS) -t vvp -o $@ $*.sv
 
 %.dep: %.sv
 	@trap 'rm -f "$@.$$$$"' EXIT; \
-	iverilog $(SVFLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
+	$(IVERILOG) $(VFLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
 	sed -i '1i$*.vvp $@:' $@.$$$$; \
 	sed -i ':x ; N ; s/\n/ /g ; bx' $@.$$$$; \
 	mv -f $@.$$$$ $@
