@@ -63,7 +63,7 @@ public:
     m_module->reset = 0;
   }
 
-  unsigned long time() {
+  unsigned long time() const {
     return m_time;
   }
 
