@@ -1,4 +1,4 @@
-LIBDIR = ../../rtl
+LIBDIR = ../../lib
 SRCDIR = .
 SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_test.sv))
 VFLAGS = $(DEFINES) -Wall -g2012 -Y.sv -y$(LIBDIR)

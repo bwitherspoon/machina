@@ -1,4 +1,4 @@
-SUBDIR = rtl sim
+SUBDIR = lib sim
 
 .PHONY: all test clean
 
