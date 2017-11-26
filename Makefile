@@ -1,9 +1,9 @@
-SUBDIR = lib sim
+SUBDIR = syn sim
 
 .PHONY: all test clean
 
 all:
-	for dir in $(SUBDIR); do make -C $$dir; done
+	for dir in $(SUBDIR); do make -C $$dir all; done
 
 test:
 	for dir in $(SUBDIR); do make -C $$dir test; done

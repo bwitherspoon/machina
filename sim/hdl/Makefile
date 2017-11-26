@@ -1,4 +1,4 @@
-LIBDIR = ../../lib
+LIBDIR = ../../syn
 SRCDIR = .
 SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_tb.sv))
 FLAGS = $(DEFINES) -Wall -g2012 -y$(LIBDIR)
