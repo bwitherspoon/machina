@@ -21,33 +21,46 @@ module perceptron #(
   output [N-1:0][15:0] fbk_dat,
   input fbk_rdy
 );
-
-  wire res_arg_stb;
-  wire [15:0] res_arg_dat;
-  wire res_arg_rdy;
-
-  wire err_fbk_stb;
-  wire [15:0] err_fbk_dat;
-  wire err_fbk_rdy;
+  wire ass_res_to_act_arg_stb;
+  wire [15:0] ass_res_to_act_arg_dat;
+  wire ass_res_to_act_arg_rdy;
+  wire ass_err_to_act_fbk_stb;
+  wire [15:0] ass_err_to_act_fbk_dat;
+  wire ass_err_to_act_fbk_rdy;
 
   associate #(.N(N), .RATE(0)) associator (
-    .res_stb(res_arg_stb),
-    .res_dat(res_arg_dat),
-    .res_rdy(res_arg_rdy),
-    .err_stb(err_fbk_stb),
-    .err_dat(err_fbk_dat),
-    .err_rdy(err_fbk_rdy),
-    .*
+    .clk(clk),
+    .rst(rst),
+    .en(en),
+    .arg_stb(arg_stb),
+    .arg_dat(arg_dat),
+    .arg_rdy(arg_rdy),
+    .res_stb(ass_res_to_act_arg_stb),
+    .res_dat(ass_res_to_act_arg_dat),
+    .res_rdy(ass_res_to_act_arg_rdy),
+    .err_stb(ass_err_to_act_fbk_stb),
+    .err_dat(ass_err_to_act_fbk_dat),
+    .err_rdy(ass_err_to_act_fbk_rdy),
+    .fbk_stb(fbk_stb),
+    .fbk_dat(fbk_dat),
+    .fbk_rdy(fbk_rdy)
   );
-
   heaviside activator (
-    .arg_stb(res_arg_stb),
-    .arg_dat(res_arg_dat),
-    .arg_rdy(res_arg_rdy),
-    .fbk_stb(err_fbk_stb),
-    .fbk_dat(err_fbk_dat),
-    .fbk_rdy(err_fbk_rdy),
-    .*
+    .clk(clk),
+    .rst(rst),
+    .en(en),
+    .arg_stb(ass_res_to_act_arg_stb),
+    .arg_dat(ass_res_to_act_arg_dat),
+    .arg_rdy(ass_res_to_act_arg_rdy),
+    .res_stb(res_stb),
+    .res_dat(res_dat),
+    .res_rdy(res_rdy),
+    .err_stb(err_stb),
+    .err_dat(err_dat),
+    .err_rdy(err_rdy),
+    .fbk_stb(ass_err_to_act_fbk_stb),
+    .fbk_dat(ass_err_to_act_fbk_dat),
+    .fbk_rdy(ass_err_to_act_fbk_rdy)
   );
 
 endmodule
