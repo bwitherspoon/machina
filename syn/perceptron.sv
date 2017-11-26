@@ -1,52 +1,52 @@
 module perceptron #(
   parameter N = 2
 )(
-  input logic clock,
-  input logic reset,
-  input logic train,
+  input clk,
+  input rst,
+  input en,
 
-  input logic arg_valid,
-  input logic [N-1:0][7:0] arg_data,
-  output logic arg_ready,
+  input arg_stb,
+  input [N-1:0][7:0] arg_dat,
+  output arg_rdy,
 
-  output logic res_valid,
-  output logic [7:0] res_data,
-  input logic res_ready,
+  output res_stb,
+  output [7:0] res_dat,
+  input res_rdy,
 
-  input logic err_valid,
-  input logic [15:0] err_data,
-  output logic err_ready,
+  input err_stb,
+  input [15:0] err_dat,
+  output err_rdy,
 
-  output logic fbk_valid,
-  output logic [N-1:0][15:0] fbk_data,
-  input logic fbk_ready
+  output fbk_stb,
+  output [N-1:0][15:0] fbk_dat,
+  input fbk_rdy
 );
 
-  wire res_arg_valid;
-  wire [15:0] res_arg_data;
-  wire res_arg_ready;
+  wire res_arg_stb;
+  wire [15:0] res_arg_dat;
+  wire res_arg_rdy;
 
-  wire err_fbk_valid;
-  wire [15:0] err_fbk_data;
-  wire err_fbk_ready;
+  wire err_fbk_stb;
+  wire [15:0] err_fbk_dat;
+  wire err_fbk_rdy;
 
   associate #(.N(N), .RATE(0)) associator (
-    .res_valid(res_arg_valid),
-    .res_data(res_arg_data),
-    .res_ready(res_arg_ready),
-    .err_valid(err_fbk_valid),
-    .err_data(err_fbk_data),
-    .err_ready(err_fbk_ready),
+    .res_stb(res_arg_stb),
+    .res_dat(res_arg_dat),
+    .res_rdy(res_arg_rdy),
+    .err_stb(err_fbk_stb),
+    .err_dat(err_fbk_dat),
+    .err_rdy(err_fbk_rdy),
     .*
   );
 
   heaviside activator (
-    .arg_valid(res_arg_valid),
-    .arg_data(res_arg_data),
-    .arg_ready(res_arg_ready),
-    .fbk_valid(err_fbk_valid),
-    .fbk_data(err_fbk_data),
-    .fbk_ready(err_fbk_ready),
+    .arg_stb(res_arg_stb),
+    .arg_dat(res_arg_dat),
+    .arg_rdy(res_arg_rdy),
+    .fbk_stb(err_fbk_stb),
+    .fbk_dat(err_fbk_dat),
+    .fbk_rdy(err_fbk_rdy),
     .*
   );
 

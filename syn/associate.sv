@@ -3,25 +3,25 @@ module associate #(
   parameter RATE = 2,
   parameter SEED = 0
 )(
-  input logic clock,
-  input logic reset,
-  input logic train,
+  input logic clk,
+  input logic rst,
+  input logic en,
 
-  input  logic arg_valid,
-  input  logic [N-1:0][7:0] arg_data,
-  output logic arg_ready,
+  input  logic arg_stb,
+  input  logic [N-1:0][7:0] arg_dat,
+  output logic arg_rdy,
 
-  output logic res_valid,
-  output logic [15:0] res_data,
-  input  logic res_ready,
+  output logic res_stb,
+  output logic [15:0] res_dat,
+  input  logic res_rdy,
 
-  input  logic err_valid,
-  input  logic [15:0] err_data,
-  output logic err_ready,
+  input  logic err_stb,
+  input  logic [15:0] err_dat,
+  output logic err_rdy,
 
-  output logic fbk_valid,
-  output logic [N-1:0][15:0] fbk_data,
-  input  logic fbk_ready
+  output logic fbk_stb,
+  output logic [N-1:0][15:0] fbk_dat,
+  input  logic fbk_rdy
 );
   localparam W = 8;
   localparam MAX = $signed(16'h7fff);
@@ -57,7 +57,7 @@ module associate #(
   typedef logic [$clog2(N)-1:0] cnt_t;
   localparam CNT = cnt_t'(N - 1);
   cnt_t count = 0;
-  always @(posedge clock) begin
+  always @(posedge clk) begin
     if (state == MUL || state == MAC || state == ERR || state == UPD) begin
       if (count == CNT) begin
         count <= 0;
@@ -85,13 +85,13 @@ module associate #(
   end
 `endif
 
-  assign arg_ready = state == ARG;
+  assign arg_rdy = state == ARG;
   genvar m;
   generate
     for (m = 0; m < N; m = m + 1) begin
-      always @(posedge clock) begin
-        if (arg_valid & arg_ready) begin
-          argument[m] <= arg_t'(arg_data[m]);
+      always @(posedge clk) begin
+        if (arg_stb & arg_rdy) begin
+          argument[m] <= arg_t'(arg_dat[m]);
         end
       end
     end
@@ -99,7 +99,7 @@ module associate #(
 
   // Multiply and accumulate
   mac_t summand = 0;
-  always @(posedge clock) begin
+  always @(posedge clk) begin
     if (state == MUL || state == MAC) begin
       summand <= mac_t'(weight[count]) * mac_t'(argument[count]) >>> W;
     end
@@ -109,7 +109,7 @@ module associate #(
   mac_t accumulator = 0;
   mac_t accumulation;
   assign accumulation = accumulator + summand;
-  always @(posedge clock) begin
+  always @(posedge clk) begin
     if (state == ARG) begin
       accumulator <= mac_t'(bias);
     end else if (state == MAC || state == ACC) begin
@@ -123,32 +123,32 @@ module associate #(
   end
 
   // Output inner product
-  initial res_valid = 0;
-  always @(posedge clock) begin
+  initial res_stb = 0;
+  always @(posedge clk) begin
     if (state == RES) begin
-      if (!res_valid) begin
-        res_valid <= 1;
-        res_data <= accumulator[$bits(res_data)-1:0];
-      end else if (res_ready) begin
-        res_valid <= 0;
+      if (!res_stb) begin
+        res_stb <= 1;
+        res_dat <= accumulator[$bits(res_dat)-1:0];
+      end else if (res_rdy) begin
+        res_stb <= 0;
       end
     end else begin
-      res_valid <= 0;
+      res_stb <= 0;
     end
   end
 
   // Load delta
-  assign err_ready = state == DEL;
-  always @ (posedge clock) begin
-    if (err_valid & err_ready) begin
-      delta <= res_t'(err_data);
+  assign err_rdy = state == DEL;
+  always @ (posedge clk) begin
+    if (err_stb & err_rdy) begin
+      delta <= res_t'(err_dat);
     end
   end
 
   // Evaluate and saturate errors
   mac_t error;
   assign error = mac_t'(weight[count]) * mac_t'(delta) >>> W;
-  always @ (posedge clock) begin
+  always @ (posedge clk) begin
     if (state == ERR) begin
       if (error < mac_t'(MIN))
         feedback[count] <= $unsigned(MIN);
@@ -160,25 +160,25 @@ module associate #(
   end
 
   // Backward propagate errors
-  initial fbk_valid = 0;
-  always @ (posedge clock) begin
+  initial fbk_stb = 0;
+  always @ (posedge clk) begin
     if (state == FBK) begin
-      if (!fbk_valid) begin
-        fbk_valid <= 1;
-      end else if (fbk_ready) begin
-        fbk_valid <= 0;
+      if (!fbk_stb) begin
+        fbk_stb <= 1;
+      end else if (fbk_rdy) begin
+        fbk_stb <= 0;
       end
     end else begin
-      fbk_valid <= 0;
+      fbk_stb <= 0;
     end
   end
 
   genvar k;
   generate
     for (k = 0; k < N; k = k + 1) begin
-      always @ (posedge clock) begin
+      always @ (posedge clk) begin
         if (state == FBK) begin
-          fbk_data[k] <= feedback[k];
+          fbk_dat[k] <= feedback[k];
         end
       end
     end
@@ -196,16 +196,16 @@ module associate #(
 `endif
   assign product = delta * operand >>> W + RATE;
   assign update = (product < mac_t'(MIN)) ? MIN : (product > mac_t'(MAX)) ? MAX : res_t'(product);
-  always @ (posedge clock) begin
-    if (reset) begin
+  always @ (posedge clk) begin
+    if (rst) begin
       for (int n = 0; n < N; n = n + 1) weight[n] <= 0;
     end else if (state == UPD) begin
       weight[count] <= weight[count] + update;
     end
   end
 
-  always @ (posedge clock) begin
-    if (reset) begin
+  always @ (posedge clk) begin
+    if (rst) begin
       bias <= 0;
     end else if (state == UPD && count == 0) begin
       bias <= bias + (delta >>> RATE);
@@ -213,13 +213,13 @@ module associate #(
   end
 
   // State machine logic
-  always @(posedge clock) begin
-    if (reset) begin
+  always @(posedge clk) begin
+    if (rst) begin
       state <= ARG;
     end else begin
       case (state)
         ARG:
-          if (arg_valid)
+          if (arg_stb)
             state <= MUL;
         MUL:
           state <= MAC;
@@ -229,16 +229,16 @@ module associate #(
         ACC:
           state <= RES;
         RES:
-          if (res_valid & res_ready)
-            state <= (train) ? DEL : ARG;
+          if (res_stb & res_rdy)
+            state <= (en) ? DEL : ARG;
         DEL:
-          if (err_valid & err_ready)
+          if (err_stb & err_rdy)
             state <= ERR;
         ERR:
           if (count == CNT)
             state <= FBK;
         FBK:
-          if (fbk_valid & fbk_ready)
+          if (fbk_stb & fbk_rdy)
             state <= UPD;
         UPD:
           if (count == CNT)
