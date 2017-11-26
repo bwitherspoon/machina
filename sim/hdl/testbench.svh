@@ -8,8 +8,8 @@
 `ifndef SYNTHESIS
   `define TESTBENCH_ASSERT(expr, msg="failed testbench assertion") \
     do begin \
-      if (!(expr)) begin \
-        $display("ERROR: %s:%0d: %s: %s", `__FILE__, `__LINE__, msg, `"expr`"); \
+      if ((expr) !== 1) begin \
+        $display("ERROR: %s:%0d: %s: %s -> %b", `__FILE__, `__LINE__, msg, `"expr`", expr); \
         $stop; \
       end \
     end while (0)
