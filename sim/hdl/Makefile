@@ -1,7 +1,7 @@
 LIBDIR = ../../lib
 SRCDIR = .
-SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_test.sv))
-VFLAGS = $(DEFINES) -Wall -g2012 -Y.sv -y$(LIBDIR)
+SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_tb.sv))
+FLAGS = $(DEFINES) -Wall -g2012 -y$(LIBDIR)
 
 IVERILOG ?= iverilog
 VVP ?= vvp
@@ -37,11 +37,11 @@ $(SOURCE): % : %.vvp
 %.fst.vvp: DEFINES += -DDUMPFILE=$*.fst
 
 %.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.dep
-	$(IVERILOG) $(VFLAGS) -t vvp -o $@ $*.sv
+	$(IVERILOG) $(FLAGS) -t vvp -o $@ $*.sv
 
 %.dep: %.sv
 	@trap 'rm -f "$@.$$$$"' EXIT; \
-	$(IVERILOG) $(VFLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
+	$(IVERILOG) $(FLAGS) -t null -Mall=$@.$$$$ $< > /dev/null 2>&1; \
 	sed -i '1i$*.vvp $@:' $@.$$$$; \
 	sed -i ':x ; N ; s/\n/ /g ; bx' $@.$$$$; \
 	mv -f $@.$$$$ $@
