@@ -65,9 +65,9 @@ module sigmoid (
   reg [11:0] act_adr;
   always @ (*) begin
     if ($signed(arg_dat) > ARG_MAX)
-      act_adr = ARG_MAX;
+      act_adr = 12'h7ff;
     else if ($signed(arg_dat) < ARG_MIN)
-      act_adr = ARG_MIN;
+      act_adr = 12'h800;
     else
       act_adr = arg[11:0];
   end
@@ -92,6 +92,14 @@ module sigmoid (
     .adr(act_adr),
     .dat(der_dat)
   );
+
+  // Initialize ROMs
+  integer i;
+  initial begin
+    $readmemh("sigmoid.dat", act.mem, 0, 2**12-1);
+    for (i = 0; i < 2**12; i = i + 1)
+      der.mem[i] = act.mem[i] * (2**8 - act.mem[i]) >> 8;
+  end
 
   // Result interface strobe
   always @ (posedge clk) begin
