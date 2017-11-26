@@ -1,7 +1,9 @@
 *.vcd
 *.vvp
-*.dep
 *.lxt
 *.fst
+*.dep
+*.d
+*.dat
 .lint
 obj_dir/
