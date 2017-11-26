@@ -1,4 +1,4 @@
-SUBDIR = syn sim
+SUBDIR = syn sim gen
 
 .PHONY: all test clean
 
