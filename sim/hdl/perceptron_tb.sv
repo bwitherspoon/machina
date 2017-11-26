@@ -1,27 +1,27 @@
-module perceptron_test;
-`include "test.svh"
+module perceptron_tb;
+`include "testbench.svh"
 
-  bit clock = 0;
-  always #5 clock = ~clock;
+  bit clk = 0;
+  always #5 clk = ~clk;
 
-  bit reset = 0;
-  bit train = 0;
+  bit rst = 0;
+  bit en = 0;
 
-  logic arg_valid = 0;
-  logic arg_ready;
-  logic [1:0][7:0] arg_data;
+  logic arg_stb = 0;
+  logic arg_rdy;
+  logic [1:0][7:0] arg_dat;
 
-  logic res_valid;
-  logic res_ready = 0;
-  logic [7:0] res_data;
+  logic res_stb;
+  logic res_rdy = 0;
+  logic [7:0] res_dat;
 
-  logic err_valid = 0;
-  logic err_ready;
-  logic [15:0] err_data;
+  logic err_stb = 0;
+  logic err_rdy;
+  logic [15:0] err_dat;
 
-  logic fbk_valid;
-  logic fbk_ready = 0;
-  logic [1:0][15:0] fbk_data;
+  logic fbk_stb;
+  logic fbk_rdy = 0;
+  logic [1:0][15:0] fbk_dat;
 
   perceptron #(.N(2)) neuron (.*);
 
@@ -40,20 +40,18 @@ module perceptron_test;
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 8'h00; tgt[1] = 8'h00; tgt[2] = 8'h00; tgt[3] = 8'hff;
     err = 16'h7FFF;
-    reset = 1;
-    repeat (2) @ (posedge clock);
-    #1 reset = 0;
-    train = 1;
+    reset();
+    en = 1;
     repeat (10) begin
       for (int i = 0; i < 4; i++) begin
-        forward(arg[i], res);
+        forward_pass(arg[i], res);
         err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
-        backward(err, fbk);
+        backward_pass(err, fbk);
       end
     end
-    train = 0;
+    en = 0;
     for (int i = 0; i < 4; i++) begin
-      forward(arg[i], res);
+      forward_pass(arg[i], res);
       err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
 `ifdef DEBUG
       $write("DEBUG: ");
@@ -62,7 +60,7 @@ module perceptron_test;
       $write("%4.1f = %1.0f ? ", neuron.associate.bias/256.0, res/256.0);
       $write("%1.0f ! %2.0f\n", tgt[i]/256.0, err/256.0);
 `endif
-      `TEST(abs(err) == 0);
+      `TESTBENCH_ASSERT(abs(err) == 0);
     end
     // Success
     $finish;

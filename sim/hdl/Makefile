@@ -1,7 +1,7 @@
 LIBDIR = ../../syn
 SRCDIR = .
 SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_tb.sv))
-FLAGS = $(DEFINES) -Wall -g2012 -y$(LIBDIR)
+FLAGS = $(DEFINES) -Wall -g2012 -Y.sv -y$(LIBDIR)
 
 IVERILOG ?= iverilog
 VVP ?= vvp
