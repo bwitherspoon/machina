@@ -5,7 +5,7 @@ module rom #(
 )(
   input clk,
   input rst,
-  input ren,
+  input en,
   input [$clog2(DEPTH)-1:0] adr,
   output reg [WIDTH-1:0] dat
 );
@@ -14,7 +14,7 @@ module rom #(
   initial if (FILENAME) $readmemh(FILENAME, mem, 0, DEPTH-1);
 
   always @(posedge clk)
-    if (ren)
+    if (en)
       if (rst)
         dat <= 0;
       else
