@@ -60,7 +60,7 @@ module perceptron_tb;
       $write("%4.1f = %1.0f ? ", neuron.associator.bias/256.0, res/256.0);
       $write("%1.0f ! %2.0f\n", tgt[i]/256.0, err/256.0);
 `endif
-      `TESTBENCH_ASSERT(abs(err) == 0);
+      `TESTBENCH_ASSERT(abs(err) === 0);
     end
     // Success
     $finish;

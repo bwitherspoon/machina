@@ -36,18 +36,18 @@ module sigmoid_tb;
     // Test 1
     en = 0;
     forward_pass(0, res);
-    `TESTBENCH_ASSERT(res == 8'h80);
+    `TESTBENCH_ASSERT(res === 8'h80);
     forward_pass(6 * 2**8, res);
-    `TESTBENCH_ASSERT(res == 8'hff);
+    `TESTBENCH_ASSERT(res === 8'hff);
     forward_pass(-6 * 2**8 - 1, res);
-    `TESTBENCH_ASSERT(res == 8'h00);
+    `TESTBENCH_ASSERT(res === 8'h00);
     // Test 2
     reset();
     en = 1;
     forward_pass(6 * 2**8, res);
-    `TESTBENCH_ASSERT(res == 8'hff);
+    `TESTBENCH_ASSERT(res === 8'hff);
     backward_pass(-(2**8) - 2**8, fbk);
-    `TESTBENCH_ASSERT(fbk == 8'h00);
+    `TESTBENCH_ASSERT(fbk === 16'h0000);
     // Success
     $finish;
   end
