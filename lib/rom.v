@@ -5,19 +5,19 @@ module rom #(
 )(
   input clk,
   input rst,
-  input en,
-  input [$clog2(DEPTH)-1:0] addr,
-  output reg [WIDTH-1:0] data
+  input ren,
+  input [$clog2(DEPTH)-1:0] adr,
+  output reg [WIDTH-1:0] dat
 );
   reg [WIDTH-1:0] mem [0:DEPTH-1];
 
   initial if (FILENAME) $readmemh(FILENAME, mem, 0, DEPTH-1);
 
   always @(posedge clk)
-    if (en)
+    if (ren)
       if (rst)
-        data <= 0;
+        dat <= 0;
       else
-        data <= mem[addr];
+        dat <= mem[adr];
 
 endmodule
