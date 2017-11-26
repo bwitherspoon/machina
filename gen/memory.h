@@ -8,7 +8,7 @@ namespace machina {
 
 class Memory {
 public:
-  explicit Memory(std::ostream& os, int width = 2) : out(os), w(width) { }
+  explicit Memory(std::ostream& stream, int width = 8) : stream(stream), width(width) { }
 
   Memory(const Memory&) = delete;
 
@@ -17,14 +17,15 @@ public:
   virtual ~Memory() = default;
 
   virtual Memory& operator<<(int val) {
+    auto digits = (width % 4) ? width / 4 + 1 : width / 4;
     auto fill = (val < 0) ? std::setfill('f') : std::setfill('0');
-    out << std::hex << fill << std::setw(w) << val << std::endl;
+    stream << std::hex << fill << std::setw(digits) << val << std::endl;
     return *this;
   }
 
 private:
-  std::ostream& out;
-  const int w;
+  std::ostream& stream;
+  const int width;
 };
 
 } // namespace machina
