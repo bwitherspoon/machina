@@ -74,7 +74,7 @@ module sigmoid (
 
   // Activation function ROM
   wire act_en = st == RES && res_stb == 0;
-  rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME("")) act (
+  rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME("sigmoid.dat")) act (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
@@ -85,21 +85,13 @@ module sigmoid (
   // Activation function derivative ROM
   wire der_en = act_en & en;
   wire [5:0] der_dat;
-  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME("")) der (
+  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME("sigmoid_derivative.dat")) der (
     .clk(clk),
     .rst(1'b0),
     .en(der_en),
     .adr(act_adr),
     .dat(der_dat)
   );
-
-  // Initialize ROMs
-  integer i;
-  initial begin
-    $readmemh("sigmoid.dat", act.mem, 0, 2**12-1);
-    for (i = 0; i < 2**12; i = i + 1)
-      der.mem[i] = act.mem[i] * (2**8 - act.mem[i]) >> 8;
-  end
 
   // Result interface strobe
   always @ (posedge clk) begin
