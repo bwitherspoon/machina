@@ -1,7 +1,7 @@
 module rom #(
   parameter WIDTH = 8,
   parameter DEPTH = 4096,
-  parameter FILENAME = ""
+  parameter FILENAME = "rom.dat"
 )(
   input clk,
   input rst,
@@ -11,7 +11,7 @@ module rom #(
 );
   reg [WIDTH-1:0] mem [0:DEPTH-1];
 
-  initial if (FILENAME) $readmemh(FILENAME, mem, 0, DEPTH-1);
+  initial $readmemh(FILENAME, mem, 0, DEPTH-1);
 
   always @(posedge clk)
     if (en)
