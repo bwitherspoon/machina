@@ -1,7 +1,8 @@
-*.vcd
-*.vvp
-*.lxt
-*.fst
-*.dep
 *.d
 *.dat
+*.dep
+*.fst
+*.lxt
+*.o
+*.vcd
+*.vvp
