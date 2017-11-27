@@ -1,32 +1,23 @@
-SOURCES := $(wildcard *.sv) $(wildcard *.v)
-
 VERILATOR ?= verilator
 IVERILOG ?= iverilog
 
 all: test lint
 
-test: .test
-
-.test: $(SOURCES)
-	@for src in $(filter %.sv,$(SOURCES)); \
+test:
+	@for src in *.sv; \
 	do \
 		set -e; \
 		$(IVERILOG) -Wall -g2012 -tnull -Y.sv -y. $$src; \
 	done
-	@for src in $(filter %.v,$(SOURCES)); \
+	@for src in *.v; \
 	do \
 		set -e; \
 		$(IVERILOG) -Wall -g2005 -tnull -y. $$src; \
 	done
-	@touch $@
 
-lint: .lint
-
-.lint: $(SOURCES)
-	@for src in $?; do set -e; $(VERILATOR) --lint-only $$src; done
-	@touch $@
+lint:
+	@for src in *.{sv,v}; do set -e; $(VERILATOR) --lint-only $$src; done
 
 clean:
-	rm -f .lint .test
 
 .PHONY: all test lint clean
