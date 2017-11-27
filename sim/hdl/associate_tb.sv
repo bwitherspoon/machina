@@ -68,12 +68,12 @@ module associate_tb;
 `endif
     // Test 1 (initial)
     forward_pass(16'h0000, res);
-    `TESTBENCH_ASSERT(res == 16'h0000);
+    `TESTBENCH_ASSERT(res == 16'b0);
     en = 1;
     forward_pass(16'h0000, res);
-    `TESTBENCH_ASSERT(res == 16'h0000);
+    `TESTBENCH_ASSERT(res == 16'b0);
     backward_pass(16'h0000, fbk);
-    `TESTBENCH_ASSERT(fbk == 16'h0000);
+    `TESTBENCH_ASSERT(fbk == 32'b0);
     // Test 2 (AND with linear threshold)
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;

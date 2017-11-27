@@ -7,24 +7,24 @@ module associate #(
   input rst,
   input en,
 
-  input  arg_stb,
-  input  [8*N-1:0] arg_dat,
+  input arg_stb,
+  input [8*N-1:0] arg_dat,
   output arg_rdy,
 
   output reg res_stb,
   output reg [15:0] res_dat,
-  input  res_rdy,
+  input res_rdy,
 
-  input  err_stb,
-  input  [15:0] err_dat,
+  input err_stb,
+  input [15:0] err_dat,
   output err_rdy,
 
   output reg fbk_stb,
   output reg [16*N-1:0] fbk_dat,
-  input  fbk_rdy
+  input fbk_rdy
 );
-  localparam MAX = 24'sh7fff;
-  localparam MIN = 24'sh8000;
+  localparam MAX = 24'sh007fff;
+  localparam MIN = 24'shff8000;
 
   wire arg_ack = arg_stb & arg_rdy;
   wire res_ack = res_stb & res_rdy;
@@ -48,12 +48,12 @@ module associate #(
   reg [3:0] state = ARG;
 
   // Cycle counter
-  localparam END = N[$clog2(N)-1:0];
+  localparam END = N - 1;
   reg [$clog2(N)-1:0] cnt = 0;
-  wire init = cnt == 0;
-  wire work = state == MUL || state == MAC || state == ERR || state == UPD;
-  wire done = cnt == END;
-  always @(posedge clk) cnt <= work & !done ? cnt + 1 : 0;
+  wire cnt_ini = cnt == 0;
+  wire cnt_end = cnt == END[$clog2(N)-1:0];
+  wire cnt_stb = state == MUL || state == MAC || state == ERR || state == UPD;
+  always @(posedge clk) cnt <= cnt_stb & ~cnt_end ? cnt + 1 : 0;
 
   // State register and logic
   always @(posedge clk) begin
@@ -63,13 +63,13 @@ module associate #(
       case (state)
         ARG: if (arg_stb) state <= MUL;
         MUL: state <= MAC;
-        MAC: if (done) state <= ACC;
+        MAC: if (cnt_end) state <= ACC;
         ACC: state <= RES;
         RES: if (res_ack) state <= (en) ? DEL : ARG;
-        DEL: if (err_ack) state <= ERR;
-        ERR: if (done) state <= FBK;
+        DEL: if (err_stb) state <= ERR;
+        ERR: if (cnt_end) state <= FBK;
         FBK: if (fbk_ack) state <= UPD;
-        UPD: if (done) state <= ARG;
+        UPD: if (cnt_end) state <= ARG;
 `ifdef SYNTHESIS
         default state <= 4'bxxxx;
 `else
@@ -98,7 +98,9 @@ module associate #(
   end
 `endif
 
+  // Load arguments
   assign arg_rdy = state == ARG;
+
   genvar m;
   generate
     for (m = 0; m < N; m = m + 1)
@@ -124,12 +126,12 @@ module associate #(
       acc <= bias;
       /* verilator lint_on WIDTH */
     end else if (state == MAC || state == ACC) begin
-      if (sum < MIN)
-        acc <= MIN;
-      else if (sum > MAX)
-        acc <= MAX;
-      else
-        acc <= sum;
+      case ({MIN <= sum, sum <= MAX})
+        2'b11: acc <= sum;
+        2'b10: acc <= MAX;
+        2'b01: acc <= MIN;
+        2'b00: acc <= 24'hxxxxxx;
+      endcase
     end
   end
 
@@ -219,7 +221,7 @@ module associate #(
   always @ (posedge clk) begin
     if (rst) begin
       bias <= 0;
-    end else if (state == UPD && init) begin
+    end else if (state == UPD && cnt_ini) begin
       bias <= bias + (delta >>> RATE);
     end
   end
