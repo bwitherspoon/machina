@@ -2,42 +2,42 @@
 #define SIGMOID_INCLUDED
 
 #include <cmath>
-
 #include "memory.h"
 
 namespace machina {
 
 class Sigmoid : public Memory {
 public:
-  explicit Sigmoid(std::ostream& stream, bool derivative = false)
-    : Memory(stream, 12), is_derivative(derivative)  { };
+  explicit Sigmoid(int width = 8, bool deriv = false)
+    : Memory(width), is_deriv(deriv) { }
 
   Sigmoid& operator<<(int val) {
-    if (is_derivative)
-      Memory::operator<<(derivative(val));
+    if (is_deriv)
+      Memory::operator<<(deriv(val));
     else
-      Memory::operator<<(evaluate(val));
+      Memory::operator<<(eval(val));
     return *this;
   }
 
-  static double evaluate(double arg) {
-    return 1.0 / (1.0 + std::exp(-1.0 * arg));
+  static double eval(double arg, double rate = 1.0) {
+    return 1.0 / (1.0 + std::exp(-rate * arg));
   }
 
-  static int evaluate(int arg) {
-    return std::lround((1 << 8) * evaluate(static_cast<double>(arg) / (1 << 8)));
+  int eval(int arg) const {
+    return std::lround(scale() * eval(static_cast<double>(arg) / scale()));
   };
 
-  static double derivative(double arg) {
-    auto val = evaluate(arg);
+  static double deriv(double arg) {
+    auto val = eval(arg);
     return val * (1.0 - val);
   }
 
-  static int derivative(int arg) {
-    return std::lround((1 << 8) * derivative(static_cast<double>(arg) / (1 << 8)));
+  int deriv(int arg) const {
+    return std::lround(scale() * deriv(static_cast<double>(arg) / scale()));
   }
 private:
-  bool is_derivative;
+  int scale() const { return (1 << width()) - 1; }
+  bool is_deriv;
 };
 
 } // namespace machina
