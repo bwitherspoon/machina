@@ -5,5 +5,3 @@
 *.dep
 *.d
 *.dat
-.lint
-obj_dir/
