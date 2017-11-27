@@ -60,14 +60,14 @@ module sigmoid (
   end
 
   // Argument saturating comparators and multiplexer
-  localparam ARG_MAX = 12'sh7ff;
-  localparam ARG_MIN = 12'sh800;
+  localparam ARG_MAX = 16'sh07ff;
+  localparam ARG_MIN = 16'shf800;
   reg [11:0] act_adr;
   always @ (*) begin
     case ({ARG_MIN <= arg, arg <= ARG_MAX})
       2'b11: act_adr = arg[11:0];
-      2'b10: act_adr = ARG_MAX;
-      2'b01: act_adr = ARG_MIN;
+      2'b10: act_adr = ARG_MAX[11:0];
+      2'b01: act_adr = ARG_MIN[11:0];
       2'b00: act_adr = 12'hxxx;
     endcase
   end
