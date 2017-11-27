@@ -1,8 +1,8 @@
 *.d
 *.dat
-*.dep
 *.fst
 *.lxt
 *.o
 *.vcd
 *.vvp
+memgen

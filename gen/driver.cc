@@ -1,19 +1,23 @@
+#include <string>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include "sigmoid.h"
 
 namespace po = boost::program_options;
+using string = std::string;
 
 int main(int argc, char *argv[])
 {
   bool deriv = false;
   int width = 0;
   int depth = 0;
+  string funct;
 
   try {
     po::options_description desc{"Options"};
     desc.add_options()
       ("help,h", "Help")
+      ("function,f", po::value<string>(&funct)->default_value("sigmoid"), "Function")
       ("prime,p", po::bool_switch(&deriv), "Derivative")
       ("width,w", po::value<int>(&width)->default_value(8), "Width")
       ("depth,d", po::value<int>(&depth)->default_value(4096), "Depth");
