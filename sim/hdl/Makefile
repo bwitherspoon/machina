@@ -1,6 +1,6 @@
 LIBDIR = ../../syn
 SRCDIR = .
-SOURCE = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_tb.sv))
+TARGET = $(patsubst %.sv,%,$(wildcard $(SRCDIR)/*_tb.sv))
 VFLAGS = $(DEFINES) -Wall -g2012 -Y.sv -y$(LIBDIR)
 
 IVERILOG ?= iverilog
@@ -10,14 +10,14 @@ ifdef DEBUG
 DEFINES += -DDEBUG
 endif
 
-all: $(SOURCE:=.vvp)
+all: $(TARGET:=.vvp)
 
-test: $(SOURCE)
+test: $(TARGET)
 
 lint:
 	@for src in *.sv; do $(IVERILOG) $(VFLAGS) -tnull $$src; done
 
-$(SOURCE): % : %.vvp
+$(TARGET): % : %.vvp
 	$(VVP) -N $< -none
 
 %.vcd: %.vcd.vvp
@@ -36,7 +36,7 @@ $(SOURCE): % : %.vvp
 %.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp:
 	$(IVERILOG) $(VFLAGS) -tvvp -o $@ $*.sv
 
-include $(SOURCE:=.dep)
+include $(TARGET:=.dep)
 
 %.dep: %.sv
 	@trap 'rm -f "$@.$$$$"' EXIT; \
@@ -48,4 +48,4 @@ include $(SOURCE:=.dep)
 clean:
 	-$(RM) *.vvp *.vcd *.lx2 *.lxt *.lxt2 *.fst *.dep
 
-.PHONY: all test lint clean $(SOURCE)
+.PHONY: all test lint clean $(TARGET)
