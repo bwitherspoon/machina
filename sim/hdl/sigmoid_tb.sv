@@ -35,19 +35,20 @@ module sigmoid_tb;
 `endif
     // Test 1
     en = 0;
-    forward_pass(0, res);
-    `TESTBENCH_ASSERT(res === 8'h80);
-    forward_pass(6 * 2**8, res);
-    `TESTBENCH_ASSERT(res === 8'hff);
-    forward_pass(-6 * 2**8 - 1, res);
-    `TESTBENCH_ASSERT(res === 8'h00);
+    forward_pass(16'h0000, res);
+    `TESTBENCH_ASSERT(res == 8'h80);
+    forward_pass(16'h07ff, res);
+    `TESTBENCH_ASSERT(res == 8'hff);
+    forward_pass(16'hf800, res);
+    `TESTBENCH_ASSERT(res == 8'h00);
     // Test 2 FIXME
     reset();
     en = 1;
     forward_pass(0, res);
-    `TESTBENCH_ASSERT(res === 8'h80);
+    `TESTBENCH_ASSERT(res == 8'h80);
     backward_pass(255, fbk);
-    `TESTBENCH_ASSERT(fbk === 16'h0040);
+    $display("%0h", fbk);
+    `TESTBENCH_ASSERT(fbk == 16'h0040);
     // Success
     $finish;
   end

@@ -29,51 +29,51 @@ module sigmoid (
   localparam ARG = 3'd0;
   localparam RES = 3'd1;
   localparam ERR = 3'd2;
-  localparam MUL = 3'd3;
+  localparam DEL = 3'd3;
   localparam FBK = 3'd4;
-  reg [2:0] st = ARG;
+  reg [2:0] state = ARG;
   always @ (posedge clk) begin
-    case (st)
-      ARG: if (arg_ack) st <= RES;
-      RES: if (res_ack) st <= (en) ? ERR : ARG;
-      ERR: if (err_ack) st <= MUL;
-      MUL: st <= FBK;
-      FBK: if (fbk_ack) st <= ARG;
+    case (state)
+      ARG: if (arg_stb) state <= RES;
+      RES: if (res_ack) state <= (en) ? ERR : ARG;
+      ERR: if (err_stb) state <= DEL;
+      DEL: state <= FBK;
+      FBK: if (fbk_ack) state <= ARG;
 `ifdef SYNTHESIS
-      default: st <= 3'bxxx;
+      default: state <= 3'bxxx;
 `else
       default: begin
-        $display("ERROR: invalid state: %d", st);
+        $display("ERROR: invalid state: %d", state);
         $stop;
-        st <= 3'bxxx;
+        state <= 3'bxxx;
       end
 `endif
     endcase
   end
 
   // Internal argument register
-  reg [15:0] arg;
-  assign arg_rdy = st == ARG;
+  reg signed [15:0] arg;
+  assign arg_rdy = state == ARG;
   always @ (posedge clk) begin
     if (arg_ack)
       arg <= arg_dat;
   end
 
   // Argument saturating comparators and multiplexer
-  localparam ARG_MAX = +6 * 2**8;
-  localparam ARG_MIN = -6 * 2**8;
+  localparam ARG_MAX = 12'sh7ff;
+  localparam ARG_MIN = 12'sh800;
   reg [11:0] act_adr;
   always @ (*) begin
-    if ($signed(arg_dat) > ARG_MAX)
-      act_adr = 12'h7ff;
-    else if ($signed(arg_dat) < ARG_MIN)
-      act_adr = 12'h800;
-    else
-      act_adr = arg[11:0];
+    case ({ARG_MIN <= arg, arg <= ARG_MAX})
+      2'b11: act_adr = arg[11:0];
+      2'b10: act_adr = ARG_MAX;
+      2'b01: act_adr = ARG_MIN;
+      2'b00: act_adr = 12'hxxx;
+    endcase
   end
 
   // Activation function ROM
-  wire act_en = st == RES && res_stb == 0;
+  wire act_en = state == RES && res_stb == 0;
   rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME("sigmoid.dat")) act (
     .clk(clk),
     .rst(1'b0),
@@ -85,7 +85,7 @@ module sigmoid (
   // Activation function derivative ROM
   wire der_en = act_en & en;
   wire [5:0] der_dat;
-  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME("sigmoid_derivative.dat")) der (
+  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME("sigmoid_prime.dat")) der (
     .clk(clk),
     .rst(1'b0),
     .en(der_en),
@@ -95,7 +95,7 @@ module sigmoid (
 
   // Result interface strobe
   always @ (posedge clk) begin
-    if (st == RES) begin
+    if (state == RES) begin
       if (!res_stb)
         res_stb <= 1;
       else if (res_rdy)
@@ -114,23 +114,23 @@ module sigmoid (
 
   // Internal error register
   reg signed [15:0] err = 0;
-  assign err_rdy = st == ERR;
+  assign err_rdy = state == ERR;
   always @ (posedge clk) begin
     if (err_ack)
       err <= err_dat;
   end
 
   // Multiply error and gradient
-  reg signed [21:0] prd = 0;
+  reg signed [21:0] del = 0;
   always @ (posedge clk) begin
-    if (st == MUL)
-      prd = err * $signed({10'd0, grd});
+    if (state == DEL)
+      del = err * $signed({10'd0, grd});
   end
 
   // Feedback interface strobe and data
-  wire signed [15:0] fbk = $signed({{2{prd[21]}}, prd[21:8]});
+  wire signed [15:0] fbk = $signed({{2{del[21]}}, del[21:8]});
   always @ (posedge clk) begin
-    if (st == FBK) begin
+    if (state == FBK) begin
       if (!fbk_stb) begin
         fbk_stb <= 1;
         fbk_dat <= fbk;
