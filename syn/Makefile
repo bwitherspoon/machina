@@ -3,12 +3,11 @@ SOURCES := $(wildcard *.sv) $(wildcard *.v)
 VERILATOR ?= verilator
 IVERILOG ?= iverilog
 
-all:
+all: test lint
 
-lint: .lint
+test: .test
 
-.lint: $(SOURCES)
-	@for src in $?; do set -e; $(VERILATOR) --lint-only $$src; done
+.test: $(SOURCES)
 	@for src in $(filter %.sv,$(SOURCES)); \
 	do \
 		set -e; \
@@ -21,7 +20,13 @@ lint: .lint
 	done
 	@touch $@
 
-clean:
-	rm -f .lint
+lint: .lint
 
-.PHONY: all clean lint
+.lint: $(SOURCES)
+	@for src in $?; do set -e; $(VERILATOR) --lint-only $$src; done
+	@touch $@
+
+clean:
+	rm -f .lint .test
+
+.PHONY: all test lint clean
