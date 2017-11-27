@@ -41,13 +41,13 @@ module sigmoid_tb;
     `TESTBENCH_ASSERT(res === 8'hff);
     forward_pass(-6 * 2**8 - 1, res);
     `TESTBENCH_ASSERT(res === 8'h00);
-    // Test 2
+    // Test 2 FIXME
     reset();
     en = 1;
-    forward_pass(6 * 2**8, res);
-    `TESTBENCH_ASSERT(res === 8'hff);
-    backward_pass(-(2**8) - 2**8, fbk);
-    `TESTBENCH_ASSERT(fbk === 16'h0000);
+    forward_pass(0, res);
+    `TESTBENCH_ASSERT(res === 8'h80);
+    backward_pass(255, fbk);
+    `TESTBENCH_ASSERT(fbk === 16'h0040);
     // Success
     $finish;
   end
