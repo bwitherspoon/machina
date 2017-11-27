@@ -1,28 +1,28 @@
-module associate_test;
-`define TEST_WIDTH 32
-`include "test.svh"
+module associate_tb;
+`define TESTBENCH_WIDTH 32
+`include "testbench.svh"
 
-  bit clock = 0;
-  always #5 clock = ~clock;
+  bit clk = 0;
+  always #5 clk = ~clk;
 
-  bit reset = 0;
-  bit train = 0;
+  bit rst = 0;
+  bit en = 0;
 
-  logic arg_valid = 0;
-  logic arg_ready;
-  logic [1:0][7:0] arg_data;
+  logic arg_stb = 0;
+  logic arg_rdy;
+  logic [1:0][7:0] arg_dat;
 
-  logic res_valid;
-  logic res_ready = 0;
-  logic [15:0] res_data;
+  logic res_stb;
+  logic res_rdy = 0;
+  logic [15:0] res_dat;
 
-  logic err_valid = 0;
-  logic err_ready;
-  logic [15:0] err_data;
+  logic err_stb = 0;
+  logic err_rdy;
+  logic [15:0] err_dat;
 
-  logic fbk_valid;
-  logic fbk_ready = 0;
-  logic [1:0][15:0] fbk_data;
+  logic fbk_stb;
+  logic fbk_rdy = 0;
+  logic [1:0][15:0] fbk_dat;
 
   logic [1:0][7:0] arg [4];
   logic [15:0] res;
@@ -33,20 +33,20 @@ module associate_test;
 
   associate #(.N(2), .RATE(0), .SEED(0)) associator (.*);
 
-  task trainer;
+  task train;
   begin
-    train = 1;
+    en = 1;
     repeat (25) begin
       for (int i = 0; i < 4; i++) begin
-        forward(arg[i], res);
+        forward_pass(arg[i], res);
         act = ($signed(res) < 0) ? 16'h0000 : 16'h00ff;
         err = tgt[i] - act;
-        backward(err, fbk);
+        backward_pass(err, fbk);
       end
     end
-    train = 0;
+    en = 0;
     for (int i = 0; i < 4; i++) begin
-      forward(arg[i], res);
+      forward_pass(arg[i], res);
       act = ($signed(res) < 0) ? 16'h0000 : 16'h00ff;
       err = tgt[i] - act;
       `ifdef DEBUG
@@ -56,10 +56,10 @@ module associate_test;
         $write("%4.1f = %4.1f -> ", associator.bias/256.0, $signed(res)/256.0);
         $write("%2.1f ? %2.1f ! %4.1f\n", act/256.0, tgt[i]/256.0, err/256.0);
       `endif
-    `TEST(abs(err) == 0);
+    `TESTBENCH_ASSERT(abs(err) == 0);
     end
   end
-  endtask : trainer
+  endtask : train
 
   initial begin
 `ifdef DUMPFILE
@@ -67,26 +67,22 @@ module associate_test;
     $dumpvars;
 `endif
     // Test 1 (initial)
-    forward(16'h0000, res);
-    `TEST(res == 16'h0000);
-    train = 1;
-    forward(16'h0000, res);
-    `TEST(res == 16'h0000);
-    backward(16'h0000, fbk);
-    `TEST(fbk == 16'h0000);
+    forward_pass(16'h0000, res);
+    `TESTBENCH_ASSERT(res == 16'h0000);
+    en = 1;
+    forward_pass(16'h0000, res);
+    `TESTBENCH_ASSERT(res == 16'h0000);
+    backward_pass(16'h0000, fbk);
+    `TESTBENCH_ASSERT(fbk == 16'h0000);
     // Test 2 (AND with linear threshold)
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;
-    reset = 1;
-    repeat (2) @ (posedge clock);
-    #1 reset = 0;
-    trainer;
+    reset();
+    train();
     // Test 3 (OR with linear threshold)
     tgt[0] = 16'h0000; tgt[1] = 16'h00ff; tgt[2] = 16'h00ff; tgt[3] = 16'h00ff;
-    reset = 1;
-    repeat (2) @ (posedge clock);
-    #1 reset = 0;
-    trainer;
+    reset();
+    train();
     // Success
     $finish;
   end
