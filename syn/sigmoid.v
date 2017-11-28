@@ -1,4 +1,7 @@
-module sigmoid (
+module sigmoid #(
+  parameter ACTIVATION = "sigmoid.dat",
+  parameter DERIVATIVE = "sigmoid_prime.dat"
+)(
   input clk,
   input rst,
   input en,
@@ -74,7 +77,7 @@ module sigmoid (
 
   // Activation function ROM
   wire act_en = state == RES && res_stb == 0;
-  rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME("sigmoid.dat")) act (
+  rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME(ACTIVATION)) act (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
@@ -85,7 +88,7 @@ module sigmoid (
   // Activation function derivative ROM
   wire der_en = act_en & en;
   wire [5:0] der_dat;
-  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME("sigmoid_prime.dat")) der (
+  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME(DERIVATIVE)) der (
     .clk(clk),
     .rst(1'b0),
     .en(der_en),

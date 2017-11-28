@@ -1,6 +1,9 @@
 module sigmoid_tb;
 `include "testbench.svh"
 
+  parameter ACT = "gen/dat/sigmoid.dat";
+  parameter DER = "gen/dat/sigmoid_prime.dat";
+
   bit clk = 0;
   always #5 clk = ~clk;
 
@@ -26,7 +29,7 @@ module sigmoid_tb;
   logic [7:0] res;
   logic [15:0] fbk;
 
-  sigmoid uut (.*);
+  sigmoid #(ACT, DER) uut (.*);
 
   initial begin
     dumpargs;
