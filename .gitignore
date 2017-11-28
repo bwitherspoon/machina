@@ -1,6 +1,7 @@
 *.d
 *.dat
 *.fst
+*.gtkw
 *.lxt
 *.o
 *.vcd
