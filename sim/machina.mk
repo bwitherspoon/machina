@@ -73,7 +73,7 @@ $(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR):
 clean: sim-clean
 
 sim-clean:
-	-$(RM) -r $(VPPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR)
+	-$(RM) -r $(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR)
 
 .PHONY: test lint dump clean
 .PHONY: sim-all sim-test sim-lint sim-dump sim-clean
