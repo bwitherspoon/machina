@@ -21,6 +21,16 @@ function logic [`TESTBENCH_WIDTH-1:0] abs(logic signed [`TESTBENCH_WIDTH-1:0] va
   return (val < 0) ? -val : val;
 endfunction
 
+task dumpargs;
+  begin
+    reg [128*8:1] dumpfile;
+    if ($value$plusargs("dumpfile=%s", dumpfile)) begin
+      $dumpfile(dumpfile);
+      $dumpvars;
+    end
+  end
+endtask
+
 task reset;
   begin
     rst = 1;
@@ -29,12 +39,12 @@ task reset;
   end
 endtask
 
-task forward_pass;
+task forward;
   input [`TESTBENCH_WIDTH-1:0] arg;
   output [`TESTBENCH_WIDTH-1:0] res;
   begin
     fork
-      begin : testbench_forward_pass_timeout
+      begin : testbench_forward_timeout
         #1000000 $display("ERROR: %s:%0d: testbench forward pass timeout: %0t", `__FILE__, `__LINE__, $time);
         $stop;
       end
@@ -48,18 +58,18 @@ task forward_pass;
         wait (res_stb) #1 res_rdy = 1;
         @ (posedge clk) res = res_dat;
         #1 res_rdy = 0;
-        disable testbench_forward_pass_timeout;
+        disable testbench_forward_timeout;
       end
     join
   end
 endtask
 
-task backward_pass;
+task backward;
   input [`TESTBENCH_WIDTH-1:0] err;
   output [`TESTBENCH_WIDTH-1:0] fbk;
   begin
     fork
-      begin : testbench_backward_pass_timeout
+      begin : testbench_backward_timeout
         #1000000 $display("ERROR: %s:%0d: testbench backward pass timeout: %0t", `__FILE__, `__LINE__, $time);
         $stop;
       end
@@ -73,7 +83,7 @@ task backward_pass;
         wait (fbk_stb) #1 fbk_rdy = 1;
         @ (posedge clk) fbk = fbk_dat;
         #1 fbk_rdy = 0;
-        disable testbench_backward_pass_timeout;
+        disable testbench_backward_timeout;
       end
     join
   end

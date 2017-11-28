@@ -3,6 +3,7 @@ HDLDIR := $(SIMDIR)hdl/
 
 vpath %.sv $(HDLDIR)
 vpath %.svh $(HDLDIR)
+vpath %.vvp $(SIMDIR)
 
 IVERILOG_VFLAGS += -y$(HDLDIR) -I$(HDLDIR)
 IVERILOG_SVFLAGS += -y$(HDLDIR) -I$(HDLDIR)
@@ -29,25 +30,22 @@ $(SIM_LINT): sim-lint-%: %_tb.sv
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-$(SIM_TEST): sim-test-%: %_tb.vvp
+$(SIM_TEST): sim-test-%: $(SIMDIR)%_tb.vvp
 	$(VVP) -N $< -none
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-%.vcd: %.vcd.vvp
-	$(VVP) -N $< -vcd
+$(SIMDIR)%.vcd: %.vvp
+	$(VVP) -N $< -vcd +dumpfile=$@
 
-%.lxt: %.lxt.vvp
-	$(VVP) -N $< -lxt2
+$(SIMDIR)%.lxt: %.vvp
+	$(VVP) -N $< -lxt2 +dumpfile=$@
 
-%.fst: %.fst.vvp
-	$(VVP) -N $< -fst
+$(SIMDIR)%.fst: %.vvp
+	$(VVP) -N $< -fst +dumpfile=$@
 
-%.vcd.vvp: IVERILOG_SVFLAGS += -DDUMPFILE=$*.vcd
-%.lxt.vvp: IVERILOG_SVFLAGS += -DDUMPFILE=$*.lxt
-%.fst.vvp: IVERILOG_SVFLAGS += -DDUMPFILE=$*.fst
-%.vvp %.vcd.vvp %.lxt.vvp %.fst.vvp: %.sv
+$(SIMDIR)%.vvp: %.sv
 	$(IVERILOG) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
 
 .PHONY: test lint sim-test sim-lint $(SIM_TEST) $(SIM_LINT)

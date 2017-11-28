@@ -29,20 +29,17 @@ module heaviside_tb;
   heaviside uut (.*);
 
   initial begin
-`ifdef DUMPFILE
-    $dumpfile(`"`DUMPFILE`");
-    $dumpvars;
-`endif
+    dumpargs;
     // Test 1
     en = 0;
-    forward_pass(0, res);
+    forward(0, res);
     `TESTBENCH_ASSERT(res === 8'hff);
     // Test 2
-    reset();
+    reset;
     en = 1;
-    forward_pass(-1, res);
+    forward(-1, res);
     `TESTBENCH_ASSERT(res === 8'h00);
-    backward_pass(-1, fbk);
+    backward(-1, fbk);
     `TESTBENCH_ASSERT($signed(fbk) === -1);
     // Success
     $finish;
