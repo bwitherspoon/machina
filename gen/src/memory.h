@@ -15,6 +15,8 @@ public:
 
   int width() const { return m_width; }
 
+  std::vector<int>::size_type depth() const { return m_data.size(); }
+
   bool empty() const { return m_data.empty(); }
 
   std::vector<int>::const_iterator begin() const { return m_data.begin(); }

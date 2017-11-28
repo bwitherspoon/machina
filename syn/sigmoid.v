@@ -1,6 +1,6 @@
 module sigmoid #(
-  parameter ACTIVATION = "sigmoid.dat",
-  parameter DERIVATIVE = "sigmoid_prime.dat"
+  parameter ACTIVATION = "gen/dat/sigmoid.dat",
+  parameter DERIVATIVE = "gen/dat/sigmoid_prime.dat"
 )(
   input clk,
   input rst,
@@ -86,12 +86,11 @@ module sigmoid #(
   );
 
   // Activation function derivative ROM
-  wire der_en = act_en & en;
   wire [5:0] der_dat;
   rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME(DERIVATIVE)) der (
     .clk(clk),
     .rst(1'b0),
-    .en(der_en),
+    .en(act_en),
     .adr(act_adr),
     .dat(der_dat)
   );
@@ -111,7 +110,7 @@ module sigmoid #(
   // Internal gradient register
   reg [5:0] grd = 0;
   always @ (posedge clk) begin
-    if (res_ack & en)
+    if (res_ack)
       grd <= der_dat;
   end
 

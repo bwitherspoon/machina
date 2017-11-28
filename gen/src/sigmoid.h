@@ -8,11 +8,11 @@ namespace machina {
 
 class Sigmoid : public Memory {
 public:
-  explicit Sigmoid(int width = 8, bool deriv = false)
-    : Memory(width), is_deriv(deriv) { }
+  explicit Sigmoid(int width = 8, int scale = 1 << 8, bool deriv = false)
+    : Memory(width), m_scale(scale), m_deriv(deriv) { }
 
   Sigmoid& operator<<(int val) {
-    if (is_deriv)
+    if (m_deriv)
       Memory::operator<<(deriv(val));
     else
       Memory::operator<<(eval(val));
@@ -24,7 +24,7 @@ public:
   }
 
   int eval(int arg) const {
-    return std::lround(scale() * eval(static_cast<double>(arg) / scale()));
+    return std::lround(m_scale * eval(static_cast<double>(arg) / m_scale));
   };
 
   static double deriv(double arg) {
@@ -33,11 +33,11 @@ public:
   }
 
   int deriv(int arg) const {
-    return std::lround(scale() * deriv(static_cast<double>(arg) / scale()));
+    return std::lround(m_scale * deriv(static_cast<double>(arg) / m_scale));
   }
 private:
-  int scale() const { return (1 << width()) - 1; }
-  bool is_deriv;
+  const int  m_scale;
+  const bool m_deriv;
 };
 
 } // namespace machina
