@@ -20,10 +20,10 @@ $(BINDIR)mem: driver.cc memory.h sigmoid.h | $(BINDIR)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
 $(DATDIR)sigmoid.dat: $(BINDIR)mem | $(DATDIR)
-	$(PRJDIR)$< -f sigmod -w 8 -d 4096 > $@
+	$(PRJDIR)$< -f sigmod -w 8 -d 4096 -s 255 > $@
 
 $(DATDIR)sigmoid_prime.dat: $(BINDIR)mem | $(DATDIR)
-	$(PRJDIR)$< -f sigmod -p -w 6 -d 4096 > $@
+	$(PRJDIR)$< -f sigmod -p -w 6 -d 4096 -s 255 > $@
 
 gen-clean:
 	-$(RM) -r $(BINDIR) $(DATDIR)
