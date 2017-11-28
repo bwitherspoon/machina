@@ -1,31 +1,29 @@
 GENDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SRCDIR := $(GENDIR)src/
+BINDIR := $(GENDIR)bin/
+DATDIR := $(GENDIR)dat/
 
-vpath %.cc $(GENDIR)
-vpath %.h $(GENDIR)
+vpath %.cc $(SRCDIR)
+vpath %.h $(SRCDIR)
 
-MEMGEN_SOURCES := driver.cc
-MEMGEN_HEADERS := memory.h sigmoid.h
+gen-all: $(BINDIR)mem $(DATDIR)sigmoid.dat $(DATDIR)sigmoid_prime.dat
 
-all: all-gen
+$(BINDIR)mem: LDFLAGS += -lboost_program_options
+$(BINDIR)mem: driver.cc memory.h sigmoid.h | $(BINDIR)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
-test: test-gen
+$(BINDIR) $(DATDIR):
+	@mkdir -p $@
 
-clean: clean-gen
+$(DATDIR)%_prime.dat: $(BINDIR)mem | $(DATDIR)
+	$(PRJDIR)$< -p -f $(notdir $*) > $@
 
-all-gen: memgen
+$(DATDIR)%.dat: $(BINDIR)mem | $(DATDIR)
+	$(PRJDIR)$< -f $(notdir $*) > $@
 
-test-gen: test-memgen
+clean: gen-clean
 
-memgen: LDFLAGS += -lboost_program_options
-memgen: $(MEMGEN_SOURCES) $(MEMGEN_HEADERS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter %.cc,$<)
+gen-clean:
+	-$(RM) -r $(BINDIR) $(DATDIR)
 
-test-memgen:
-	@echo ""
-	@echo "  Passed \"make $@\""
-	@echo ""
-
-clean-gen:
-	-$(RM) memgen
-
-.PHONY: all-gen test-gen clean-gen
+.PHONY: clean gen-all gen-clean

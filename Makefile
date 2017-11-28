@@ -5,20 +5,16 @@ YOSYS ?= yosys
 IVERILOG ?= iverilog
 VVP ?= vvp
 
-IVERILOG_VFLAGS := -Wall -g2005
-IVERILOG_SVFLAGS := -Wall -g2012 -Y.sv
-VERILATOR_VFLAGS := -Wall
+IVERILOG_VFLAGS := -g2005
+IVERILOG_SVFLAGS := -g2012 -Y.sv
+IVERILOG_FLAGS := -Wall
+VERILATOR_FLAGS := -Wall
 CXXFLAGS := -Wall -std=c++11
 
+all: gen-all
+
 include gen/machina.mk
-include syn/machina.mk
 include sim/machina.mk
-include dat/machina.mk
+include syn/machina.mk
 
-all:
-
-test:
-
-clean:
-
-.PHONY: all test clean
+.PHONY: all
