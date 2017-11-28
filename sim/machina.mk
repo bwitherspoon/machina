@@ -62,7 +62,7 @@ $(LXTDIR)%.lxt: $(VVPDIR)%.vvp | $(LXTDIR)
 $(FSTDIR)%.fst: $(VVPDIR)%.vvp | $(FSTDIR)
 	$(VVP) -N $< -fst +dumpfile=$@
 
-$(VVPDIR)sigmoid_tb.vvp: $(DATDIR)sigmoid.dat $(DATDIR)sigmoid_prime.dat
+$(VVPDIR)sigmoid_tb.vvp: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
 
 $(VVPDIR)%.vvp: %.sv | $(VVPDIR)
 	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<

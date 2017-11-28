@@ -1,8 +1,8 @@
 module sigmoid_tb;
 `include "testbench.svh"
 
-  parameter ACT = "gen/dat/sigmoid.dat";
-  parameter DER = "gen/dat/sigmoid_prime.dat";
+  parameter ACTIV = "gen/dat/sigmoid_activ.dat";
+  parameter DERIV = "gen/dat/sigmoid_deriv.dat";
 
   bit clk = 0;
   always #5 clk = ~clk;
@@ -29,7 +29,7 @@ module sigmoid_tb;
   logic [7:0] res;
   logic [15:0] fbk;
 
-  sigmoid #(ACT, DER) uut (.*);
+  sigmoid #(ACTIV, DERIV) uut (.*);
 
   initial begin
     dumpargs;
@@ -46,7 +46,7 @@ module sigmoid_tb;
     en = 1;
     forward(0, res);
     `TESTBENCH_ASSERT(res == 8'h80);
-    backward(255, fbk);
+    backward(256, fbk);
     `TESTBENCH_ASSERT(fbk == 16'h0040);
     // Success
     $finish;

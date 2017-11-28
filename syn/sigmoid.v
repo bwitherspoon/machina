@@ -1,6 +1,6 @@
 module sigmoid #(
-  parameter ACTIVATION = "gen/dat/sigmoid.dat",
-  parameter DERIVATIVE = "gen/dat/sigmoid_prime.dat"
+  parameter ACTIV = "gen/dat/sigmoid_activ.dat",
+  parameter DERIV = "gen/dat/sigmoid_deriv.dat"
 )(
   input clk,
   input rst,
@@ -77,7 +77,7 @@ module sigmoid #(
 
   // Activation function ROM
   wire act_en = state == RES && res_stb == 0;
-  rom #(.WIDTH(8), .DEPTH(2**12), .FILENAME(ACTIVATION)) act (
+  rom #(.WIDTH(8), .DEPTH(2**12), .DATA(ACTIV)) activ (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
@@ -86,8 +86,8 @@ module sigmoid #(
   );
 
   // Activation function derivative ROM
-  wire [5:0] der_dat;
-  rom #(.WIDTH(6), .DEPTH(2**12), .FILENAME(DERIVATIVE)) der (
+  wire [6:0] der_dat;
+  rom #(.WIDTH(7), .DEPTH(2**12), .DATA(DERIV)) deriv (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
@@ -96,6 +96,7 @@ module sigmoid #(
   );
 
   // Result interface strobe
+  initial res_stb = 0;
   always @ (posedge clk) begin
     if (state == RES) begin
       if (!res_stb)
@@ -108,10 +109,10 @@ module sigmoid #(
   end
 
   // Internal gradient register
-  reg [5:0] grd = 0;
+  reg [6:0] der = 0;
   always @ (posedge clk) begin
     if (res_ack)
-      grd <= der_dat;
+      der <= der_dat;
   end
 
   // Internal error register
@@ -123,14 +124,16 @@ module sigmoid #(
   end
 
   // Multiply error and gradient
+  // (-2^21 <= del < 2^21) = (0 <= der <= 2^6) * (-2^15 <= err < 2^15)
   reg signed [21:0] del = 0;
   always @ (posedge clk) begin
     if (state == DEL)
-      del = err * $signed({10'd0, grd});
+      del = err * $signed({15'd0, der});
   end
 
   // Feedback interface strobe and data
-  wire signed [15:0] fbk = $signed({{2{del[21]}}, del[21:8]});
+  wire [15:0] fbk = {{2{del[21]}}, del[21:8]};
+  initial fbk_stb = 0;
   always @ (posedge clk) begin
     if (state == FBK) begin
       if (!fbk_stb) begin
