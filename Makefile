@@ -10,14 +10,15 @@ IVERILOG_SVFLAGS := -Wall -g2012 -Y.sv
 VERILATOR_VFLAGS := -Wall
 CXXFLAGS := -Wall -std=c++11
 
+include gen/machina.mk
+include syn/machina.mk
+include sim/machina.mk
+include dat/machina.mk
+
 all:
 
 test:
 
 clean:
-
-include gen/machina.mk
-include syn/machina.mk
-include sim/machina.mk
 
 .PHONY: all test clean
