@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
       return 0;
     }
   } catch (const po::error& ex) {
-    std::cerr << ex.what() << std::endl;
+    std::cerr << "ERROR: " << ex.what() << std::endl;
+    return 1;
   }
 
   machina::Sigmoid sigmoid(width, scale, deriv);
