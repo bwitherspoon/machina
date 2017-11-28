@@ -1,20 +1,22 @@
 `ifndef TESTBENCH_INCLUDED
 `define TESTBENCH_INCLUDED
 
-`ifndef TESTBENCH_WIDTH
-`define TESTBENCH_WIDTH 16
+// $write("DEBUG:\nDEBUG: Dumping memory:\nDEBUG:\nDEBUG:");
+// for (int i = 0; i < 4096; i++) begin
+//   if (i != 0 && i % 8 == 0)
+//     $write("\nDEBUG:");
+//   $write("%3h", uut.deriv.mem[i]);
+// end
+// $write("\n");
+
+`include "debug.vh"
+
+`ifndef TESTBENCH_TIMEOUT
+`define TESTBENCH_TIMEOUT 1000000
 `endif
 
-`ifndef SYNTHESIS
-  `define TESTBENCH_ASSERT(expr, msg="failed testbench assertion") \
-    do begin \
-      if ((expr) !== 1) begin \
-        $display("ERROR: %s:%0d: %s: %s -> %b", `__FILE__, `__LINE__, msg, `"expr`", expr); \
-        $stop; \
-      end \
-    end while (0)
-`else
-  `define TESTBENCH_ASSERT(expr) do while (0)
+`ifndef TESTBENCH_WIDTH
+`define TESTBENCH_WIDTH 16
 `endif
 
 function logic [`TESTBENCH_WIDTH-1:0] abs(logic signed [`TESTBENCH_WIDTH-1:0] val);
@@ -45,7 +47,7 @@ task forward;
   begin
     fork
       begin : testbench_forward_timeout
-        #1000000 $display("ERROR: %s:%0d: testbench forward pass timeout: %0t", `__FILE__, `__LINE__, $time);
+        #`TESTBENCH_TIMEOUT $display("ERROR: %s:%0d: testbench forward pass timeout: %0t-%0t", `__FILE__, `__LINE__, $time - `TESTBENCH_TIMEOUT, $time);
         $stop;
       end
       begin
@@ -70,7 +72,7 @@ task backward;
   begin
     fork
       begin : testbench_backward_timeout
-        #1000000 $display("ERROR: %s:%0d: testbench backward pass timeout: %0t", `__FILE__, `__LINE__, $time);
+        #`TESTBENCH_TIMEOUT $display("ERROR: %s:%0d: testbench backward pass timeout: %0t-%0t", `__FILE__, `__LINE__, $time - `TESTBENCH_TIMEOUT, $time);
         $stop;
       end
       begin
@@ -89,6 +91,7 @@ task backward;
   end
 endtask
 
+`undef TESTBENCH_TIMEOUT
 `undef TESTBENCH_WIDTH
 
-`endif // TESTBENCH_INCLUDED
+`endif

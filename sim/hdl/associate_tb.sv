@@ -49,14 +49,14 @@ module associate_tb;
       forward(arg[i], res);
       act = ($signed(res) < 0) ? 16'h0000 : 16'h00ff;
       err = tgt[i] - act;
-      `ifdef DEBUG
+      `ifndef NDEBUG
         $write("DEBUG: ");
         $write("%4.1f * %2.1f + ", uut.weight[1]/256.0, arg[i][1]/256.0);
         $write("%4.1f * %2.1f + ", uut.weight[0]/256.0, arg[i][0]/256.0);
         $write("%4.1f = %4.1f -> ", uut.bias/256.0, $signed(res)/256.0);
         $write("%2.1f ? %2.1f ! %4.1f\n", act/256.0, tgt[i]/256.0, err/256.0);
       `endif
-    `TESTBENCH_ASSERT(abs(err) == 0);
+    `ASSERT(abs(err) == 0);
     end
   end
   endtask : train
@@ -65,12 +65,12 @@ module associate_tb;
     dumpargs;
     // Test 1 (initial)
     forward(16'h0000, res);
-    `TESTBENCH_ASSERT(res == 16'b0);
+    `ASSERT(res == 16'b0);
     en = 1;
     forward(16'h0000, res);
-    `TESTBENCH_ASSERT(res == 16'b0);
+    `ASSERT(res == 16'b0);
     backward(16'h0000, fbk);
-    `TESTBENCH_ASSERT(fbk == 32'b0);
+    `ASSERT(fbk == 32'b0);
     // Test 2 (AND with linear threshold)
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;

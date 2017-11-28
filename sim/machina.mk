@@ -9,8 +9,8 @@ vpath %.sv $(HDLDIR)
 vpath %.svh $(HDLDIR)
 
 IVERILOG_FLAGS += -y$(HDLDIR) -I$(HDLDIR)
-ifdef DEBUG
-IVERILOG_FLAGS += -DDEBUG
+ifndef DEBUG
+IVERILOG_FLAGS += -DNDEBUG
 endif
 
 SIM_BASE := $(notdir $(wildcard $(HDLDIR)*_tb.sv))

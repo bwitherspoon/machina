@@ -36,18 +36,18 @@ module sigmoid_tb;
     // Test 1
     en = 0;
     forward(16'h0000, res);
-    `TESTBENCH_ASSERT(res == 8'h80);
+    `ASSERT(res == 8'h80);
     forward(16'h07ff, res);
-    `TESTBENCH_ASSERT(res == 8'hff);
+    `ASSERT(res == 8'hff);
     forward(16'hf800, res);
-    `TESTBENCH_ASSERT(res == 8'h00);
+    `ASSERT(res == 8'h00);
     // Test 2 FIXME
     reset;
     en = 1;
     forward(0, res);
-    `TESTBENCH_ASSERT(res == 8'h80);
+    `ASSERT(res == 8'h80);
     backward(256, fbk);
-    `TESTBENCH_ASSERT(fbk == 16'h0040);
+    `ASSERT(fbk == 16'h0040);
     // Success
     $finish;
   end

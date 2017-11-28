@@ -33,14 +33,14 @@ module heaviside_tb;
     // Test 1
     en = 0;
     forward(0, res);
-    `TESTBENCH_ASSERT(res === 8'hff);
+    `ASSERT(res === 8'hff);
     // Test 2
     reset;
     en = 1;
     forward(-1, res);
-    `TESTBENCH_ASSERT(res === 8'h00);
+    `ASSERT(res === 8'h00);
     backward(-1, fbk);
-    `TESTBENCH_ASSERT($signed(fbk) === -1);
+    `ASSERT($signed(fbk) === -1);
     // Success
     $finish;
   end

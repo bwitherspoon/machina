@@ -50,14 +50,14 @@ module perceptron_tb;
     for (int i = 0; i < 4; i++) begin
       forward(arg[i], res);
       err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
-`ifdef DEBUG
+`ifndef NDEBUG
       $write("DEBUG: ");
       $write("%4.1f * %1.0f + ", uut.associator.weight[1]/256.0, arg[i][1]/256.0);
       $write("%4.1f * %1.0f + ", uut.associator.weight[0]/256.0, arg[i][0]/256.0);
       $write("%4.1f = %1.0f ? ", uut.associator.bias/256.0, res/256.0);
       $write("%1.0f ! %2.0f\n", tgt[i]/256.0, err/256.0);
 `endif
-      `TESTBENCH_ASSERT(abs(err) === 0);
+      `ASSERT(abs(err) === 0);
     end
     // Success
     $finish;
