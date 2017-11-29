@@ -36,22 +36,25 @@ module sigmoid #(
   localparam FBK = 3'd4;
   reg [2:0] state = ARG;
   always @ (posedge clk) begin
-    case (state)
-      ARG: if (arg_stb) state <= RES;
-      RES: if (res_ack) state <= (en) ? ERR : ARG;
-      ERR: if (err_stb) state <= DEL;
-      DEL: state <= FBK;
-      FBK: if (fbk_ack) state <= ARG;
+    if (rst)
+      state <= ARG;
+    else
+      case (state)
+        ARG: if (arg_stb) state <= RES;
+        RES: if (res_ack) state <= (en) ? ERR : ARG;
+        ERR: if (err_stb) state <= DEL;
+        DEL: state <= FBK;
+        FBK: if (fbk_ack) state <= ARG;
 `ifdef SYNTHESIS
-      default: state <= 3'bxxx;
+        default: state <= 3'bxxx;
 `else
-      default: begin
-        $display("ERROR: invalid state: %d", state);
-        $stop;
-        state <= 3'bxxx;
-      end
+        default: begin
+          $display("ERROR: invalid state: %d", state);
+          $stop;
+          state <= 3'bxxx;
+        end
 `endif
-    endcase
+      endcase
   end
 
   // Internal argument register
