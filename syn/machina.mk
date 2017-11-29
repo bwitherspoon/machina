@@ -21,13 +21,13 @@ syn-test: $(SYN_TEST)
 syn-lint: $(SYN_LINT)
 
 $(SYN_TEST): syn-test-%: %.v
-	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
+	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
 $(SYN_LINT): syn-lint-%: %.v
-	$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
+	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""

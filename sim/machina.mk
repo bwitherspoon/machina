@@ -39,30 +39,30 @@ sim-dump-lxt: $(SIM_DUMP_LXT)
 sim-dump-fst: $(SIM_DUMP_FST)
 
 $(SIM_LINT): sim-lint-%: %_test.sv
-	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
+	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
 $(SIM_TEST): sim-test-%: $(VVPDIR)%_test.vvp
-	$(VVP) -N $< -none
+	@$(VVP) -N $< -none
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
 $(VCDDIR)%.vcd: $(VVPDIR)%.vvp | $(VCDDIR)
-	$(VVP) -N $< -vcd +dumpfile=$@
+	@$(VVP) -N $< -vcd +dumpfile=$@
 
 $(LXTDIR)%.lxt: $(VVPDIR)%.vvp | $(LXTDIR)
-	$(VVP) -N $< -lxt2 +dumpfile=$@
+	@$(VVP) -N $< -lxt2 +dumpfile=$@
 
 $(FSTDIR)%.fst: $(VVPDIR)%.vvp | $(FSTDIR)
-	$(VVP) -N $< -fst +dumpfile=$@
+	@$(VVP) -N $< -fst +dumpfile=$@
 
 $(VVPDIR)sigmoid_test.vvp: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
 
 $(VVPDIR)%.vvp: %.sv | $(VVPDIR)
-	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
+	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
 
 $(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR):
 	@mkdir -p $@
