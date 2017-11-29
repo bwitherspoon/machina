@@ -1,7 +1,7 @@
-module rom #(
+module memory #(
   parameter WIDTH = 8,
   parameter DEPTH = 4096,
-  parameter DATA = "rom.dat"
+  parameter DATA = "memory.dat"
 )(
   input clk,
   input rst,

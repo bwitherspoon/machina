@@ -80,7 +80,7 @@ module sigmoid #(
 
   // Activation function ROM
   wire act_en = state == RES && res_stb == 0;
-  rom #(.WIDTH(8), .DEPTH(2**12), .DATA(ACTIV)) activ (
+  memory #(.WIDTH(8), .DEPTH(2**12), .DATA(ACTIV)) activ (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
@@ -90,7 +90,7 @@ module sigmoid #(
 
   // Activation function derivative ROM
   wire [6:0] der_dat;
-  rom #(.WIDTH(7), .DEPTH(2**12), .DATA(DERIV)) deriv (
+  memory #(.WIDTH(7), .DEPTH(2**12), .DATA(DERIV)) deriv (
     .clk(clk),
     .rst(1'b0),
     .en(act_en),
