@@ -19,8 +19,15 @@ CXXFLAGS := -Wall -std=c++11
 
 all: gen sim syn
 
+lint: top-lint
+
+top-lint:
+	@$(MAKE) --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) top-lint-nop > /dev/null
+
+top-lint-nop:
+
 include gen/machina.mk
 include sim/machina.mk
 include syn/machina.mk
 
-.PHONY: all
+.PHONY: all lint top-lint top-lint-nop
