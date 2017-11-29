@@ -22,8 +22,15 @@ all: gen-all sim-all syn-all
 check:
 	@$(MAKE) --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
 
+help:
+	@echo ""
+	@echo " make [TARGET]"
+	@echo ""
+	@echo " TARGET ::= all | check | test | clean"
+	@echo ""
+
 include gen/machina.mk
 include sim/machina.mk
 include syn/machina.mk
 
-.PHONY: all check test clean
+.PHONY: all check test clean help
