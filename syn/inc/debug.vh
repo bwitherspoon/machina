@@ -28,7 +28,7 @@
     `define ASSERT(exp) \
       do begin \
         if ((exp) !== 1) begin \
-          $display("FATAL: %s:%0d: failed assertion: %s", `__FILE__, `__LINE__, `"expr`"); \
+          $display("FATAL: %s:%0d: failed assertion: %s", `__FILE__, `__LINE__, `"exp`"); \
           `ifdef NSTOP \
             $stop; \
           `else \
