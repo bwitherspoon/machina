@@ -10,24 +10,24 @@ VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 
 SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_TEST := $(addprefix syn-test-,$(SYN_BASE))
-SYN_LINT := $(addprefix syn-lint-,$(SYN_BASE))
+SYN_CHECK := $(addprefix syn-check-,$(SYN_BASE))
 
 all:
 
-test: syn-test
+check: syn-check
 
-lint: syn-lint
+test: syn-test
 
 syn-all: syn-test
 
 syn-test: $(SYN_TEST)
 
-syn-lint: $(SYN_LINT)
+syn-check: $(SYN_CHECK)
 
 $(SYN_TEST): syn-test-%: %.v
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
 
-$(SYN_LINT): syn-lint-%: %.v
+$(SYN_CHECK): syn-check-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) -Wno-fatal --lint-only $<
 
-.PHONY: syn test lint syn-test syn-lint $(SYN_TEST) $(SYN_LINT)
+.PHONY: syn-all syn-test syn-check $(SYN_TEST) $(SYN_CHECK)

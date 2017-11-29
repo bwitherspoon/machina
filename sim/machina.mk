@@ -15,7 +15,7 @@ IVERILOG_FLAGS += -y$(SIM_SRC_DIR) -I$(SIM_INC_DIR)
 SIM_BASE := $(notdir $(wildcard $(SIM_SRC_DIR)*_test.sv))
 SIM_STEM := $(patsubst %_test.sv,%,$(SIM_BASE))
 SIM_TEST := $(addprefix sim-test-,$(SIM_STEM))
-SIM_LINT := $(addprefix sim-lint-,$(SIM_STEM))
+SIM_CHECK := $(addprefix sim-check-,$(SIM_STEM))
 SIM_DUMP_VCD := $(addprefix $(SIM_VCD_DIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
 SIM_DUMP_LXT := $(addprefix $(SIM_LXT_DIR),$(addsuffix _tb.lxt,$(SIM_STEM)))
 SIM_DUMP_FST := $(addprefix $(SIM_FST_DIR),$(addsuffix _tb.fst,$(SIM_STEM)))
@@ -24,20 +24,20 @@ all:
 
 test: sim-test
 
-lint: sim-lint
+check: sim-check
 
 clean: sim-clean
 
-sim-all: sim-lint
+sim-all: sim-check
 
 sim-test: $(SIM_TEST)
 
-sim-lint: $(SIM_LINT)
+sim-check: $(SIM_CHECK)
 
 $(SIM_TEST): sim-test-%: $(SIM_VVP_DIR)%_test.vvp
 	@$(VVP) -N $< -none
 
-$(SIM_LINT): sim-lint-%: %_test.sv
+$(SIM_CHECK): sim-check-%: %_test.sv
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
 
 sim-clean:
@@ -79,6 +79,6 @@ $(SIM_DEP_DIR)%.mk: %.sv | $(SIM_DEP_DIR)
 	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull -Mall=$@.$$$$ $< > /dev/null 2>&1; \
 	basename -a `uniq $@.$$$$` | sed '1i$(SIM_VVP_DIR)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
 
-.PHONY: sim test lint clean sim-test sim-lint sim-clean
+.PHONY: sim-test sim-check sim-clean
 .PHONY: sim-dump sim-dump-vcd sim-dump-lxt sim-dump-fst
-.PHONY: $(SIM_TEST) $(SIM_LINT)
+.PHONY: $(SIM_TEST) $(SIM_CHECK)
