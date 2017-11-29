@@ -128,7 +128,7 @@ module sigmoid #(
   reg signed [21:0] del = 0;
   always @ (posedge clk) begin
     if (state == DEL)
-      del = err * $signed({15'd0, der});
+      del <= err * $signed({15'd0, der});
   end
 
   // Feedback interface strobe and data
