@@ -24,14 +24,8 @@ syn-lint: $(SYN_LINT)
 
 $(SYN_TEST): syn-test-%: %.v
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
-	@echo ""
-	@echo "  Passed \"make $@\""
-	@echo ""
 
 $(SYN_LINT): syn-lint-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) -Wno-fatal --lint-only $<
-	@echo ""
-	@echo "  Passed \"make $@\""
-	@echo ""
 
 .PHONY: syn test lint syn-test syn-lint $(SYN_TEST) $(SYN_LINT)
