@@ -1,6 +1,7 @@
 SIM_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 SIM_SRC_DIR := $(SIM_DIR)src/
 SIM_INC_DIR := $(SIM_DIR)inc/
+SIM_DEP_DIR := $(SIM_DIR)dep/
 SIM_VVP_DIR := $(SIM_DIR)vvp/
 SIM_VCD_DIR := $(SIM_DIR)vcd/
 SIM_LXT_DIR := $(SIM_DIR)lxt/
@@ -33,14 +34,17 @@ sim-test: $(SIM_TEST)
 
 sim-lint: $(SIM_LINT)
 
-sim-clean:
-	-$(RM) -r $(SIM_DEP_DIR) $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR)
-
 $(SIM_TEST): sim-test-%: $(SIM_VVP_DIR)%_test.vvp
 	@$(VVP) -N $< -none
 
 $(SIM_LINT): sim-lint-%: %_test.sv
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
+
+sim-clean:
+	-$(RM) -r $(SIM_DEP_DIR) $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR)
+
+$(SIM_DEP_DIR) $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR):
+	@mkdir -p $@
 
 sim-dump: sim-dump-vcd
 
@@ -66,8 +70,14 @@ $(SIM_VVP_DIR)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.deriv=\"$(GEN_D
 $(SIM_VVP_DIR)%.vvp: %.sv | $(SIM_VVP_DIR)
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
 
-$(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR):
-	@mkdir -p $@
+ifneq ($(MAKECMDGOALS),clean)
+include $(SIM_BASE:%.sv=$(SIM_DEP_DIR)%.mk)
+endif
+
+$(SIM_DEP_DIR)%.mk: %.sv | $(SIM_DEP_DIR)
+	@trap 'rm -f $@.$$$$' EXIT; trap 'rm -f $@' ERR; set -e; \
+	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull -Mall=$@.$$$$ $< > /dev/null 2>&1; \
+	basename -a `uniq $@.$$$$` | sed '1i$(SIM_VVP_DIR)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
 
 .PHONY: sim test lint clean sim-test sim-lint sim-clean
 .PHONY: sim-dump sim-dump-vcd sim-dump-lxt sim-dump-fst
