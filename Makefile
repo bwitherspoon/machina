@@ -17,7 +17,7 @@ endif
 VERILATOR_FLAGS := -Wall
 CXXFLAGS := -Wall -std=c++11
 
-all: gen sim syn
+all: gen-all sim-all syn-all
 
 lint: top-lint
 

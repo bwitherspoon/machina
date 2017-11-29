@@ -12,11 +12,13 @@ SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_TEST := $(addprefix syn-test-,$(SYN_BASE))
 SYN_LINT := $(addprefix syn-lint-,$(SYN_BASE))
 
-syn:
+all:
 
 test: syn-test
 
 lint: syn-lint
+
+syn-all: syn-test
 
 syn-test: $(SYN_TEST)
 

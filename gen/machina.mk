@@ -6,7 +6,9 @@ GEN_DAT_DIR := $(GEN_DIR)dat/
 vpath %.cc $(GEN_SRC_DIR)
 vpath %.h $(GEN_SRC_DIR)
 
-gen: gen-bin gen-dat
+all:
+
+gen-all: gen-bin gen-dat
 
 gen-bin: $(GEN_BIN_DIR)mem
 

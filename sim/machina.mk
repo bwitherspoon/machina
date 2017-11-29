@@ -19,33 +19,36 @@ SIM_DUMP_VCD := $(addprefix $(SIM_VCD_DIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
 SIM_DUMP_LXT := $(addprefix $(SIM_LXT_DIR),$(addsuffix _tb.lxt,$(SIM_STEM)))
 SIM_DUMP_FST := $(addprefix $(SIM_FST_DIR),$(addsuffix _tb.fst,$(SIM_STEM)))
 
-sim:
+all:
 
 test: sim-test
 
 lint: sim-lint
 
+clean: sim-clean
+
+sim-all: sim-lint
+
 sim-test: $(SIM_TEST)
 
 sim-lint: $(SIM_LINT)
+
+sim-clean:
+	-$(RM) -r $(SIM_DEP_DIR) $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR)
+
+$(SIM_TEST): sim-test-%: $(SIM_VVP_DIR)%_test.vvp
+	@$(VVP) -N $< -none
+
+$(SIM_LINT): sim-lint-%: %_test.sv
+	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
+
+sim-dump: sim-dump-vcd
 
 sim-dump-vcd: $(SIM_DUMP_VCD)
 
 sim-dump-lxt: $(SIM_DUMP_LXT)
 
 sim-dump-fst: $(SIM_DUMP_FST)
-
-$(SIM_LINT): sim-lint-%: %_test.sv
-	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
-	@echo ""
-	@echo "  Passed \"make $@\""
-	@echo ""
-
-$(SIM_TEST): sim-test-%: $(SIM_VVP_DIR)%_test.vvp
-	@$(VVP) -N $< -none
-	@echo ""
-	@echo "  Passed \"make $@\""
-	@echo ""
 
 $(SIM_VCD_DIR)%.vcd: $(SIM_VVP_DIR)%.vvp | $(SIM_VCD_DIR)
 	@$(VVP) -N $< -vcd +dumpfile=$@
@@ -66,12 +69,6 @@ $(SIM_VVP_DIR)%.vvp: %.sv | $(SIM_VVP_DIR)
 $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR):
 	@mkdir -p $@
 
-clean: sim-clean
-
-sim-clean:
-	-$(RM) -r $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR)
-
-.PHONY: sim test lint clean
-.PHONY: sim-test sim-lint sim-clean
-.PHONY: sim-dump-vcd sim-dump-lxt sim-dump-fst
+.PHONY: sim test lint clean sim-test sim-lint sim-clean
+.PHONY: sim-dump sim-dump-vcd sim-dump-lxt sim-dump-fst
 .PHONY: $(SIM_TEST) $(SIM_LINT)
