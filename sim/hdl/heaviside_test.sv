@@ -1,6 +1,6 @@
 `include "debug.vh"
 
-module heaviside_tb;
+module heaviside_test;
   `define ARG_WIDTH 16
   `define ARG_DEPTH 1
   `define RES_WIDTH 8
@@ -11,7 +11,7 @@ module heaviside_tb;
   logic [RES_WIDTH-1:0] res;
   logic [FBK_WIDTH-1:0] fbk;
 
-  task test0;
+  task fwd_test;
     begin
       en = 0;
       forward(0, res);
@@ -19,7 +19,7 @@ module heaviside_tb;
     end
   endtask
 
-  task test1;
+  task bwd_test;
     begin
       en = 1;
       forward(-1, res);
@@ -31,9 +31,9 @@ module heaviside_tb;
 
   initial begin
     dump;
-    test0;
+    fwd_test;
     reset;
-    test1;
+    bwd_test;
     $finish;
   end
 endmodule

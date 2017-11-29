@@ -10,8 +10,8 @@ vpath %.svh $(HDLDIR)
 
 IVERILOG_FLAGS += -y$(HDLDIR) -I$(HDLDIR)
 
-SIM_BASE := $(notdir $(wildcard $(HDLDIR)*_tb.sv))
-SIM_STEM := $(patsubst %_tb.sv,%,$(SIM_BASE))
+SIM_BASE := $(notdir $(wildcard $(HDLDIR)*_test.sv))
+SIM_STEM := $(patsubst %_test.sv,%,$(SIM_BASE))
 SIM_TEST := $(addprefix sim-test-,$(SIM_STEM))
 SIM_LINT := $(addprefix sim-lint-,$(SIM_STEM))
 SIM_DUMP_VCD := $(addprefix $(VCDDIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
@@ -38,13 +38,13 @@ sim-dump-lxt: $(SIM_DUMP_LXT)
 
 sim-dump-fst: $(SIM_DUMP_FST)
 
-$(SIM_LINT): sim-lint-%: %_tb.sv
+$(SIM_LINT): sim-lint-%: %_test.sv
 	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull $<
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-$(SIM_TEST): sim-test-%: $(VVPDIR)%_tb.vvp
+$(SIM_TEST): sim-test-%: $(VVPDIR)%_test.vvp
 	$(VVP) -N $< -none
 	@echo ""
 	@echo "  Passed \"make $@\""
@@ -59,7 +59,7 @@ $(LXTDIR)%.lxt: $(VVPDIR)%.vvp | $(LXTDIR)
 $(FSTDIR)%.fst: $(VVPDIR)%.vvp | $(FSTDIR)
 	$(VVP) -N $< -fst +dumpfile=$@
 
-$(VVPDIR)sigmoid_tb.vvp: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
+$(VVPDIR)sigmoid_test.vvp: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
 
 $(VVPDIR)%.vvp: %.sv | $(VVPDIR)
 	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
