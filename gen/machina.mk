@@ -6,7 +6,7 @@ DATDIR := $(GENDIR)dat/
 vpath %.cc $(SRCDIR)
 vpath %.h $(SRCDIR)
 
-gen-all: gen-bin gen-dat
+gen: gen-bin gen-dat
 
 gen-bin: $(BINDIR)mem
 
@@ -41,4 +41,4 @@ gen-clean:
 
 clean: gen-clean
 
-.PHONY: gen-all gen-bin gen-dat gen-clean
+.PHONY: gen gen-all gen-bin gen-dat gen-clean

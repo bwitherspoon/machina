@@ -17,7 +17,7 @@ endif
 VERILATOR_FLAGS := -Wall
 CXXFLAGS := -Wall -std=c++11
 
-all: gen-all
+all: gen sim syn
 
 include gen/machina.mk
 include sim/machina.mk

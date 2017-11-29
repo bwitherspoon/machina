@@ -18,19 +18,15 @@ SIM_DUMP_VCD := $(addprefix $(VCDDIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
 SIM_DUMP_LXT := $(addprefix $(LXTDIR),$(addsuffix _tb.lxt,$(SIM_STEM)))
 SIM_DUMP_FST := $(addprefix $(FSTDIR),$(addsuffix _tb.fst,$(SIM_STEM)))
 
-sim-all: sim-dump
+sim:
 
 test: sim-test
 
 lint: sim-lint
 
-dump: sim-dump
-
 sim-test: $(SIM_TEST)
 
 sim-lint: $(SIM_LINT)
-
-sim-dump: sim-dump-vcd sim-dump-lxt sim-dump-fst
 
 sim-dump-vcd: $(SIM_DUMP_VCD)
 
@@ -72,7 +68,7 @@ clean: sim-clean
 sim-clean:
 	-$(RM) -r $(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR)
 
-.PHONY: test lint dump clean
-.PHONY: sim-all sim-test sim-lint sim-dump sim-clean
+.PHONY: sim test lint clean
+.PHONY: sim-test sim-lint sim-clean
 .PHONY: sim-dump-vcd sim-dump-lxt sim-dump-fst
 .PHONY: $(SIM_TEST) $(SIM_LINT)

@@ -10,7 +10,7 @@ SYN_BASE := $(notdir $(basename $(wildcard $(SYNDIR)*.v)))
 SYN_TEST := $(addprefix syn-test-,$(SYN_BASE))
 SYN_LINT := $(addprefix syn-lint-,$(SYN_BASE))
 
-syn-all:
+syn:
 
 test: syn-test
 
@@ -32,4 +32,4 @@ $(SYN_LINT): syn-lint-%: %.v
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-.PHONY: test lint syn-all syn-test syn-lint $(SYN_TEST) $(SYN_LINT)
+.PHONY: syn test lint syn-test syn-lint $(SYN_TEST) $(SYN_LINT)
