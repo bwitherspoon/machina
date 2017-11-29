@@ -20,7 +20,7 @@ CXXFLAGS := -Wall -std=c++11
 all: gen-all sim-all syn-all
 
 check:
-	@$(MAKE) --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) help > /dev/null
+	@$(MAKE) --dry-run --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
 
 help:
 	@echo ""
