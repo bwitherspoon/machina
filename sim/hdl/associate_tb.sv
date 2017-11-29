@@ -1,35 +1,15 @@
+`include "debug.vh"
+
 module associate_tb;
-`define TESTBENCH_WIDTH 32
-`include "testbench.svh"
+  `define RES_WIDTH 16
+  `include "test.svh"
 
-  bit clk = 0;
-  always #5 clk = ~clk;
-
-  bit rst = 0;
-  bit en = 0;
-
-  logic arg_stb = 0;
-  logic arg_rdy;
-  logic [1:0][7:0] arg_dat;
-
-  logic res_stb;
-  logic res_rdy = 0;
-  logic [15:0] res_dat;
-
-  logic err_stb = 0;
-  logic err_rdy;
-  logic [15:0] err_dat;
-
-  logic fbk_stb;
-  logic fbk_rdy = 0;
-  logic [1:0][15:0] fbk_dat;
-
-  logic [1:0][7:0] arg [4];
-  logic [15:0] res;
-  logic signed [15:0] tgt [4];
-  logic signed [15:0] act;
-  logic signed [15:0] err;
-  logic [1:0][15:0] fbk;
+  logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
+  logic [RES_WIDTH-1:0] res;
+  logic signed [RES_WIDTH-1:0] tgt [4];
+  logic signed [RES_WIDTH-1:0] act;
+  logic signed [ERR_WIDTH-1:0] err;
+  logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
 
   associate #(.N(2), .RATE(0), .SEED(0)) uut (.*);
 
@@ -61,25 +41,49 @@ module associate_tb;
   end
   endtask : train
 
-  initial begin
-    dumpargs;
-    // Test 1 (initial)
+  task test0;
+  begin
     forward(16'h0000, res);
     `ASSERT(res == 16'b0);
+  end
+  endtask : test0
+
+  task test1;
+  begin
     en = 1;
     forward(16'h0000, res);
     `ASSERT(res == 16'b0);
     backward(16'h0000, fbk);
     `ASSERT(fbk == 32'b0);
-    // Test 2 (AND with linear threshold)
-    arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
-    tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;
+  end
+  endtask : test1
+
+  task test2;
+  begin
+  // Logical AND function with linear threshold
+  arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
+  tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;
+  train;
+  end
+  endtask : test2
+
+  task test3;
+  begin
+  // Logical OR function with linear threshold
+  arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
+  tgt[0] = 16'h0000; tgt[1] = 16'h00ff; tgt[2] = 16'h00ff; tgt[3] = 16'h00ff;
+  train;
+  end
+  endtask : test3
+
+  initial begin
+    dump;
+    test0;
+    test1;
     reset;
-    train;
-    // Test 3 (OR with linear threshold)
-    tgt[0] = 16'h0000; tgt[1] = 16'h00ff; tgt[2] = 16'h00ff; tgt[3] = 16'h00ff;
+    test2;
     reset;
-    train;
+    test3;
     // Success
     $finish;
   end

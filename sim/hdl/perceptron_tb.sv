@@ -1,38 +1,18 @@
+`include "debug.vh"
+
 module perceptron_tb;
-`include "testbench.svh"
-
-  bit clk = 0;
-  always #5 clk = ~clk;
-
-  bit rst = 0;
-  bit en = 0;
-
-  logic arg_stb = 0;
-  logic arg_rdy;
-  logic [1:0][7:0] arg_dat;
-
-  logic res_stb;
-  logic res_rdy = 0;
-  logic [7:0] res_dat;
-
-  logic err_stb = 0;
-  logic err_rdy;
-  logic [15:0] err_dat;
-
-  logic fbk_stb;
-  logic fbk_rdy = 0;
-  logic [1:0][15:0] fbk_dat;
+  `include "test.svh"
 
   perceptron #(.N(2)) uut(.*);
 
-  logic [1:0][7:0] arg [4];
-  logic [7:0] tgt [4];
-  logic [7:0] res;
-  logic signed [15:0] err;
-  logic [1:0][15:0] fbk;
+  logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
+  logic [RES_WIDTH-1:0] tgt [4];
+  logic [RES_WIDTH-1:0] res;
+  logic signed [ERR_WIDTH-1:0] err;
+  logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
 
   initial begin
-    dumpargs;
+    dump;
     // Test 1 (AND)
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 8'h00; tgt[1] = 8'h00; tgt[2] = 8'h00; tgt[3] = 8'hff;
