@@ -20,12 +20,10 @@ CXXFLAGS := -Wall -std=c++11
 all: gen-all sim-all syn-all
 
 check:
-	@$(MAKE) --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) null > /dev/null
-
-null:
+	@$(MAKE) --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
 
 include gen/machina.mk
 include sim/machina.mk
 include syn/machina.mk
 
-.PHONY: all check test clean help null
+.PHONY: all check test clean
