@@ -40,10 +40,6 @@ localparam FBK_DEPTH = `FBK_DEPTH;
 `undef FBK_WIDTH
 `undef FBK_DEPTH
 
-function integer abs(integer val);
-  return val < 0 ? -val : val;
-endfunction
-
 logic clk = 0;
 always #5 clk = ~clk;
 
@@ -143,5 +139,9 @@ task backward;
     join
   end
 endtask
+
+function integer abs(integer val);
+  abs = val < 0 ? -val : val;
+endfunction
 
 `endif
