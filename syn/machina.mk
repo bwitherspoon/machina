@@ -29,7 +29,7 @@ $(SYN_TEST): syn-test-%: %.v
 	@echo ""
 
 $(SYN_LINT): syn-lint-%: %.v
-	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
+	@$(VERILATOR) $(VERILATOR_FLAGS) -Wno-fatal --lint-only $<
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
