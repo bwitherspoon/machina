@@ -1,6 +1,6 @@
 module sigmoid #(
-  parameter ACTIV = "gen/dat/sigmoid_activ.dat",
-  parameter DERIV = "gen/dat/sigmoid_deriv.dat"
+  parameter ACTIV = "sigmoid_activ.dat",
+  parameter DERIV = "sigmoid_deriv.dat"
 )(
   input clk,
   input rst,

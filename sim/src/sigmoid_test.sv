@@ -1,20 +1,20 @@
 `include "debug.vh"
 
-module sigmoid_tb;
+module sigmoid_test;
   `define ARG_WIDTH 16
   `define ARG_DEPTH 1
   `define RES_WIDTH 8
   `include "test.svh"
 
-  parameter ACTIV = "gen/dat/sigmoid_activ.dat";
-  parameter DERIV = "gen/dat/sigmoid_deriv.dat";
+  parameter activ = "sigmoid_activ.dat";
+  parameter deriv = "sigmoid_deriv.dat";
 
-  sigmoid #(ACTIV, DERIV) uut (.*);
+  sigmoid #(activ, deriv) uut (.*);
 
   logic [RES_WIDTH-1:0] res;
   logic [FBK_WIDTH-1:0] fbk;
 
-  task test0;
+  task fwd_test;
   begin
     en = 0;
     forward(16'h0000, res);
@@ -24,9 +24,9 @@ module sigmoid_tb;
     forward(16'hf800, res);
     `ASSERT(res == 8'h00);
   end
-  endtask : test0
+  endtask : fwd_test
 
-  task test1;
+  task bwd_test;
   begin
     en = 1;
     forward(0, res);
@@ -34,13 +34,13 @@ module sigmoid_tb;
     backward(256, fbk);
     `ASSERT(fbk == 16'h0040);
   end
-  endtask : test1
+  endtask : bwd_test
 
   initial begin
     dump;
-    test0;
+    fwd_test;
     reset;
-    test1;
+    bwd_test;
     $finish;
   end
 
