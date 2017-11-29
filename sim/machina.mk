@@ -1,22 +1,23 @@
-SIMDIR := $(dir $(lastword $(MAKEFILE_LIST)))
-HDLDIR := $(SIMDIR)hdl/
-VVPDIR := $(SIMDIR)vvp/
-VCDDIR := $(SIMDIR)vcd/
-LXTDIR := $(SIMDIR)lxt/
-FSTDIR := $(SIMDIR)fst/
+SIM_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SIM_SRC_DIR := $(SIM_DIR)src/
+SIM_INC_DIR := $(SIM_DIR)inc/
+SIM_VVP_DIR := $(SIM_DIR)vvp/
+SIM_VCD_DIR := $(SIM_DIR)vcd/
+SIM_LXT_DIR := $(SIM_DIR)lxt/
+SIM_FST_DIR := $(SIM_DIR)fst/
 
-vpath %.sv $(HDLDIR)
-vpath %.svh $(HDLDIR)
+vpath %.sv $(SIM_SRC_DIR)
+vpath %.svh $(SIM_INC_DIR)
 
-IVERILOG_FLAGS += -y$(HDLDIR) -I$(HDLDIR)
+IVERILOG_FLAGS += -y$(SIM_SRC_DIR) -I$(SIM_INC_DIR)
 
-SIM_BASE := $(notdir $(wildcard $(HDLDIR)*_test.sv))
+SIM_BASE := $(notdir $(wildcard $(SIM_SRC_DIR)*_test.sv))
 SIM_STEM := $(patsubst %_test.sv,%,$(SIM_BASE))
 SIM_TEST := $(addprefix sim-test-,$(SIM_STEM))
 SIM_LINT := $(addprefix sim-lint-,$(SIM_STEM))
-SIM_DUMP_VCD := $(addprefix $(VCDDIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
-SIM_DUMP_LXT := $(addprefix $(LXTDIR),$(addsuffix _tb.lxt,$(SIM_STEM)))
-SIM_DUMP_FST := $(addprefix $(FSTDIR),$(addsuffix _tb.fst,$(SIM_STEM)))
+SIM_DUMP_VCD := $(addprefix $(SIM_VCD_DIR),$(addsuffix _tb.vcd,$(SIM_STEM)))
+SIM_DUMP_LXT := $(addprefix $(SIM_LXT_DIR),$(addsuffix _tb.lxt,$(SIM_STEM)))
+SIM_DUMP_FST := $(addprefix $(SIM_FST_DIR),$(addsuffix _tb.fst,$(SIM_STEM)))
 
 sim:
 
@@ -40,33 +41,33 @@ $(SIM_LINT): sim-lint-%: %_test.sv
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-$(SIM_TEST): sim-test-%: $(VVPDIR)%_test.vvp
+$(SIM_TEST): sim-test-%: $(SIM_VVP_DIR)%_test.vvp
 	@$(VVP) -N $< -none
 	@echo ""
 	@echo "  Passed \"make $@\""
 	@echo ""
 
-$(VCDDIR)%.vcd: $(VVPDIR)%.vvp | $(VCDDIR)
+$(SIM_VCD_DIR)%.vcd: $(SIM_VVP_DIR)%.vvp | $(SIM_VCD_DIR)
 	@$(VVP) -N $< -vcd +dumpfile=$@
 
-$(LXTDIR)%.lxt: $(VVPDIR)%.vvp | $(LXTDIR)
+$(SIM_LXT_DIR)%.lxt: $(SIM_VVP_DIR)%.vvp | $(SIM_LXT_DIR)
 	@$(VVP) -N $< -lxt2 +dumpfile=$@
 
-$(FSTDIR)%.fst: $(VVPDIR)%.vvp | $(FSTDIR)
+$(SIM_FST_DIR)%.fst: $(SIM_VVP_DIR)%.vvp | $(SIM_FST_DIR)
 	@$(VVP) -N $< -fst +dumpfile=$@
 
-$(VVPDIR)sigmoid_test.vvp: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
+$(SIM_VVP_DIR)sigmoid_test.vvp: $(GEN_DAT_DIR)sigmoid_activ.dat $(GEN_DAT_DIR)sigmoid_deriv.dat
 
-$(VVPDIR)%.vvp: %.sv | $(VVPDIR)
+$(SIM_VVP_DIR)%.vvp: %.sv | $(SIM_VVP_DIR)
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tvvp -o $@ $<
 
-$(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR):
+$(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR):
 	@mkdir -p $@
 
 clean: sim-clean
 
 sim-clean:
-	-$(RM) -r $(VVPDIR) $(VCDDIR) $(LXTDIR) $(FSTDIR)
+	-$(RM) -r $(SIM_VVP_DIR) $(SIM_VCD_DIR) $(SIM_LXT_DIR) $(SIM_FST_DIR)
 
 .PHONY: sim test lint clean
 .PHONY: sim-test sim-lint sim-clean

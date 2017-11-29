@@ -1,43 +1,43 @@
-GENDIR := $(dir $(lastword $(MAKEFILE_LIST)))
-SRCDIR := $(GENDIR)src/
-BINDIR := $(GENDIR)bin/
-DATDIR := $(GENDIR)dat/
+GEN_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+GEN_SRC_DIR := $(GEN_DIR)src/
+GEN_BIN_DIR := $(GEN_DIR)bin/
+GEN_DAT_DIR := $(GEN_DIR)dat/
 
-vpath %.cc $(SRCDIR)
-vpath %.h $(SRCDIR)
+vpath %.cc $(GEN_SRC_DIR)
+vpath %.h $(GEN_SRC_DIR)
 
 gen: gen-bin gen-dat
 
-gen-bin: $(BINDIR)mem
+gen-bin: $(GEN_BIN_DIR)mem
 
-gen-dat: $(DATDIR)sigmoid_activ.dat $(DATDIR)sigmoid_deriv.dat
+gen-dat: $(GEN_DAT_DIR)sigmoid_activ.dat $(GEN_DAT_DIR)sigmoid_deriv.dat
 
-$(BINDIR) $(DATDIR):
+$(GEN_BIN_DIR) $(GEN_DAT_DIR):
 	@mkdir -p $@
 
-$(BINDIR)mem: LDFLAGS += -lboost_program_options
-$(BINDIR)mem: driver.cc memory.h sigmoid.h | $(BINDIR)
+$(GEN_BIN_DIR)mem: LDFLAGS += -lboost_program_options
+$(GEN_BIN_DIR)mem: driver.cc memory.h sigmoid.h | $(GEN_BIN_DIR)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
-$(DATDIR)sigmoid_activ.dat: FUNCT = sigmoid
-$(DATDIR)sigmoid_activ.dat: WIDTH = 8
-$(DATDIR)sigmoid_activ.dat: DEPTH = 4096
-$(DATDIR)sigmoid_activ.dat: SCALE = 255
+$(GEN_DAT_DIR)sigmoid_activ.dat: FUNCT = sigmoid
+$(GEN_DAT_DIR)sigmoid_activ.dat: WIDTH = 8
+$(GEN_DAT_DIR)sigmoid_activ.dat: DEPTH = 4096
+$(GEN_DAT_DIR)sigmoid_activ.dat: SCALE = 255
 
-$(DATDIR)sigmoid_deriv.dat: FUNCT = sigmoid-prime
-$(DATDIR)sigmoid_deriv.dat: WIDTH = 7
-$(DATDIR)sigmoid_deriv.dat: DEPTH = 4096
-$(DATDIR)sigmoid_deriv.dat: SCALE = 255
+$(GEN_DAT_DIR)sigmoid_deriv.dat: FUNCT = sigmoid-prime
+$(GEN_DAT_DIR)sigmoid_deriv.dat: WIDTH = 7
+$(GEN_DAT_DIR)sigmoid_deriv.dat: DEPTH = 4096
+$(GEN_DAT_DIR)sigmoid_deriv.dat: SCALE = 255
 
-$(DATDIR)%.dat: FUNCT ?= random
-$(DATDIR)%.dat: WIDTH ?= 8
-$(DATDIR)%.dat: DEPTH ?= 4096
-$(DATDIR)%.dat: SCALE ?= 256
-$(DATDIR)%.dat: $(BINDIR)mem | $(DATDIR)
-	$(PRJDIR)$< -f $(FUNCT) -w $(WIDTH) -d $(DEPTH) -s $(SCALE) > $@
+$(GEN_DAT_DIR)%.dat: FUNCT ?= random
+$(GEN_DAT_DIR)%.dat: WIDTH ?= 8
+$(GEN_DAT_DIR)%.dat: DEPTH ?= 4096
+$(GEN_DAT_DIR)%.dat: SCALE ?= 256
+$(GEN_DAT_DIR)%.dat: $(GEN_BIN_DIR)mem | $(GEN_DAT_DIR)
+	$(PRJ_DIR)$< -f $(FUNCT) -w $(WIDTH) -d $(DEPTH) -s $(SCALE) > $@
 
 gen-clean:
-	-$(RM) -r $(BINDIR) $(DATDIR)
+	-$(RM) -r $(GEN_BIN_DIR) $(GEN_DAT_DIR)
 
 clean: gen-clean
 

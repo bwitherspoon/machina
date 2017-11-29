@@ -1,12 +1,14 @@
-SYNDIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SYN_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SYN_SRC_DIR := $(SYN_DIR)src/
+SYN_INC_DIR := $(SYN_DIR)inc/
 
-vpath %.v $(SYNDIR)
-vpath %.vh $(SYNDIR)
+vpath %.v $(SYN_SRC_DIR)
+vpath %.vh $(SYN_INC_DIR)
 
-IVERILOG_FLAGS += -y$(SYNDIR) -I$(SYNDIR)
-VERILATOR_FLAGS += -y $(SYNDIR) -I$(SYNDIR)
+IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
+VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 
-SYN_BASE := $(notdir $(basename $(wildcard $(SYNDIR)*.v)))
+SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_TEST := $(addprefix syn-test-,$(SYN_BASE))
 SYN_LINT := $(addprefix syn-lint-,$(SYN_BASE))
 

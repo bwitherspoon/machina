@@ -1,4 +1,4 @@
-PRJDIR := $(dir $(firstword $(MAKEFILE_LIST)))
+PRJ_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
 
 VERILATOR ?= verilator
 YOSYS ?= yosys
