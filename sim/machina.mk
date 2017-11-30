@@ -80,5 +80,4 @@ $(SIM_DEP_DIR)%.mk: %.sv | $(SIM_DEP_DIR)
 	basename -a `uniq $@.$$$$` | sed '1i$(SIM_VVP_DIR)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
 
 .PHONY: all test check clean all-sim test-sim check-sim clean-sim
-.PHONY: dump dump-vcd dump-lxt dump-fst
-.PHONY: $(SIM_TEST) $(SIM_CHECK)
+.PHONY: $(SIM_TEST) $(SIM_CHECK) sim-vcd sim-lxt sim-fst
