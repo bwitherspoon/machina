@@ -4,6 +4,8 @@ module associate_test;
   `define RES_WIDTH 16
   `include "test.svh"
 
+  parameter SEED = 32'hdeadbeef;
+
   logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
   logic [RES_WIDTH-1:0] res;
   logic signed [RES_WIDTH-1:0] tgt [4];
@@ -80,7 +82,7 @@ module associate_test;
   end
   endtask : test
 
-  integer seed = 32'hdeadbeef;
+  integer seed = SEED;
   task init;
   begin
     for (int n = 0; n < ARG_DEPTH; n++)
