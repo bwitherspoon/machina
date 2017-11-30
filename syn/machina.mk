@@ -1,13 +1,15 @@
 SYN_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 SYN_SRC_DIR := $(SYN_DIR)src/
 SYN_INC_DIR := $(SYN_DIR)inc/
+SYN_LOG_DIR := $(SYN_DIR)log/
+SYN_BLIF_DIR := $(SYN_DIR)blif/
 
 vpath %.v $(SYN_SRC_DIR)
 vpath %.vh $(SYN_INC_DIR)
 
 SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_CHECK := $(addprefix check-syn-,$(SYN_BASE))
-SYN_SYNTH := $(SYN_DIR)associate.blif $(SYN_DIR)heaviside.blif $(SYN_DIR)memory.blif
+SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),associate.blif heaviside.blif memory.blif)
 
 IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
@@ -29,10 +31,13 @@ $(SYN_CHECK): check-syn-%: %.v
 
 synth: $(SYN_SYNTH)
 
-$(SYN_DIR)%.blif: %.v
-	@$(YOSYS) -q -l $(@:.blif=.log) -o $@ -S $<
+$(SYN_BLIF_DIR)%.blif: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
+	$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $<
+
+$(SYN_BLIF_DIR) $(SYN_LOG_DIR):
+	@mkdir -p $@
 
 clean-syn:
-	-$(RM) $(SYN_DIR)*.{blif,log}
+	-$(RM) -r $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
 
 .PHONY: all check all-syn check-syn $(SYN_CHECK) synth
