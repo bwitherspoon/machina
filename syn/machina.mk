@@ -9,7 +9,7 @@ vpath %.vh $(SYN_INC_DIR)
 
 SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_CHECK := $(addprefix check-syn-,$(SYN_BASE))
-SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),associate.blif heaviside.blif memory.blif)
+SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),$(SYN_BASE:=.blif))
 
 IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
@@ -32,7 +32,13 @@ $(SYN_CHECK): check-syn-%: %.v
 synth: $(SYN_SYNTH)
 
 $(SYN_BLIF_DIR)%.blif: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
-	$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $<
+	@if [ -e '$(SYN_DIR)$*.ys' ]; then \
+		echo '$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys'; \
+		$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys; \
+	else \
+		echo '$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $<'; \
+		$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $<; \
+	fi
 
 $(SYN_BLIF_DIR) $(SYN_LOG_DIR):
 	@mkdir -p $@
