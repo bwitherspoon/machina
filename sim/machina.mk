@@ -76,8 +76,9 @@ endif
 
 $(SIM_DEP_DIR)%.mk: %.sv | $(SIM_DEP_DIR)
 	@trap 'rm -f $@.$$$$' EXIT; trap 'rm -f $@' ERR; set -e; \
-	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull -Mall=$@.$$$$ $< > /dev/null 2>&1; \
+	$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_SVFLAGS) -tnull -Mall=$@.$$$$ $< > $(SIM_DEP_DIR)/$*.log 2>&1; \
 	basename -a `uniq $@.$$$$` | sed '1i$(SIM_VVP_DIR)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
+	@$(RM) $(SIM_DEP_DIR)/$*.log
 
 .PHONY: all test check clean all-sim test-sim check-sim clean-sim
 .PHONY: $(SIM_TEST) $(SIM_CHECK) sim-vcd sim-lxt sim-fst
