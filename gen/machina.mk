@@ -16,7 +16,7 @@ clean: clean-gen
 all-gen: gen-mem gen-dat
 
 clean-gen:
-	-$(RM) -r $(GEN_DUR)mem $(GEN_DAT_DIR)
+	-$(RM) -r $(GEN_DIR)mem $(GEN_DAT_DIR)
 
 $(GEN_DAT_DIR):
 	@mkdir -p $@
@@ -26,7 +26,7 @@ gen-mem: $(GEN_MEM)
 gen-dat: $(GEN_DAT)
 
 $(GEN_MEM): LDFLAGS += -lboost_program_options
-$(GEN_MEM): driver.cc memory.h sigmoid.h
+$(GEN_MEM): driver.cc memory.h sigmoid.h -lboost_program_options
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
 $(GEN_SIG_ACT): FUNCT = sigmoid
@@ -46,4 +46,4 @@ $(GEN_DAT_DIR)%.dat: SCALE ?= 256
 $(GEN_DAT_DIR)%.dat: $(GEN_MEM) | $(GEN_DAT_DIR)
 	$< -f $(FUNCT) -w $(WIDTH) -d $(DEPTH) -s $(SCALE) > $@
 
-.PHONY: all clean all-gen clean-gen gen-bin gen-dat
+.PHONY: all clean all-gen clean-gen gen-mem gen-dat
