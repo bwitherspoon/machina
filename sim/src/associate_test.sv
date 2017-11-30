@@ -11,7 +11,7 @@ module associate_test;
   logic signed [ERR_WIDTH-1:0] err;
   logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
 
-  associate #(.N(ARG_DEPTH), .RATE(0)) uut (.*);
+  associate #(.ARGN(ARG_DEPTH), .RATE(1)) uut (.*);
 
   task train;
   begin

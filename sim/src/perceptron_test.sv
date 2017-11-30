@@ -3,7 +3,7 @@
 module perceptron_test;
   `include "test.svh"
 
-  perceptron #(.N(2)) uut(.*);
+  perceptron #(.ARGN(ARG_DEPTH)) uut(.*);
 
   logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
   logic [RES_WIDTH-1:0] tgt [4];

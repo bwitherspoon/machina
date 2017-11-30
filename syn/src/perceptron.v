@@ -1,12 +1,12 @@
 module perceptron #(
-  parameter N = 2
+  parameter ARGN = 2
 )(
   input clk,
   input rst,
   input en,
 
   input arg_stb,
-  input [N-1:0][7:0] arg_dat,
+  input [ARGN-1:0][7:0] arg_dat,
   output arg_rdy,
 
   output res_stb,
@@ -18,7 +18,7 @@ module perceptron #(
   output err_rdy,
 
   output fbk_stb,
-  output [N-1:0][15:0] fbk_dat,
+  output [ARGN-1:0][15:0] fbk_dat,
   input fbk_rdy
 );
   wire ass_res_to_act_arg_stb;
@@ -28,7 +28,7 @@ module perceptron #(
   wire [15:0] ass_err_to_act_fbk_dat;
   wire ass_err_to_act_fbk_rdy;
 
-  associate #(.N(N), .RATE(0)) associator (
+  associate #(.ARGN(ARGN), .RATE(1)) associator (
     .clk(clk),
     .rst(rst),
     .en(en),
