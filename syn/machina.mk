@@ -4,15 +4,15 @@ SYN_INC_DIR := $(SYN_DIR)inc/
 SYN_LOG_DIR := $(SYN_DIR)log/
 SYN_BLIF_DIR := $(SYN_DIR)blif/
 
-vpath %.v $(SYN_SRC_DIR)
-vpath %.vh $(SYN_INC_DIR)
-
-SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
-SYN_CHECK := $(addprefix check-syn-,$(SYN_BASE))
-SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),$(SYN_BASE:=.blif))
+SYN_NAME := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
+SYN_CHECK := $(addprefix check-,$(SYN_NAME))
+SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),$(SYN_NAME:=.blif))
 
 IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
+
+vpath %.v $(SYN_SRC_DIR)
+vpath %.vh $(SYN_INC_DIR)
 
 all: all-syn
 
@@ -20,16 +20,14 @@ check: check-syn
 
 clean: clean-syn
 
-all-syn: synth
+all-syn: $(SYN_SYNTH)
 
 check-syn: $(SYN_CHECK)
 
-$(SYN_CHECK): check-syn-%: %.v
+$(SYN_CHECK):: check-%: %.v
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@$(YOSYS) -q $<
-
-synth: $(SYN_SYNTH)
 
 $(SYN_BLIF_DIR)%.blif: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
 	@if [ -e '$(SYN_DIR)$*.ys' ]; then \
@@ -46,4 +44,4 @@ $(SYN_BLIF_DIR) $(SYN_LOG_DIR):
 clean-syn:
 	-$(RM) -r $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
 
-.PHONY: all check all-syn check-syn $(SYN_CHECK) synth
+.PHONY: all check clean all-syn check-syn clean-syn $(SYN_CHECK)

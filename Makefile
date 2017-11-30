@@ -50,7 +50,7 @@ check-programs:
 	$(call check-program,$(YOSYS))
 
 include gen/machina.mk
-include sim/machina.mk
 include syn/machina.mk
+include sim/machina.mk
 
 .PHONY: all help check test clean check-makefile check-programs
