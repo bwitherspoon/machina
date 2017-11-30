@@ -7,6 +7,7 @@ vpath %.vh $(SYN_INC_DIR)
 
 SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
 SYN_CHECK := $(addprefix check-syn-,$(SYN_BASE))
+SYN_SYNTH := $(SYN_DIR)associate.blif $(SYN_DIR)heaviside.blif $(SYN_DIR)memory.blif
 
 IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
@@ -15,7 +16,9 @@ all: all-syn
 
 check: check-syn
 
-all-syn:
+clean: clean-syn
+
+all-syn: synth
 
 check-syn: $(SYN_CHECK)
 
@@ -24,4 +27,12 @@ $(SYN_CHECK): check-syn-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@$(YOSYS) -q $<
 
-.PHONY: all check all-syn check-syn $(SYN_CHECK)
+synth: $(SYN_SYNTH)
+
+$(SYN_DIR)%.blif: %.v
+	@$(YOSYS) -q -l $(@:.blif=.log) -o $@ -S $<
+
+clean-syn:
+	-$(RM) $(SYN_DIR)*.{blif,log}
+
+.PHONY: all check all-syn check-syn $(SYN_CHECK) synth
