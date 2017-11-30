@@ -5,29 +5,23 @@ SYN_INC_DIR := $(SYN_DIR)inc/
 vpath %.v $(SYN_SRC_DIR)
 vpath %.vh $(SYN_INC_DIR)
 
+SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
+SYN_CHECK := $(addprefix check-syn-,$(SYN_BASE))
+
 IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
 
-SYN_BASE := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
-SYN_TEST := $(addprefix syn-test-,$(SYN_BASE))
-SYN_CHECK := $(addprefix syn-check-,$(SYN_BASE))
+all: all-syn
 
-all:
+check: check-syn
 
-check: syn-check
+all-syn:
 
-test: syn-test
+check-syn: $(SYN_CHECK)
 
-syn-all: syn-test
-
-syn-test: $(SYN_TEST)
-
-syn-check: $(SYN_CHECK)
-
-$(SYN_TEST): syn-test-%: %.v
+$(SYN_CHECK): check-syn-%: %.v
 	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
+	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
+	@$(YOSYS) -q $<
 
-$(SYN_CHECK): syn-check-%: %.v
-	@$(VERILATOR) $(VERILATOR_FLAGS) -Wno-fatal --lint-only $<
-
-.PHONY: syn-all syn-test syn-check $(SYN_TEST) $(SYN_CHECK)
+.PHONY: all check all-syn check-syn $(SYN_CHECK)
