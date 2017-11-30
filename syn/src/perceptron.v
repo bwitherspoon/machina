@@ -6,7 +6,7 @@ module perceptron #(
   input en,
 
   input arg_stb,
-  input [ARGN-1:0][7:0] arg_dat,
+  input [8*ARGN-1:0] arg_dat,
   output arg_rdy,
 
   output res_stb,
@@ -18,7 +18,7 @@ module perceptron #(
   output err_rdy,
 
   output fbk_stb,
-  output [ARGN-1:0][15:0] fbk_dat,
+  output [16*ARGN-1:0] fbk_dat,
   input fbk_rdy
 );
   wire ass_res_to_act_arg_stb;
