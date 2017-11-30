@@ -84,7 +84,7 @@ module associate_test;
   task init;
   begin
     for (int n = 0; n < ARG_DEPTH; n++)
-      uut.weight[n] = $random(seed) % 2**4;
+      uut.weights[n] = $random(seed) % 2**4;
   end
   endtask : init
 

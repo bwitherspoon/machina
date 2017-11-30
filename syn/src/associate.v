@@ -31,7 +31,7 @@ module associate #(
   wire fbk_ack = fbk_stb & fbk_rdy;
 
   reg signed [8:0] args [0:ARGN-1];
-  reg signed [15:0] weight [0:ARGN-1];
+  reg signed [15:0] weights [0:ARGN-1];
   reg signed [15:0] bias = 0;
   reg signed [15:0] delta = 0;
 
@@ -87,7 +87,7 @@ module associate #(
   integer n;
   initial begin
     for (n = 0; n < ARGN; n = n + 1)
-      weight[n] = 0;
+      weights[n] = 0;
   end
 `endif
 
@@ -109,7 +109,7 @@ module associate #(
 
   always @ (posedge clk) begin
     if (state == MUL || state == MAC) begin
-      mul <= weight[cnt] * args[cnt] >>> 8;
+      mul <= weights[cnt] * args[cnt] >>> 8;
     end
   end
 
@@ -155,7 +155,7 @@ module associate #(
 
   // Evaluate and saturate errors
   reg [15:0] fbk [0:ARGN-1];
-  wire signed [23:0] err = weight[cnt] * delta >>> 8;
+  wire signed [23:0] err = weights[cnt] * delta >>> 8;
 
   always @ (posedge clk) begin
     if (state == ERR) begin
@@ -194,20 +194,20 @@ module associate #(
   // Update weights and bias
   wire signed [23:0] prod = delta * args[cnt];
   /* verilator lint_off WIDTH */
-  wire signed [23:0] next = weight[cnt] + (prod >>> 8 + RATE);
+  wire signed [23:0] next = weights[cnt] + (prod >>> 8 + RATE);
   /* verilator lint_on WIDTH */
   integer j;
   always @ (posedge clk) begin
     if (rst) begin
       for (j = 0; j < ARGN; j = j + 1) begin
-        weight[j] <= 0;
+        weights[j] <= 0;
       end
     end else if (state == UPD) begin
       case ({MIN <= next, next <= MAX})
-        2'b11: weight[cnt] <= next[15:0];
-        2'b10: weight[cnt] <= MAX[15:0];
-        2'b01: weight[cnt] <= MIN[15:0];
-        2'b00: weight[cnt] <= 16'hxxxx;
+        2'b11: weights[cnt] <= next[15:0];
+        2'b10: weights[cnt] <= MAX[15:0];
+        2'b01: weights[cnt] <= MIN[15:0];
+        2'b00: weights[cnt] <= 16'hxxxx;
       endcase
     end
   end
