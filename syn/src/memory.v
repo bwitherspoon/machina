@@ -1,7 +1,7 @@
 module memory #(
   parameter WIDTH = 8,
   parameter DEPTH = 4096,
-  parameter DATA = "memory.dat"
+  parameter DATA = "/dev/null"
 )(
   input clk,
   input rst,
