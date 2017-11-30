@@ -83,15 +83,9 @@ module associate #(
     end
   end
 
-  // Initialize weights to small pseudorandom values or zero
+  // Initialize weights to zero
+`ifndef SYNTHESIS
   integer n;
-`ifdef __ICARUS__
-  integer seed = SEED;
-  initial begin
-    for (n = 0; n < N; n = n + 1)
-      weight[n] = $random(seed) % 2**4;
-  end
-`else
   initial begin
     for (n = 0; n < N; n = n + 1)
       weight[n] = 0;
@@ -203,10 +197,11 @@ module associate #(
   /* verilator lint_off WIDTH */
   wire signed [23:0] next = weight[cnt] + (prod >>> 8 + RATE);
   /* verilator lint_on WIDTH */
+  integer j;
   always @ (posedge clk) begin
     if (rst) begin
-      for (n = 0; n < N; n = n + 1) begin
-        weight[n] <= 0;
+      for (j = 0; j < N; j = j + 1) begin
+        weight[j] <= 0;
       end
     end else if (state == UPD) begin
       case ({MIN <= next, next <= MAX})

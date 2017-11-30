@@ -11,7 +11,7 @@ module associate_test;
   logic signed [ERR_WIDTH-1:0] err;
   logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
 
-  associate #(.N(2), .RATE(0), .SEED(0)) uut (.*);
+  associate #(.N(ARG_DEPTH), .RATE(0)) uut (.*);
 
   task train;
   begin
@@ -69,14 +69,29 @@ module associate_test;
   end
   endtask : or_test
 
-  initial begin
-    dump;
+  task test;
+  begin
     fwd_test;
     bwd_test;
     reset;
     and_test;
     reset;
     or_test;
+  end
+  endtask : test
+
+  integer seed = 32'hdeadbeef;
+  task init;
+  begin
+    for (int n = 0; n < ARG_DEPTH; n++)
+      uut.weight[n] = $random(seed) % 2**4;
+  end
+  endtask : init
+
+  initial begin
+    dump;
+    init;
+    test;
     $finish;
   end
 
