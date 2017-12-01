@@ -29,7 +29,7 @@ $(SYN_CHECK):: check-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@$(YOSYS) -q $<
 
-$(SYN_BLIF_DIR)%.blif: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
+$(SYN_BLIF_DIR)%.blif:: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
 	@if [ -e '$(SYN_DIR)$*.ys' ]; then \
 		echo '$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys'; \
 		$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys; \
