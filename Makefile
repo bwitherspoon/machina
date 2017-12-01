@@ -1,8 +1,6 @@
 PRJ_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
 
 IVERILOG ?= iverilog
-IVERILOG_VFLAGS := -g2005
-IVERILOG_SVFLAGS := -g2012 -Y.sv
 IVERILOG_FLAGS := -Wall
 ifndef DEBUG
 IVERILOG_FLAGS += -DNDEBUG

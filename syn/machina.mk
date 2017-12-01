@@ -25,7 +25,7 @@ all-syn: $(SYN_SYNTH)
 check-syn: $(SYN_CHECK)
 
 $(SYN_CHECK):: check-%: %.v
-	@$(IVERILOG) $(IVERILOG_FLAGS) $(IVERILOG_VFLAGS) -tnull $<
+	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@$(YOSYS) -q $<
 
