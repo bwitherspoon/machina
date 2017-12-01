@@ -1,13 +1,14 @@
-GEN_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-GEN_SRC_DIR := $(GEN_DIR)src/
-GEN_DAT_DIR := $(GEN_DIR)dat/
-GEN_SIG_ACT := $(GEN_DAT_DIR)sigmoid_activ.dat
-GEN_SIG_DER := $(GEN_DAT_DIR)sigmoid_deriv.dat
-GEN_DAT := $(GEN_SIG_ACT) $(GEN_SIG_DER)
-GEN_MEM := $(GEN_DIR)mem
+gen_dir := $(dir $(lastword $(MAKEFILE_LIST)))
+gen_src_dir := $(gen_dir)src/
+gen_inc_dir := $(gen_dir)src/
+gen_dat_dir := $(gen_dir)dat/
+gen_sig_act := $(gen_dat_dir)sigmoid_activ.dat
+gen_sig_der := $(gen_dat_dir)sigmoid_deriv.dat
+gen_dat := $(gen_sig_act) $(gen_sig_der)
+gen_mem := $(gen_dir)mem
 
-vpath %.cc $(GEN_SRC_DIR)
-vpath %.h $(GEN_SRC_DIR)
+vpath %.cc $(gen_src_dir)
+vpath %.h $(gen_inc_dir)
 
 all:
 
@@ -16,34 +17,34 @@ clean: clean-gen
 all-gen: gen-mem gen-dat
 
 clean-gen:
-	-$(RM) -r $(GEN_DIR)mem $(GEN_DAT_DIR)
+	-$(RM) -r $(gen_dir)mem $(gen_dat_dir)
 
-$(GEN_DAT_DIR):
+$(gen_dat_dir):
 	@mkdir -p $@
 
-gen-mem: $(GEN_MEM)
+gen-mem: $(gen_mem)
 
-gen-dat: $(GEN_DAT)
+gen-dat: $(gen_dat)
 
-$(GEN_MEM): LDFLAGS += -lboost_program_options
-$(GEN_MEM): driver.cc memory.h sigmoid.h -lboost_program_options
+$(gen_mem): LDFLAGS += -lboost_program_options
+$(gen_mem): driver.cc memory.h sigmoid.h -lboost_program_options
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
 
-$(GEN_SIG_ACT): FUNCT = sigmoid
-$(GEN_SIG_ACT): WIDTH = 8
-$(GEN_SIG_ACT): DEPTH = 4096
-$(GEN_SIG_ACT): SCALE = 255
+$(gen_sig_act): FUNCT = sigmoid
+$(gen_sig_act): WIDTH = 8
+$(gen_sig_act): DEPTH = 4096
+$(gen_sig_act): SCALE = 255
 
-$(GEN_SIG_DER): FUNCT = sigmoid-prime
-$(GEN_SIG_DER): WIDTH = 7
-$(GEN_SIG_DER): DEPTH = 4096
-$(GEN_SIG_DER): SCALE = 255
+$(gen_sig_der): FUNCT = sigmoid-prime
+$(gen_sig_der): WIDTH = 7
+$(gen_sig_der): DEPTH = 4096
+$(gen_sig_der): SCALE = 255
 
-$(GEN_DAT_DIR)%.dat: FUNCT ?= random
-$(GEN_DAT_DIR)%.dat: WIDTH ?= 8
-$(GEN_DAT_DIR)%.dat: DEPTH ?= 4096
-$(GEN_DAT_DIR)%.dat: SCALE ?= 256
-$(GEN_DAT_DIR)%.dat: $(GEN_MEM) | $(GEN_DAT_DIR)
+$(gen_dat_dir)%.dat: FUNCT ?= random
+$(gen_dat_dir)%.dat: WIDTH ?= 8
+$(gen_dat_dir)%.dat: DEPTH ?= 4096
+$(gen_dat_dir)%.dat: SCALE ?= 256
+$(gen_dat_dir)%.dat: $(gen_mem) | $(gen_dat_dir)
 	$< -f $(FUNCT) -w $(WIDTH) -d $(DEPTH) -s $(SCALE) > $@
 
 .PHONY: all clean all-gen clean-gen gen-mem gen-dat

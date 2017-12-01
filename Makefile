@@ -1,4 +1,4 @@
-PRJ_DIR := $(dir $(firstword $(MAKEFILE_LIST)))
+prj_dir := $(dir $(firstword $(MAKEFILE_LIST)))
 
 IVERILOG ?= iverilog
 IVERILOG_FLAGS := -Wall

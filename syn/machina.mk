@@ -1,18 +1,18 @@
-SYN_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-SYN_SRC_DIR := $(SYN_DIR)src/
-SYN_INC_DIR := $(SYN_DIR)inc/
-SYN_LOG_DIR := $(SYN_DIR)log/
-SYN_BLIF_DIR := $(SYN_DIR)blif/
+syn_dir := $(dir $(lastword $(MAKEFILE_LIST)))
+syn_src_dir := $(syn_dir)src/
+syn_inc_dir := $(syn_dir)inc/
+syn_log_dir := $(syn_dir)log/
+syn_blif_dir := $(syn_dir)blif/
 
-SYN_NAME := $(notdir $(basename $(wildcard $(SYN_SRC_DIR)*.v)))
-SYN_CHECK := $(addprefix check-,$(SYN_NAME))
-SYN_SYNTH := $(addprefix $(SYN_BLIF_DIR),$(SYN_NAME:=.blif))
+syn_name := $(notdir $(wildcard $(syn_src_dir)*.v))
+syn_check := $(addprefix check-,$(syn_name:.v=))
+syn_synth := $(addprefix $(syn_blif_dir),$(syn_name:.v=.blif))
 
-IVERILOG_FLAGS += -y$(SYN_SRC_DIR) -I$(SYN_INC_DIR)
-VERILATOR_FLAGS += -y $(SYN_SRC_DIR) -I$(SYN_INC_DIR)
+IVERILOG_FLAGS += -y$(syn_src_dir) -I$(syn_inc_dir)
+VERILATOR_FLAGS += -y $(syn_src_dir) -I$(syn_inc_dir)
 
-vpath %.v $(SYN_SRC_DIR)
-vpath %.vh $(SYN_INC_DIR)
+vpath %.v $(syn_src_dir)
+vpath %.vh $(syn_inc_dir)
 
 all: all-syn
 
@@ -20,30 +20,30 @@ check: check-syn
 
 clean: clean-syn
 
-all-syn: $(SYN_SYNTH)
+all-syn: $(syn_synth)
 
-check-syn: $(SYN_CHECK)
+check-syn: $(syn_check)
 
-$(SYN_CHECK):: check-%: %.v
+$(syn_check):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
 	@$(YOSYS) $(YOSYS_FLAGS) $<
 
-$(SYN_BLIF_DIR)sigmoid.blif:: memory.v $(GEN_SIG_ACT) $(GEN_SIG_ACT)
+$(syn_blif_dir)sigmoid.blif:: memory.v $(gen_sig_act) $(gen_sig_der)
 
-$(SYN_BLIF_DIR)%.blif:: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
-	@if [ -e '$(SYN_DIR)$*.ys' ]; then \
-		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys'; \
-		$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys; \
+$(syn_blif_dir)%.blif:: %.v | $(syn_blif_dir) $(syn_log_dir)
+	@if [ -e '$(syn_dir)$*.ys' ]; then \
+		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(syn_log_dir)$*-blif.log -o $@ -s $(syn_dir)$*.ys'; \
+		$(YOSYS) $(YOSYS_FLAGS) -l $(syn_log_dir)$*-blif.log -o $@ -s $(syn_dir)$*.ys; \
 	else \
-		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^)'; \
-		$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^); \
+		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(syn_log_dir)$*-blif.log -o $@ -S $(filter %.v,$^)'; \
+		$(YOSYS) $(YOSYS_FLAGS) -l $(syn_log_dir)$*-blif.log -o $@ -S $(filter %.v,$^); \
 	fi
 
-$(SYN_BLIF_DIR) $(SYN_LOG_DIR):
+$(syn_blif_dir) $(syn_log_dir):
 	@mkdir -p $@
 
 clean-syn:
-	-$(RM) -r $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
+	-$(RM) -r $(syn_blif_dir) $(syn_log_dir)
 
-.PHONY: all check clean all-syn check-syn clean-syn $(SYN_CHECK)
+.PHONY: all check clean all-syn check-syn clean-syn $(syn_check)
