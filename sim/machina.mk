@@ -7,20 +7,21 @@ sim_vcd_dir := $(sim_dir)vcd/
 sim_lxt_dir := $(sim_dir)lxt/
 sim_fst_dir := $(sim_dir)fst/
 sim_log_dir := $(sim_dir)log/
-sim_sub_dir := $(sim_dep_dir) \
+sim_out_dir := $(sim_dep_dir) \
 							 $(sim_vvp_dir) \
 							 $(sim_vcd_dir) \
 							 $(sim_lxt_dir) \
 							 $(sim_fst_dir) \
 							 $(sim_log_dir)
 
-sim_file := $(notdir $(wildcard $(sim_src_dir)*_test.sv))
-sim_name := $(patsubst %_test.sv,%,$(sim_file))
-sim_test := $(addprefix test-,$(sim_name))
-sim_check := $(addprefix check-,$(sim_name))
-sim_vcd := $(addprefix $(sim_vcd_dir),$(addsuffix _test.vcd,$(sim_name)))
-sim_lxt := $(addprefix $(sim_lxt_dir),$(addsuffix _test.lxt,$(sim_name)))
-sim_fst := $(addprefix $(sim_fst_dir),$(addsuffix _test.fst,$(sim_name)))
+sim_src := $(notdir $(wildcard $(sim_src_dir)*_test.sv))
+sim_inc := $(notdir $(wildcard $(sim_inc_dir)*.svh))
+sim_tgt := $(sim_src:_test.sv=)
+sim_tst_tgt := $(addprefix test-,$(sim_tgt))
+sim_chk_tgt := $(addprefix check-,$(sim_tgt))
+sim_vcd_tgt := $(addprefix $(sim_vcd_dir),$(sim_tgt:=_test.vcd))
+sim_lxt_tgt := $(addprefix $(sim_lxt_dir),$(sim_tgt:=_test.lxt))
+sim_fst_tgt := $(addprefix $(sim_fst_dir),$(sim_tgt:=_test.fst))
 
 IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir) -I$(sim_inc_dir)
 
@@ -37,27 +38,29 @@ clean: clean-sim
 
 all-sim: sim-vcd
 
-test-sim: $(sim_test)
+test-sim: $(sim_tst_tgt)
 
-check-sim: $(sim_check)
+check-sim: $(sim_chk_tgt)
 
 clean-sim:
-	-$(RM) -r $(sim_sub_dir)
+	-$(RM) -r $(sim_out_dir)
 
-$(sim_test):: test-%: $(sim_vvp_dir)%_test.vvp | $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && echo "PASS: $*" || { echo "FAIL: $*"; exit 1; }
-
-$(sim_check):: check-%: %_test.sv
-	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
-
-$(sim_sub_dir):
+$(sim_out_dir):
 	@mkdir -p $@
 
-sim-vcd: $(sim_vcd)
+test-sigmoid:: $(gen_dat_dir)sigmoid_activ.dat $(gen_dat_dir)sigmoid_deriv.dat
 
-sim-lxt: $(sim_lxt)
+$(sim_tst_tgt):: test-%: $(sim_vvp_dir)%_test.vvp | $(sim_log_dir)
+	@$(VVP) $(VVP_FLAGS) -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && echo "PASS: $*" || { echo "FAIL: $*"; exit 1; }
 
-sim-fst: $(sim_fst)
+$(sim_chk_tgt):: check-%: %_test.sv
+	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
+
+sim-vcd: $(sim_vcd_tgt)
+
+sim-lxt: $(sim_lxt_tgt)
+
+sim-fst: $(sim_fst_tgt)
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir) $(sim_log_dir)
 	@$(VVP) $(VVP_FLAGS) -l- $< -vcd +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-vcd.log
@@ -68,11 +71,10 @@ $(sim_lxt_dir)%.lxt: $(sim_vvp_dir)%.vvp | $(sim_lxt_dir) $(sim_log_dir)
 $(sim_fst_dir)%.fst: $(sim_vvp_dir)%.vvp | $(sim_fst_dir) $(sim_log_dir)
 	@$(VVP) $(VVP_FLAGS) -l- $< -fst +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-fst.log
 
-$(sim_vvp_dir)sigmoid_test.vvp: $(gen_dat_dir)sigmoid_activ.dat $(gen_dat_dir)sigmoid_deriv.dat
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.activ=\"$(gen_dat_dir)sigmoid_activ.dat\"
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.deriv=\"$(gen_dat_dir)sigmoid_deriv.dat\"
 
-$(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
+$(sim_vvp_dir)%.vvp:: %.sv $(sim_inc) | $(sim_vvp_dir)
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
 
 $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
@@ -82,8 +84,8 @@ $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
 	@$(RM) $(sim_dep_dir)/$*.log
 
 ifneq ($(MAKECMDGOALS),clean)
-include $(sim_file:%.sv=$(sim_dep_dir)%.mk)
+include $(sim_src:%.sv=$(sim_dep_dir)%.mk)
 endif
 
 .PHONY: all test check clean all-sim test-sim check-sim clean-sim
-.PHONY: $(sim_test) $(sim_check) sim-vcd sim-lxt sim-fst
+.PHONY: $(sim_tst_tgt) $(sim_chk_tgt) sim-vcd sim-lxt sim-fst
