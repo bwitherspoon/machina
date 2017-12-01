@@ -27,17 +27,17 @@ check-syn: $(SYN_CHECK)
 $(SYN_CHECK):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
 	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
-	@$(YOSYS) -q $<
+	@$(YOSYS) $(YOSYS_FLAGS) $<
 
 $(SYN_BLIF_DIR)sigmoid.blif:: memory.v $(GEN_SIG_ACT) $(GEN_SIG_ACT)
 
 $(SYN_BLIF_DIR)%.blif:: %.v | $(SYN_BLIF_DIR) $(SYN_LOG_DIR)
 	@if [ -e '$(SYN_DIR)$*.ys' ]; then \
-		echo '$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys'; \
-		$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys; \
+		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys'; \
+		$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -s $(SYN_DIR)$*.ys; \
 	else \
-		echo '$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^)'; \
-		$(YOSYS) -q -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^); \
+		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^)'; \
+		$(YOSYS) $(YOSYS_FLAGS) -l $(SYN_LOG_DIR)$*-blif.log -o $@ -S $(filter %.v,$^); \
 	fi
 
 $(SYN_BLIF_DIR) $(SYN_LOG_DIR):

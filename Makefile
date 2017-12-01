@@ -16,6 +16,7 @@ VERILATOR ?= verilator
 VERILATOR_FLAGS := -Wall -Wno-fatal
 
 YOSYS ?= yosys
+YOSYS_FLAGS := -q
 
 CXXFLAGS := -std=c++11 -Wall -Wextra
 ifdef DEBUG
