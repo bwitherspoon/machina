@@ -88,7 +88,7 @@ task forward;
       begin : forward_timeout
         #TIMEOUT;
         $display("ERROR: [%0t] %s:%0d: forward pass timeout", $time, `__FILE__, `__LINE__);
-        `ifndef NSTOP
+        `ifndef FINISH
           $stop;
         `else
           $finish;
@@ -118,7 +118,7 @@ task backward;
       begin : backward_timeout
         #TIMEOUT;
         $display("ERROR: [%0t] %s:%0d: backward pass timeout", $time, `__FILE__, `__LINE__);
-        `ifndef NSTOP
+        `ifndef FINISH
           $stop;
         `else
           $finish;

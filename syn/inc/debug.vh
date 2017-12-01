@@ -18,7 +18,7 @@
   `define FATAL(msg) \
     do begin \
       $display("FATAL: %s:%0d: %s", `__FILE__, `__LINE__, (msg)); \
-      `ifndef NSTOP \
+      `ifndef FINISH \
         $stop; \
       `else \
         $finish; \
@@ -29,7 +29,7 @@
       do begin \
         if ((exp) !== 1) begin \
           $display("FATAL: %s:%0d: failed assertion: %s", `__FILE__, `__LINE__, `"exp`"); \
-          `ifdef NSTOP \
+          `ifdef FINISH \
             $stop; \
           `else \
             $finish; \
