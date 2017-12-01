@@ -7,38 +7,38 @@
 localparam TIMEOUT = `TIMEOUT;
 `undef TIMEOUT
 
-`ifndef ARG_WIDTH
-`define ARG_WIDTH 8
+`ifndef ARGW
+`define ARGW 8
 `endif
-`ifndef ARG_DEPTH
-`define ARG_DEPTH 2
+`ifndef ARGN
+`define ARGN 2
 `endif
-`ifndef RES_WIDTH
-`define RES_WIDTH `ARG_WIDTH
+`ifndef RESW
+`define RESW `ARGW
 `endif
-`ifndef ERR_WIDTH
-`define ERR_WIDTH 16
+`ifndef ERRW
+`define ERRW 16
 `endif
-`ifndef FBK_WIDTH
-`define FBK_WIDTH `ERR_WIDTH
+`ifndef FBKW
+`define FBKW `ERRW
 `endif
-`ifndef FBK_DEPTH
-`define FBK_DEPTH `ARG_DEPTH
+`ifndef FBKN
+`define FBKN `ARGN
 `endif
 
-localparam ARG_WIDTH = `ARG_WIDTH;
-localparam ARG_DEPTH = `ARG_DEPTH;
-localparam RES_WIDTH = `RES_WIDTH;
-localparam ERR_WIDTH = `ERR_WIDTH;
-localparam FBK_WIDTH = `FBK_WIDTH;
-localparam FBK_DEPTH = `FBK_DEPTH;
+localparam ARGW = `ARGW;
+localparam ARGN = `ARGN;
+localparam RESW = `RESW;
+localparam ERRW = `ERRW;
+localparam FBKW = `FBKW;
+localparam FBKN = `FBKN;
 
-`undef ARG_WIDTH
-`undef ARG_DEPTH
-`undef RES_WIDTH
-`undef ERR_WIDTH
-`undef FBK_WIDTH
-`undef FBK_DEPTH
+`undef ARGW
+`undef ARGN
+`undef RESW
+`undef ERRW
+`undef FBKW
+`undef FBKN
 
 logic clk = 0;
 always #5 clk = ~clk;
@@ -47,19 +47,19 @@ logic rst = 0;
 logic en = 0;
 
 logic arg_stb = 0;
-logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg_dat;
+logic [ARGN-1:0][ARGW-1:0] arg_dat;
 logic arg_rdy;
 
 logic res_stb;
-logic [RES_WIDTH-1:0] res_dat;
+logic [RESW-1:0] res_dat;
 logic res_rdy = 0;
 
 logic err_stb = 0;
-logic [ERR_WIDTH-1:0] err_dat;
+logic [ERRW-1:0] err_dat;
 logic err_rdy;
 
 logic fbk_stb;
-logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk_dat;
+logic [FBKN-1:0][FBKW-1:0] fbk_dat;
 logic fbk_rdy = 0;
 
 task dump;
@@ -81,8 +81,8 @@ task reset;
 endtask
 
 task forward;
-  input [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg;
-  output [RES_WIDTH-1:0] res;
+  input [ARGN-1:0][ARGW-1:0] arg;
+  output [RESW-1:0] res;
   begin
     fork
       begin : forward_timeout
@@ -111,8 +111,8 @@ task forward;
 endtask
 
 task backward;
-  input [ERR_WIDTH-1:0] err;
-  output [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
+  input [ERRW-1:0] err;
+  output [FBKN-1:0][FBKW-1:0] fbk;
   begin
     fork
       begin : backward_timeout

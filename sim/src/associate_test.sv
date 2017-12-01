@@ -1,19 +1,19 @@
 `include "debug.vh"
 
 module associate_test;
-  `define RES_WIDTH 16
+  `define RESW 16
   `include "test.svh"
 
   parameter SEED = 32'hdeadbeef;
 
-  logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
-  logic [RES_WIDTH-1:0] res;
-  logic signed [RES_WIDTH-1:0] tgt [4];
-  logic signed [RES_WIDTH-1:0] act;
-  logic signed [ERR_WIDTH-1:0] err;
-  logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
+  logic [ARGN-1:0][ARGW-1:0] arg [4];
+  logic [RESW-1:0] res;
+  logic signed [RESW-1:0] tgt [4];
+  logic signed [RESW-1:0] act;
+  logic signed [ERRW-1:0] err;
+  logic [FBKN-1:0][FBKW-1:0] fbk;
 
-  associate #(.ARGN(ARG_DEPTH), .RATE(1)) uut (.*);
+  associate #(.ARGN(ARGN), .RATE(1)) uut (.*);
 
   task train;
   begin
@@ -85,7 +85,7 @@ module associate_test;
   integer seed = SEED;
   task init;
   begin
-    for (int n = 0; n < ARG_DEPTH; n++)
+    for (int n = 0; n < ARGN; n++)
       uut.weights[n] = $random(seed) % 2**4;
   end
   endtask : init

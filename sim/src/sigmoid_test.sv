@@ -1,9 +1,9 @@
 `include "debug.vh"
 
 module sigmoid_test;
-  `define ARG_WIDTH 16
-  `define ARG_DEPTH 1
-  `define RES_WIDTH 8
+  `define ARGW 16
+  `define ARGN 1
+  `define RESW 8
   `include "test.svh"
 
   parameter activ = "sigmoid_activ.dat";
@@ -11,8 +11,8 @@ module sigmoid_test;
 
   sigmoid #(activ, deriv) uut (.*);
 
-  logic [RES_WIDTH-1:0] res;
-  logic [FBK_WIDTH-1:0] fbk;
+  logic [RESW-1:0] res;
+  logic [FBKW-1:0] fbk;
 
   task fwd_test;
   begin

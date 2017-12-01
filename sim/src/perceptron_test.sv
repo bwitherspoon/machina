@@ -3,13 +3,13 @@
 module perceptron_test;
   `include "test.svh"
 
-  perceptron #(.ARGN(ARG_DEPTH)) uut(.*);
+  perceptron #(.ARGN(ARGN)) uut(.*);
 
-  logic [ARG_DEPTH-1:0][ARG_WIDTH-1:0] arg [4];
-  logic [RES_WIDTH-1:0] tgt [4];
-  logic [RES_WIDTH-1:0] res;
-  logic signed [ERR_WIDTH-1:0] err;
-  logic [FBK_DEPTH-1:0][FBK_WIDTH-1:0] fbk;
+  logic [ARGN-1:0][ARGW-1:0] arg [4];
+  logic [RESW-1:0] tgt [4];
+  logic [RESW-1:0] res;
+  logic signed [ERRW-1:0] err;
+  logic [FBKN-1:0][FBKW-1:0] fbk;
 
   task and_test;
   begin
