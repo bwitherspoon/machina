@@ -29,6 +29,8 @@ define check-program
 	@$(1) -V 2>&1 | head -n 1
 endef
 
+.DELETE_ON_ERROR:
+
 all:
 
 help:
