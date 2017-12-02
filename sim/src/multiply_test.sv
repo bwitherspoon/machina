@@ -25,6 +25,7 @@ module multiply_test;
 
   initial begin
     dump;
+    test;
     reset;
     test;
     $finish;
