@@ -3,6 +3,7 @@ module multiply #(
   parameter Q = 8
 )(
   input clk,
+  input rst,
 
   input arg_stb,
   input [2*W-1:0] arg_dat,
@@ -14,15 +15,15 @@ module multiply #(
 );
   initial begin
     if (Q < 1) begin
-      $display("ERROR: Q must be non-negative and non-zero");
-      $finish;
-    end
-    if (W < 0) begin
-      $display("ERROR: W must be non-negative");
+      $display("ERROR: multiply.v: Q must be non-negative and non-zero");
       $finish;
     end
     if (Q > W) begin
-      $display("ERROR: Q must be less than or equal to W");
+      $display("ERROR: multiply.v: Q must be less than or equal to W");
+      $finish;
+    end
+    if (W < 0) begin
+      $display("ERROR: multiply.v: W must be non-negative");
       $finish;
     end
   end
@@ -32,7 +33,7 @@ module multiply #(
   wire res_bsy = res_stb & ~res_rdy;
 
   reg signed [W-1:0] arg [1:0];
-  reg signed [2*W-1:0] res;
+  reg signed [2*W-1:0] mul_dat;
   reg mul_stb = 0;
   reg res_stb = 0;
 
@@ -40,26 +41,31 @@ module multiply #(
 
   always @(posedge clk) begin
     if (arg_ack) begin
-      arg[0] <= arg_dat[0 +: W];
-      arg[1] <= arg_dat[W +: W];
+      arg[0] <= arg_dat[0+:W];
+      arg[1] <= arg_dat[W+:W];
     end
   end
 
-  if (Q > 0) wire [Q-1:0] unused = res[Q-1:0];
-  assign res_dat = res[2*W-1:Q];
+  if (Q > 0) wire [Q-1:0] unused = mul_dat[Q-1:0];
+  assign res_dat = mul_dat[2*W-1:Q];
 
-  // TODO
   always @(posedge clk) begin
-    if (mul_stb & ~res_stb) begin
-      res_stb <= 1;
-      res <= arg[0] * arg[1];
+    if (rst) begin
+      res_stb <= 0;
+    end else if (mul_stb) begin
+      if (~res_stb) begin
+        res_stb <= 1;
+        mul_dat <= arg[0] * arg[1];
+      end
     end else if (res_ack) begin
       res_stb <= 0;
     end
   end
 
   always @(posedge clk) begin
-    if (~mul_stb & arg_ack) begin
+    if (rst) begin
+      mul_stb <= 0;
+    end else if (~mul_stb & arg_ack) begin
       mul_stb <= 1;
     end else if (mul_stb & ~res_bsy) begin
       mul_stb <= 0;
