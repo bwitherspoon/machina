@@ -1,8 +1,9 @@
+*.blif
 *.d
 *.dat
-*.blif
 *.fst
 *.gtkw
+*.log
 *.lxt
 *.o
 *.vcd
