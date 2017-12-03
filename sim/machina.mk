@@ -51,7 +51,8 @@ $(sim_out_dir):
 test-sigmoid:: $(gen_dat_dir)sigmoid_activ.dat $(gen_dat_dir)sigmoid_deriv.dat
 
 $(sim_tst_tgt):: test-%: $(sim_vvp_dir)%_test.vvp | $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && echo "PASS: $*" || { echo "FAIL: $*"; exit 1; }
+	@$(VVP) $(VVP_FLAGS) -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && \
+	echo "PASS: $*" || { echo "FAIL: $*"; cat $(sim_log_dir)/$*.log; exit 1; }
 
 $(sim_chk_tgt):: check-%: %_test.sv
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
