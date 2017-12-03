@@ -4,6 +4,7 @@ module sigmoid_test;
   `define ARGW 16
   `define ARGN 1
   `define RESW 8
+  `define ERRW 16
   `include "test.svh"
 
   parameter activ = "sigmoid_activ.dat";

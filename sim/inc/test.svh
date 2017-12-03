@@ -11,13 +11,13 @@ localparam TIMEOUT = `TIMEOUT;
 `define ARGW 8
 `endif
 `ifndef ARGN
-`define ARGN 2
+`define ARGN 1
 `endif
 `ifndef RESW
 `define RESW `ARGW
 `endif
 `ifndef ERRW
-`define ERRW 16
+`define ERRW `RESW
 `endif
 `ifndef FBKW
 `define FBKW `ERRW

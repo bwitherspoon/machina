@@ -1,6 +1,10 @@
 `include "debug.vh"
 
 module perceptron_test;
+  `define ARGW 8
+  `define ARGN 2
+  `define RESW 8
+  `define ERRW 16
   `include "test.svh"
 
   perceptron #(.ARGN(ARGN)) uut(.*);

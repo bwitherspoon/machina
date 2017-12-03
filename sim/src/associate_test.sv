@@ -1,6 +1,8 @@
 `include "debug.vh"
 
 module associate_test;
+  `define ARGW 8
+  `define ARGN 2
   `define RESW 16
   `include "test.svh"
 
