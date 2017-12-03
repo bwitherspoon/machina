@@ -29,7 +29,7 @@
       do begin \
         if ((exp) !== 1) begin \
           $display("FATAL: %s:%0d: failed assertion: %s", `__FILE__, `__LINE__, `"exp`"); \
-          `ifdef FINISH \
+          `ifndef FINISH \
             $stop; \
           `else \
             $finish; \
