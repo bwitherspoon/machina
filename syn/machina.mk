@@ -28,7 +28,7 @@ check-syn: $(syn_chk_tgt)
 
 $(syn_chk_tgt):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
-	@$(VERILATOR) $(VERILATOR_FLAGS) --lint-only $<
+	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
 	@$(YOSYS) $(YOSYS_FLAGS) $<
 
 $(syn_blif_dir)sigmoid.blif: memory.v $(gen_sig_act) $(gen_sig_der)
