@@ -14,6 +14,9 @@ module accumulate #(
   output [RESW-1:0] res_dat,
   input res_rdy
 );
+  initial if (RESW < ARGW)
+    $display("ERROR: accumulate: result width must be greater then or equal to argument width");
+
   reg signed [RESW-1:0] acc;
   reg signed [RESW-1:0] sum = 0;
 
@@ -29,7 +32,7 @@ module accumulate #(
     if (rst) begin
       sum <= 0;
     end else if (arg_stb & arg_rdy) begin
-      sum <= acc + $signed(arg_dat);
+      sum <= acc + $signed({{(RESW-ARGW){arg_dat[ARGW-1]}}, arg_dat});
     end
   end
 
