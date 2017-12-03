@@ -33,7 +33,7 @@ module perceptron_test;
     for (int i = 0; i < 4; i++) begin
       forward(arg[i], res);
       err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
-      `ASSERT(abs(err) === 0);
+      `ASSERT_EQUAL(abs(err), 0);
     end
   end
   endtask

@@ -13,11 +13,11 @@ module multiply_test;
   task test;
     begin
       forward(32'h_0080_0080, res);
-      `ASSERT(res === 32'h4000);
+      `ASSERT_EQUAL(res, 32'h4000);
       forward(32'h_0100_0100, res);
-      `ASSERT(res === 32'h10000);
+      `ASSERT_EQUAL(res, 32'h10000);
       forward(32'h_7fff_0000, res);
-      `ASSERT(res === 32'b0);
+      `ASSERT_EQUAL(res, 32'b0);
     end
   endtask
 

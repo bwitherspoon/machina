@@ -33,7 +33,7 @@ module associate_test;
       forward(arg[i], res);
       act = ($signed(res) < 0) ? 16'h0000 : 16'h00ff;
       err = tgt[i] - act;
-      `ASSERT(abs(err) == 0);
+      `ASSERT_EQUAL(abs(err), 0);
     end
   end
   endtask : train
@@ -41,7 +41,7 @@ module associate_test;
   task fwd_test;
   begin
     forward(16'h0000, res);
-    `ASSERT(res == 16'b0);
+    `ASSERT_EQUAL(res, 16'b0);
   end
   endtask : fwd_test
 
@@ -49,9 +49,9 @@ module associate_test;
   begin
     en = 1;
     forward(16'h0000, res);
-    `ASSERT(res == 16'b0);
+    `ASSERT_EQUAL(res, 16'b0);
     backward(16'h0000, fbk);
-    `ASSERT(fbk == 32'b0);
+    `ASSERT_EQUAL(fbk, 32'b0);
   end
   endtask : bwd_test
 

@@ -13,13 +13,13 @@ module saturate_test;
   task test0;
     begin
       forward(24'h000ff, res);
-      `ASSERT(res === 16'h00ff);
+      `ASSERT_EQUAL(res, 16'h00ff);
       forward(24'hffff00, res);
-      `ASSERT(res === 16'hff00);
+      `ASSERT_EQUAL(res, 16'hff00);
       forward(24'h7fffff, res);
-      `ASSERT(res === 16'h7fff);
+      `ASSERT_EQUAL(res, 16'h7fff);
       forward(24'h800000, res);
-      `ASSERT(res === 16'h8000);
+      `ASSERT_EQUAL(res, 16'h8000);
 end
   endtask
 

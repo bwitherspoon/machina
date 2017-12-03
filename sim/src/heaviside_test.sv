@@ -16,7 +16,7 @@ module heaviside_test;
     begin
       en = 0;
       forward(0, res);
-      `ASSERT(res === 8'hff);
+      `ASSERT_EQUAL(res, 8'hff);
     end
   endtask
 
@@ -24,9 +24,9 @@ module heaviside_test;
     begin
       en = 1;
       forward(-1, res);
-      `ASSERT(res === 8'h00);
+      `ASSERT_EQUAL(res, 8'h00);
       backward(-1, fbk);
-      `ASSERT($signed(fbk) === -1);
+      `ASSERT_EQUAL($signed(fbk), -1);
     end
   endtask
 

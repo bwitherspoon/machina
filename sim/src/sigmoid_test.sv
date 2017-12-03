@@ -19,11 +19,11 @@ module sigmoid_test;
   begin
     en = 0;
     forward(16'h0000, res);
-    `ASSERT(res == 8'h80);
+    `ASSERT_EQUAL(res, 8'h80);
     forward(16'h07ff, res);
-    `ASSERT(res == 8'hff);
+    `ASSERT_EQUAL(res, 8'hff);
     forward(16'hf800, res);
-    `ASSERT(res == 8'h00);
+    `ASSERT_EQUAL(res, 8'h00);
   end
   endtask : fwd_test
 
@@ -31,9 +31,9 @@ module sigmoid_test;
   begin
     en = 1;
     forward(0, res);
-    `ASSERT(res == 8'h80);
+    `ASSERT_EQUAL(res, 8'h80);
     backward(256, fbk);
-    `ASSERT(fbk == 16'h0040);
+    `ASSERT_EQUAL(fbk, 16'h0040);
   end
   endtask : bwd_test
 

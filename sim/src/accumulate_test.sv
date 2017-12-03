@@ -15,14 +15,14 @@ module accumulate_test;
   task test;
     begin
       forward(24'h000ff, res);
-      `ASSERT(res === 40'h00ff);
+      `ASSERT_EQUAL(res, 40'h00ff);
       forward(24'h000001, res);
-      `ASSERT(res === 40'h0100);
+      `ASSERT_EQUAL(res, 40'h0100);
       forward(24'hffffff, res);
-      `ASSERT(res === 40'h00ff);
+      `ASSERT_EQUAL(res, 40'h00ff);
       clr = 1;
       forward(24'h00000f, res);
-      `ASSERT(res === 40'h000f);
+      `ASSERT_EQUAL(res, 40'h000f);
       clr = 0;
     end
   endtask

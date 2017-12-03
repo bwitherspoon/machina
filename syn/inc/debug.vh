@@ -25,10 +25,11 @@
       `endif \
     end while (0)
 
-    `define ASSERT(exp) \
+    `define ASSERT_EQUAL(lhs, rhs) \
       do begin \
-        if ((exp) !== 1) begin \
-          $display("FATAL: %s:%0d: failed assertion: %s", `__FILE__, `__LINE__, `"exp`"); \
+        if ((lhs) !== (rhs)) begin \
+          $display("FATAL: %s:%0d: failed assertion: %s, %s = %h, %s = %h", \
+            `__FILE__, `__LINE__, `"lhs != rhs`", `"lhs`", (lhs), `"rhs`", (rhs)); \
           `ifndef FINISH \
             $stop; \
           `else \
