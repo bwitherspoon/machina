@@ -5,7 +5,7 @@
   `define DEBUG(msg) \
     do begin \
       `ifndef NDEBUG \
-        $display("DEBUG: %s:%0d: %s", `__FILE__, `__LINE__, (msg)) \
+        $display("DEBUG: %s:%0d: %s", `__FILE__, `__LINE__, (msg)); \
       `endif \
     end while (0)
 
