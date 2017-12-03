@@ -1,43 +1,51 @@
 module accumulate #(
-  parameter WIDTH = 16,
-  parameter DEPTH = 2
+  parameter ARGW = 32,
+  parameter RESW = 40
 )(
   input clk,
   input rst,
+  input clr,
 
-  input [DEPTH-1:0] arg_stb,
-  input [DEPTH*WIDTH-1:0] arg_dat,
-  output reg [DEPTH-1:0] arg_rdy,
+  input arg_stb,
+  input [ARGW-1:0] arg_dat,
+  output arg_rdy,
 
-  output reg res_stb,
-  output reg [DEPTH+WIDTH-1:0] res_dat,
+  output res_stb,
+  output [RESW-1:0] res_dat,
   input res_rdy
 );
-  reg [DEPTH+WIDTH-1:0] acc = 0;
+  reg signed [RESW-1:0] acc;
+  reg signed [RESW-1:0] sum = 0;
 
-  integer n;
-  always @ (*) begin
-    arg_rdy = 0;
-    for (n = DEPTH - 1; n >= 0; n = n - 1) begin
-      if (arg_stb[n]) begin
-        arg_rdy = 0;
-        arg_rdy[n] = 1;
-      end
+  always @* begin
+    if (clr) begin
+      acc = 0;
+    end else begin
+      acc = sum;
     end
   end
 
-  initial res_stb = 0;
+  always @(posedge clk) begin
+    if (rst) begin
+      sum <= 0;
+    end else if (arg_stb & arg_rdy) begin
+      sum <= acc + $signed(arg_dat);
+    end
+  end
+
+  assign arg_rdy = ~res_stb | res_rdy;
+
+  reg res_stb = 0;
   always @(posedge clk) begin
     if (rst) begin
       res_stb <= 0;
     end else if (!res_stb) begin
       res_stb <= 1;
-      res_dat <= acc;
     end else if (res_rdy) begin
       res_stb <= 0;
     end
   end
 
-  wire [DEPTH*WIDTH-1:0] unused =  arg_dat;
+  assign res_dat = sum;
 
  endmodule
