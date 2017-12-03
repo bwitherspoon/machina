@@ -2,7 +2,8 @@
 
 module multiply_test;
   `define ARGW 16
-  `define RESW 24
+  `define ARGN 2
+  `define RESW 32
   `include "test.svh"
 
   multiply uut (.*);
@@ -11,15 +12,12 @@ module multiply_test;
 
   task test;
     begin
-      // Test: 0.5 * 0.5 = 0.25
       forward(32'h_0080_0080, res);
-      `ASSERT(res === 24'h40);
-      // Test: 1.0 * 1.0 = 1.0
+      `ASSERT(res === 32'h4000);
       forward(32'h_0100_0100, res);
-      `ASSERT(res === 24'h100);
-      // Test: ~128.0 * 0.0 = 0.0
+      `ASSERT(res === 32'h10000);
       forward(32'h_7fff_0000, res);
-      `ASSERT(res === 24'b0);
+      `ASSERT(res === 32'b0);
     end
   endtask
 
