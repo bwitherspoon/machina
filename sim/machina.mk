@@ -51,7 +51,7 @@ $(sim_out_dir):
 test-sigmoid:: $(gen_dat_dir)sigmoid_activ.dat $(gen_dat_dir)sigmoid_deriv.dat
 
 $(sim_tst_tgt):: test-%: $(sim_vvp_dir)%_test.vvp | $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && \
+	@$(VVP) -N -l- $< -none > /dev/null 2>$(sim_log_dir)/$*.log && \
 	echo "PASS: $*" || { echo "FAIL: $*"; cat $(sim_log_dir)/$*.log; exit 1; }
 
 $(sim_chk_tgt):: check-%: %_test.sv
@@ -64,13 +64,13 @@ sim-lxt: $(sim_lxt_tgt)
 sim-fst: $(sim_fst_tgt)
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir) $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -vcd +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-vcd.log
+	@$(VVP) -n -l- $< -vcd +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-vcd.log
 
 $(sim_lxt_dir)%.lxt: $(sim_vvp_dir)%.vvp | $(sim_lxt_dir) $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -lxt2 +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-lxt.log
+	@$(VVP) -n -l- $< -lxt2 +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-lxt.log
 
 $(sim_fst_dir)%.fst: $(sim_vvp_dir)%.vvp | $(sim_fst_dir) $(sim_log_dir)
-	@$(VVP) $(VVP_FLAGS) -l- $< -fst +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-fst.log
+	@$(VVP) -n -l- $< -fst +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-fst.log
 
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.activ=\"$(gen_dat_dir)sigmoid_activ.dat\"
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.deriv=\"$(gen_dat_dir)sigmoid_deriv.dat\"

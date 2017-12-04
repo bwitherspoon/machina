@@ -10,8 +10,6 @@ IVERILOG_FLAGS += -DFINISH
 endif
 
 VVP ?= vvp
-VVP_FLAGS := -N
-
 VERILATOR ?= verilator
 VERILATOR_FLAGS := -Wall -Wno-fatal
 
