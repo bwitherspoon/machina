@@ -117,7 +117,7 @@ task forward;
       begin
         for (int n = 0; n < ARGN; n++) begin
           arg_stb[n] = 1;
-          arg_dat[n] = arg;
+          arg_dat[n] = arg[n];
           wait (arg_rdy[n]) @(posedge clk);
           #1 arg_stb[n] = 0;
         end
