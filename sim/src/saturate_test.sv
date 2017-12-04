@@ -2,7 +2,6 @@
 
 module saturate_test;
   `define ARGW 24
-  `define ARGN 1
   `define RESW 16
   `include "test.svh"
 

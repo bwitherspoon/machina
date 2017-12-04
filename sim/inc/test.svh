@@ -10,35 +10,55 @@ localparam TIMEOUT = `TIMEOUT;
 `ifndef ARGW
 `define ARGW 8
 `endif
+`ifndef ARGD
+`define ARGD 1
+`endif
 `ifndef ARGN
 `define ARGN 1
 `endif
 `ifndef RESW
 `define RESW `ARGW
 `endif
+`ifndef RESD
+`define RESD 1
+`endif
+`ifndef RESK
+`define RESK 1
+`endif
 `ifndef ERRW
-`define ERRW `RESW
+`define ERRW 16
+`endif
+`ifndef ERRD
+`define ERRD 1
 `endif
 `ifndef FBKW
 `define FBKW `ERRW
 `endif
-`ifndef FBKN
-`define FBKN `ARGN
+`ifndef FBKD
+`define FBKD `ARGD
 `endif
 
 localparam ARGW = `ARGW;
+localparam ARGD = `ARGD;
 localparam ARGN = `ARGN;
 localparam RESW = `RESW;
+localparam RESD = `RESD;
+localparam RESK = `RESK;
 localparam ERRW = `ERRW;
+localparam ERRD = `ERRD;
 localparam FBKW = `FBKW;
-localparam FBKN = `FBKN;
+localparam FBKD = `FBKD;
 
 `undef ARGW
+`undef ARGD
 `undef ARGN
 `undef RESW
+`undef RESD
+`undef RESK
 `undef ERRW
+`undef ERRD
 `undef FBKW
-`undef FBKN
+`undef FBKD
 
 logic clk = 0;
 always #5 clk = ~clk;
@@ -46,20 +66,20 @@ always #5 clk = ~clk;
 logic rst = 0;
 logic en = 0;
 
-logic arg_stb = 0;
-logic [ARGN-1:0][ARGW-1:0] arg_dat;
-logic arg_rdy;
+logic [ARGN-1:0] arg_stb = 0;
+logic [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg_dat;
+logic [ARGN-1:0] arg_rdy;
 
 logic res_stb;
-logic [RESW-1:0] res_dat;
+logic [RESD-1:0][RESW-1:0] res_dat;
 logic res_rdy = 0;
 
 logic err_stb = 0;
-logic [ERRW-1:0] err_dat;
+logic [ERRD-1:0][ERRW-1:0] err_dat;
 logic err_rdy;
 
 logic fbk_stb;
-logic [FBKN-1:0][FBKW-1:0] fbk_dat;
+logic [FBKD-1:0][FBKW-1:0] fbk_dat;
 logic fbk_rdy = 0;
 
 task dump;
@@ -81,8 +101,8 @@ task reset;
 endtask
 
 task forward;
-  input [ARGN-1:0][ARGW-1:0] arg;
-  output [RESW-1:0] res;
+  input [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg;
+  output [RESK-1:0][RESD-1:0][RESW-1:0] res;
   begin
     fork
       begin : forward_timeout
@@ -95,15 +115,19 @@ task forward;
         `endif
       end
       begin
-        arg_stb = 1;
-        arg_dat = arg;
-        wait (arg_rdy) @ (posedge clk);
-        #1 arg_stb = 0;
+        for (int n = 0; n < ARGN; n++) begin
+          arg_stb[n] = 1;
+          arg_dat[n] = arg;
+          wait (arg_rdy[n]) @(posedge clk);
+          #1 arg_stb[n] = 0;
+        end
       end
       begin
-        wait (res_stb) #1 res_rdy = 1;
-        @ (posedge clk) res = res_dat;
-        #1 res_rdy = 0;
+        for (int k = 0; k < RESK; k++) begin
+          wait (res_stb) #1 res_rdy = 1;
+          @(posedge clk) res[k] = res_dat;
+          #1 res_rdy = 0;
+        end
         disable forward_timeout;
       end
     join
@@ -112,7 +136,7 @@ endtask
 
 task backward;
   input [ERRW-1:0] err;
-  output [FBKN-1:0][FBKW-1:0] fbk;
+  output [FBKD-1:0][FBKW-1:0] fbk;
   begin
     fork
       begin : backward_timeout

@@ -2,7 +2,6 @@
 
 module accumulate_test;
   `define ARGW 24
-  `define ARGN 1
   `define RESW 40
   `include "test.svh"
 

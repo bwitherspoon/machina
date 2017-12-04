@@ -2,24 +2,23 @@
 
 module perceptron_test;
   `define ARGW 8
-  `define ARGN 2
+  `define ARGD 2
   `define RESW 8
   `define ERRW 16
   `include "test.svh"
 
-  perceptron #(.ARGN(ARGN)) uut(.*);
+  perceptron #(.ARGD(ARGD)) uut(.*);
 
-  logic [ARGN-1:0][ARGW-1:0] arg [4];
-  logic [RESW-1:0] tgt [4];
-  logic [RESW-1:0] res;
-  logic signed [ERRW-1:0] err;
-  logic [FBKN-1:0][FBKW-1:0] fbk;
+  logic [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg [4];
+  logic [RESK-1:0][RESD-1:0][RESW-1:0] tgt [4];
+  logic [RESK-1:0][RESD-1:0][RESW-1:0] res;
+  logic signed [ERRD-1:0][ERRW-1:0] err;
+  logic [FBKD-1:0][FBKW-1:0] fbk;
 
   task and_test;
   begin
     arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
     tgt[0] = 8'h00; tgt[1] = 8'h00; tgt[2] = 8'h00; tgt[3] = 8'hff;
-    err = 16'h7FFF;
     reset;
     en = 1;
     repeat (10) begin

@@ -2,20 +2,21 @@
 
 module associate_test;
   `define ARGW 8
-  `define ARGN 2
+  `define ARGD 2
   `define RESW 16
+  `define ERRD 1
   `include "test.svh"
 
   parameter SEED = 32'hdeadbeef;
 
-  logic [ARGN-1:0][ARGW-1:0] arg [4];
+  logic [ARGD-1:0][ARGW-1:0] arg [4];
   logic [RESW-1:0] res;
   logic signed [RESW-1:0] tgt [4];
   logic signed [RESW-1:0] act;
   logic signed [ERRW-1:0] err;
-  logic [FBKN-1:0][FBKW-1:0] fbk;
+  logic [FBKD-1:0][FBKW-1:0] fbk;
 
-  associate #(.ARGN(ARGN), .RATE(1)) uut (.*);
+  associate #(.ARGD(ARGD), .RATE(1)) uut (.*);
 
   task train;
   begin
@@ -87,8 +88,8 @@ module associate_test;
   integer seed = SEED;
   task init;
   begin
-    for (int n = 0; n < ARGN; n++)
-      uut.weights[n] = $random(seed) % 2**4;
+    for (int i = 0; i < ARGD; i++)
+      uut.weights[i] = $random(seed) % 2**4;
   end
   endtask : init
 

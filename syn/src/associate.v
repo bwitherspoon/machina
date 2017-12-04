@@ -1,5 +1,5 @@
 module associate #(
-  parameter ARGN = 2,
+  parameter ARGD = 2,
   parameter RATE = 2
 )(
   input clk,
@@ -7,7 +7,7 @@ module associate #(
   input en,
 
   input arg_stb,
-  input [8*ARGN-1:0] arg_dat,
+  input [8*ARGD-1:0] arg_dat,
   output arg_rdy,
 
   output reg res_stb,
@@ -19,7 +19,7 @@ module associate #(
   output err_rdy,
 
   output reg fbk_stb,
-  output reg [16*ARGN-1:0] fbk_dat,
+  output reg [16*ARGD-1:0] fbk_dat,
   input fbk_rdy
 );
   localparam MAX = 24'sh007fff;
@@ -30,8 +30,8 @@ module associate #(
   wire err_ack = err_stb & err_rdy;
   wire fbk_ack = fbk_stb & fbk_rdy;
 
-  reg signed [8:0] args [0:ARGN-1];
-  reg signed [15:0] weights [0:ARGN-1];
+  reg signed [8:0] args [0:ARGD-1];
+  reg signed [15:0] weights [0:ARGD-1];
   reg signed [15:0] bias = 0;
   reg signed [15:0] delta = 0;
 
@@ -47,10 +47,10 @@ module associate #(
   reg [3:0] state = ARG;
 
   // Cycle counter
-  localparam END = ARGN - 1;
-  reg [$clog2(ARGN)-1:0] cnt = 0;
+  localparam END = ARGD - 1;
+  reg [$clog2(ARGD)-1:0] cnt = 0;
   wire cnt_ini = cnt == 0;
-  wire cnt_end = cnt == END[$clog2(ARGN)-1:0];
+  wire cnt_end = cnt == END[$clog2(ARGD)-1:0];
   wire cnt_stb = state == MUL || state == MAC || state == ERR || state == UPD;
   always @(posedge clk) cnt <= cnt_stb & ~cnt_end ? cnt + 1 : 0;
 
@@ -86,7 +86,7 @@ module associate #(
 `ifndef SYNTHESIS
   integer n;
   initial begin
-    for (n = 0; n < ARGN; n = n + 1)
+    for (n = 0; n < ARGD; n = n + 1)
       weights[n] = 0;
   end
 `endif
@@ -96,7 +96,7 @@ module associate #(
 
   genvar m;
   generate
-    for (m = 0; m < ARGN; m = m + 1)
+    for (m = 0; m < ARGD; m = m + 1)
       always @ (posedge clk)
         if (arg_ack)
           args[m] <= {1'b0, arg_dat[8*m +: 8]};
@@ -154,7 +154,7 @@ module associate #(
   end
 
   // Evaluate and saturate errors
-  reg [15:0] fbk [0:ARGN-1];
+  reg [15:0] fbk [0:ARGD-1];
   wire signed [23:0] err = weights[cnt] * delta >>> 8;
 
   always @ (posedge clk) begin
@@ -183,7 +183,7 @@ module associate #(
 
   genvar k;
   generate
-    for (k = 0; k < ARGN; k = k + 1)
+    for (k = 0; k < ARGD; k = k + 1)
       always @ (posedge clk) begin
         if (state == FBK) begin
           fbk_dat[16*k +: 16] <= fbk[k];
@@ -199,7 +199,7 @@ module associate #(
   integer j;
   always @ (posedge clk) begin
     if (rst) begin
-      for (j = 0; j < ARGN; j = j + 1) begin
+      for (j = 0; j < ARGD; j = j + 1) begin
         weights[j] <= 0;
       end
     end else if (state == UPD) begin

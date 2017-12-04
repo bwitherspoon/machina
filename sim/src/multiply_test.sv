@@ -2,7 +2,7 @@
 
 module multiply_test;
   `define ARGW 16
-  `define ARGN 2
+  `define ARGD 2
   `define RESW 32
   `include "test.svh"
 
