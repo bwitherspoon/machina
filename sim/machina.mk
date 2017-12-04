@@ -79,7 +79,9 @@ $(sim_vvp_dir)%.vvp:: %.sv $(sim_inc) | $(sim_vvp_dir)
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
 
 $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
-	@trap 'rm -f $@.$$$$' EXIT; trap 'rm -f $@' ERR; set -e; \
+	@trap 'rm -f $@.$$$$' EXIT; \
+	trap '[ -e "$(sim_dep_dir)/$*.log" ] && cat "$(sim_dep_dir)/$*.log" 1>&2; rm -f $@' ERR; \
+	set -e; \
 	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull -Mall=$@.$$$$ $< > $(sim_dep_dir)/$*.log 2>&1; \
 	basename -a `uniq $@.$$$$` | sed '1i$(sim_vvp_dir)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
 	@$(RM) $(sim_dep_dir)/$*.log
