@@ -49,7 +49,7 @@ module accumulate #(
     if (rst) begin
       res_stb <= 0;
     end else if (~res_stb) begin
-      if (arg_ack) begin
+      if (arg_end) begin
         res_stb <= 1;
         res_dat <= acc;
       end
