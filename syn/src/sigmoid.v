@@ -135,7 +135,6 @@ module sigmoid #(
   end
 
   // Feedback interface strobe and data
-  wire [7:0] nc = del[7:0];
   wire [15:0] fbk = {{2{del[21]}}, del[21:8]};
   initial fbk_stb = 0;
   always @ (posedge clk) begin
@@ -150,5 +149,9 @@ module sigmoid #(
       fbk_stb <= 0;
     end
   end
+
+  wire nc = &{1'b0,
+              del[7:0],
+              1'b0};
 
 endmodule
