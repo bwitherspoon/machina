@@ -13,18 +13,19 @@ module serialize #(
   output reg [$clog2(ARGN)+ARGW-1:0] res_dat,
   input res_rdy
 );
-  wire arg_ack = |arg_stb & |arg_rdy;
+  wire arg_ack = |(arg_stb & arg_rdy);
   wire res_ack = res_stb & res_rdy;
   wire res_bsy = res_stb & ~res_rdy;
+
   reg [$clog2(ARGN)-1:0] arg_sel;
   reg [ARGN-1:0] arg_msk = 0;
 
-  assign arg_rdy = (res_bsy) ? 0 : ~arg_msk & (1 << arg_sel);
+  assign arg_rdy = (res_bsy | ~|arg_stb) ? 0 : ~arg_msk & (1 << arg_sel);
 
   integer n;
   always @* begin
     arg_sel = 0;
-    for (n = ARGN - 1; n > 0; n = n - 1) begin
+    for (n = ARGN - 1; n >= 0; n = n - 1) begin
       if (~arg_msk[n] & arg_stb[n])
         arg_sel = n[$clog2(ARGN)-1:0];
     end

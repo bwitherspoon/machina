@@ -135,11 +135,11 @@ task result;
         `DEBUG("result timeout");
       end : timeout
       begin : worker
-        wait (res_stb) disable timeout;
-        res_rdy = 1;
+        wait (res_stb) res_rdy = 1;
         @(posedge clk) `ASSERT_EQUAL(res_stb, 1);
         res = res_dat;
         #1 res_rdy = 0;
+        disable timeout;
       end : worker
     join
   end
