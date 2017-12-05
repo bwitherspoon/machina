@@ -1,15 +1,13 @@
-`include "debug.vh"
-
-module sigmoid_test;
+module top;
   `define ARGW 16
   `define RESW 8
   `define ERRW 16
   `include "test.svh"
 
-  parameter activ = "sigmoid_activ.dat";
-  parameter deriv = "sigmoid_deriv.dat";
+  parameter act = "sigmoid_activ.dat";
+  parameter der = "sigmoid_deriv.dat";
 
-  sigmoid #(activ, deriv) uut (.*);
+  sigmoid #(act, der) uut (.*);
 
   logic [RESW-1:0] res;
   logic [FBKW-1:0] fbk;

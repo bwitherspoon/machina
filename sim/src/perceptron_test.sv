@@ -1,6 +1,4 @@
-`include "debug.vh"
-
-module perceptron_test;
+module top;
   `define ARGW 8
   `define ARGD 2
   `define RESW 8
@@ -10,8 +8,8 @@ module perceptron_test;
   perceptron #(.ARGD(ARGD)) uut(.*);
 
   logic [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg [4];
-  logic [RESK-1:0][RESD-1:0][RESW-1:0] tgt [4];
-  logic [RESK-1:0][RESD-1:0][RESW-1:0] res;
+  logic [RESD-1:0][RESW-1:0] tgt [4];
+  logic [RESD-1:0][RESW-1:0] res;
   logic signed [ERRD-1:0][ERRW-1:0] err;
   logic [FBKD-1:0][FBKW-1:0] fbk;
 

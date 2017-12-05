@@ -1,6 +1,4 @@
-`include "debug.vh"
-
-module saturate_test;
+module top;
   `define ARGW 24
   `define RESW 16
   `include "test.svh"

@@ -72,8 +72,8 @@ $(sim_lxt_dir)%.lxt: $(sim_vvp_dir)%.vvp | $(sim_lxt_dir) $(sim_log_dir)
 $(sim_fst_dir)%.fst: $(sim_vvp_dir)%.vvp | $(sim_fst_dir) $(sim_log_dir)
 	@$(VVP) -n -l- $< -fst +dumpfile=$@ > /dev/null 2>$(sim_log_dir)/$*-fst.log
 
-$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.activ=\"$(gen_dat_dir)sigmoid_activ.dat\"
-$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Psigmoid_test.deriv=\"$(gen_dat_dir)sigmoid_deriv.dat\"
+$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.act=\"$(gen_dat_dir)sigmoid_activ.dat\"
+$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.der=\"$(gen_dat_dir)sigmoid_deriv.dat\"
 
 $(sim_vvp_dir)%.vvp:: %.sv $(sim_inc) | $(sim_vvp_dir)
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<

@@ -1,6 +1,4 @@
-`include "debug.vh"
-
-module associate_test;
+module top;
   `define ARGW 8
   `define ARGD 2
   `define RESW 16

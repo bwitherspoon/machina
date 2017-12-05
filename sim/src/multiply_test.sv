@@ -1,6 +1,4 @@
-`include "debug.vh"
-
-module multiply_test;
+module top;
   `define ARGW 16
   `define ARGD 2
   `define RESW 32

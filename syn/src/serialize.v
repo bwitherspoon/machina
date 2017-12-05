@@ -17,24 +17,27 @@ module serialize #(
   wire res_ack = res_stb & res_rdy;
   wire res_bsy = res_stb & ~res_rdy;
   reg [$clog2(ARGN)-1:0] arg_sel;
-  reg [ARGN-1:0] arg_flg = 0;
+  reg [ARGN-1:0] arg_msk = 0;
 
-  assign arg_rdy = (res_bsy) ? 0 : 1 << arg_sel;
+  assign arg_rdy = (res_bsy) ? 0 : ~arg_msk & (1 << arg_sel);
 
   integer n;
   always @* begin
     arg_sel = 0;
     for (n = ARGN - 1; n > 0; n = n - 1) begin
-      if (~arg_flg[n] & arg_stb[n])
+      if (~arg_msk[n] & arg_stb[n])
         arg_sel = n[$clog2(ARGN)-1:0];
     end
   end
 
   always @(posedge clk) begin
     if (rst) begin
-      arg_flg <= 0;
+      arg_msk <= 0;
     end else if (arg_ack) begin
-      arg_flg <= arg_flg | arg_rdy;
+      if (&arg_msk)
+        arg_msk <= 0;
+      else
+        arg_msk <= arg_msk | arg_rdy;
     end
   end
 
@@ -42,9 +45,11 @@ module serialize #(
   always @(posedge clk) begin
     if (rst) begin
       res_stb <= 0;
-    end else if (arg_ack & !res_bsy) begin
-      res_stb <= 1;
-      res_dat <= {arg_sel, arg_dat[ARGW*arg_sel+:ARGW]};
+    end else if (!res_bsy) begin
+      if (arg_ack) begin
+        res_stb <= 1;
+        res_dat <= {arg_sel, arg_dat[ARGW*arg_sel+:ARGW]};
+      end
     end else if (res_ack) begin
       res_stb <= 0;
     end

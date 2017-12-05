@@ -1,6 +1,8 @@
 `ifndef TEST_INCLUDED
 `define TEST_INCLUDED
 
+`include "debug.vh"
+
 `ifndef TIMEOUT
 `define TIMEOUT 1000000
 `endif
@@ -22,9 +24,6 @@ localparam TIMEOUT = `TIMEOUT;
 `ifndef RESD
 `define RESD 1
 `endif
-`ifndef RESK
-`define RESK 1
-`endif
 `ifndef ERRW
 `define ERRW 16
 `endif
@@ -43,7 +42,6 @@ localparam ARGD = `ARGD;
 localparam ARGN = `ARGN;
 localparam RESW = `RESW;
 localparam RESD = `RESD;
-localparam RESK = `RESK;
 localparam ERRW = `ERRW;
 localparam ERRD = `ERRD;
 localparam FBKW = `FBKW;
@@ -54,7 +52,6 @@ localparam FBKD = `FBKD;
 `undef ARGN
 `undef RESW
 `undef RESD
-`undef RESK
 `undef ERRW
 `undef ERRD
 `undef FBKW
@@ -90,7 +87,7 @@ task dump;
       $dumpvars;
     end
   end
-endtask
+endtask : dump
 
 task reset;
   begin
@@ -98,48 +95,81 @@ task reset;
     repeat (2) @ (posedge clk);
     #1 rst = 0;
   end
-endtask
+endtask : reset
 
-task forward;
+task argument;
   input [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg;
-  output [RESK-1:0][RESD-1:0][RESW-1:0] res;
+  output ret;
   begin
     fork
-      begin : forward_timeout
-        #TIMEOUT;
-        $display("ERROR: [%0t] %s:%0d: forward pass timeout", $time, `__FILE__, `__LINE__);
-        `ifndef FINISH
-          $stop;
-        `else
-          $finish;
-        `endif
-      end
-      begin
-        for (int n = 0; n < ARGN; n++) begin
+      begin : timeout
+        ret = 0;
+        #TIMEOUT disable worker;
+        ret = 1;
+        `DEBUG("argument timeout");
+      end : timeout
+      begin : worker
+        // TODO iverilog 10 (not 11) seg faults with for loop local int
+        int n;
+        for (n = 0; n < ARGN; n++) begin : loop
           arg_stb[n] = 1;
           arg_dat[n] = arg[n];
           wait (arg_rdy[n]) @(posedge clk);
           #1 arg_stb[n] = 0;
-        end
+        end : loop
+        disable timeout;
+      end : worker
+    join
+  end
+endtask: argument
+
+task result;
+  output [RESD-1:0][RESW-1:0] res;
+  output ret;
+  begin
+    fork
+      begin : timeout
+        ret = 0;
+        #TIMEOUT disable worker;
+        ret = 1;
+        `DEBUG("result timeout");
+      end : timeout
+      begin : worker
+        wait (res_stb) disable timeout;
+        res_rdy = 1;
+        @(posedge clk) `ASSERT_EQUAL(res_stb, 1);
+        res = res_dat;
+        #1 res_rdy = 0;
+      end : worker
+    join
+  end
+endtask : result
+
+task forward;
+  input [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg;
+  output [RESD-1:0][RESW-1:0] res;
+  begin
+    fork
+      begin
+        bit timeout = 0;
+        argument(arg, timeout);
+        `ASSERT_EQUAL(timeout, 0);
       end
       begin
-        for (int k = 0; k < RESK; k++) begin
-          wait (res_stb) #1 res_rdy = 1;
-          @(posedge clk) res[k] = res_dat;
-          #1 res_rdy = 0;
-        end
-        disable forward_timeout;
+        bit timeout = 0;
+        result(res, timeout);
+        `ASSERT_EQUAL(timeout, 0);
       end
     join
   end
-endtask
+endtask : forward
 
 task backward;
   input [ERRW-1:0] err;
   output [FBKD-1:0][FBKW-1:0] fbk;
   begin
     fork
-      begin : backward_timeout
+      begin : timeout
         #TIMEOUT;
         $display("ERROR: [%0t] %s:%0d: backward pass timeout", $time, `__FILE__, `__LINE__);
         `ifndef FINISH
@@ -147,22 +177,22 @@ task backward;
         `else
           $finish;
         `endif
-      end
-      begin
+      end : timeout
+      begin : error
         err_stb = 1;
         err_dat = err;
         wait (err_rdy) @ (posedge clk);
         #1 err_stb = 0;
-      end
-      begin
+      end : error
+      begin : feedback
         wait (fbk_stb) #1 fbk_rdy = 1;
         @ (posedge clk) fbk = fbk_dat;
         #1 fbk_rdy = 0;
-        disable backward_timeout;
-      end
+        disable timeout;
+      end : feedback
     join
   end
-endtask
+endtask : backward
 
 function integer abs(integer val);
   abs = val < 0 ? -val : val;

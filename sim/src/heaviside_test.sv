@@ -1,6 +1,4 @@
-`include "debug.vh"
-
-module heaviside_test;
+module top;
   `define ARGW 16
   `define RESW 8
   `define ERRW 16
