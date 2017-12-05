@@ -17,7 +17,7 @@ module accumulate #(
     $display("ERROR: accumulate: result width must be greater then or equal to argument width");
 
   reg arg_ack = 0;
-  reg arg_end = 0;
+  wire arg_end = arg_ack & ~arg_stb;
   reg signed [RESW-1:0] acc = 0;
 
   assign arg_rdy = ~res_stb | res_rdy;
@@ -27,13 +27,6 @@ module accumulate #(
       arg_ack <= 0;
     else
       arg_ack <= arg_stb & arg_rdy;
-  end
-
-  always @(posedge clk) begin
-    if (rst | arg_end)
-      arg_end <= 0;
-    else
-      arg_end <= arg_ack & ~arg_stb;
   end
 
   always @(posedge clk) begin
