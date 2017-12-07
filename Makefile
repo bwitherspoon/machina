@@ -1,3 +1,4 @@
+prj := machina
 prj_dir := $(dir $(firstword $(MAKEFILE_LIST)))
 
 IVERILOG ?= iverilog
@@ -10,6 +11,7 @@ IVERILOG_FLAGS += -DFINISH
 endif
 
 VVP ?= vvp
+
 VERILATOR ?= verilator
 VERILATOR_FLAGS := -Wall -Wno-fatal
 
@@ -37,20 +39,14 @@ help:
 	@echo " TARGET ::= all | check | test | clean"
 	@echo ""
 
-check: check-makefile check-programs
+check: check-makefile
 
 check-makefile:
 	@$(MAKE) --dry-run --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
-
-check-programs:
-	$(call check-program,$(IVERILOG))
-	$(call check-program,$(VVP))
-	$(call check-program,$(VERILATOR))
-	$(call check-program,$(YOSYS))
 
 include dev/machina.mk
 include dat/machina.mk
 include syn/machina.mk
 include sim/machina.mk
 
-.PHONY: all help check test clean check-makefile check-programs
+.PHONY: all help check test clean check-makefile
