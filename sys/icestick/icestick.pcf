@@ -1,0 +1,41 @@
+# Lattice Semiconductor iCEstick Evaluation Kit (iCE40-HX1K-TQ144)
+set_io clk       21  # PIO3_00 / iCE_CLK
+set_io led[0]    99  # PIO1_14 / LED0
+set_io led[1]    98  # PIO1_13 / LED1
+set_io led[2]    97  # PIO1_12 / LED2
+set_io led[3]    96  # PIO1_11 / LED3
+set_io led[4]    95  # PIO1_10 / LED4
+#set_io rs232_dsr 2   # PIO3_03 / DSRn
+#set_io rs232_dtr 3   # PIO3_04 / CTSn
+#set_io rs232_dcd 1   # PIO3_02 / DCDn
+#set_io rs232_cts 4   # PIO3_05 / CTSn
+#set_io rs232_rts 7   # PIO3_06 / RTSn
+#set_io rs232_txd 8   # PIO3_07 / RS232_Tx_TTL
+#set_io rs232_rxd 9   # PIO3_08 / RS232_Rx TTL
+#set_io irda_txd  105 # PIO1_18
+#set_io irda_rxd  106 # PIO1_19
+#set_io irda_sd   104 # PIO1_20
+#set_io pmod[0]   78  # PIO1_02
+#set_io pmod[1]   79  # PIO1_03
+#set_io pmod[2]   80  # PIO1_04
+#set_io pmod[3]   81  # PIO1_05
+#set_io pmod[4]   87  # PIO1_06
+#set_io pmod[5]   88  # PIO1_07
+#set_io pmod[6]   90  # PIO1_08
+#set_io pmod[7]   91  # PIO1_09
+#set_io gpio[0]   112 # PIO0_02
+#set_io gpio[1]   113 # PIO0_03
+#set_io gpio[2]   114 # PIO0_04
+#set_io gpio[3]   115 # PIO0_05
+#set_io gpio[4]   116 # PIO0_06
+#set_io gpio[5]   117 # PIO0_07
+#set_io gpio[6]   118 # PIO0_08
+#set_io gpio[7]   119 # PIO0_09
+#set_io gpio[8]   62  # PIO2_17
+#set_io gpio[9]   61  # PIO2_16
+#set_io gpio[10]  60  # PIO2_15
+#set_io gpio[11]  56  # PIO2_14
+#set_io gpio[12]  48  # PIO2_13
+#set_io gpio[13]  47  # PIO2_12
+#set_io gpio[14]  45  # PIO2_11
+#set_io gpio[15]  44  # PIO2_10
