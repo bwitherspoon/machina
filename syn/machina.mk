@@ -40,13 +40,7 @@ $(syn_chk_tgt):: check-%: %.v
 $(syn_blif_dir)sigmoid.blif: $(gen_sig_act) $(gen_sig_der)
 
 $(syn_blif_dir)%.blif: %.v | $(syn_blif_dir)
-	@if [ -e '$(syn_dir)$*.ys' ]; then \
-		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(syn_blif_dir)$*.log -o $@ -s $(syn_dir)$*.ys'; \
-		$(YOSYS) $(YOSYS_FLAGS) -l $(syn_blif_dir)$*.log -o $@ -s $(syn_dir)$*.ys; \
-	else \
-		echo '$(YOSYS) $(YOSYS_FLAGS) -l $(syn_blif_dir)$*.log -o $@ -S $(filter %.v,$^)'; \
-		$(YOSYS) $(YOSYS_FLAGS) -l $(syn_blif_dir)$*.log -o $@ -S $(filter %.v,$^); \
-	fi
+	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -o $@ -S $(filter %.v,$^)
 
 $(syn_dep_dir)%.mk:: %.v | $(syn_dep_dir)
 	@trap 'rm -f $@.$$$$' EXIT; \
