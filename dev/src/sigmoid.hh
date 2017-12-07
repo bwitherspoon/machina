@@ -2,7 +2,7 @@
 #define SIGMOID_INCLUDED
 
 #include <cmath>
-#include "memory.h"
+#include "memory.hh"
 
 namespace machina {
 

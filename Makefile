@@ -48,7 +48,8 @@ check-programs:
 	$(call check-program,$(VERILATOR))
 	$(call check-program,$(YOSYS))
 
-include gen/machina.mk
+include dev/machina.mk
+include dat/machina.mk
 include syn/machina.mk
 include sim/machina.mk
 

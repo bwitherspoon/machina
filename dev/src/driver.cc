@@ -4,7 +4,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "sigmoid.h"
+#include "sigmoid.hh"
 
 namespace po = boost::program_options;
 using namespace machina;

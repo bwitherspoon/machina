@@ -37,7 +37,7 @@ $(syn_chk_tgt):: check-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
 	@$(YOSYS) $(YOSYS_FLAGS) $<
 
-$(syn_blif_dir)sigmoid.blif: $(gen_sig_act) $(gen_sig_der)
+$(syn_blif_dir)sigmoid.blif: $(dat_sig_act) $(dat_sig_der)
 
 $(syn_blif_dir)%.blif: %.v | $(syn_blif_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -o $@ -S $(filter %.v,$^)
