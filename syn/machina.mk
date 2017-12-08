@@ -1,20 +1,17 @@
 syn_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 syn_src_dir := $(syn_dir)src/
-syn_inc_dir := $(syn_dir)inc/
 syn_dep_dir := $(syn_dir)dep/
 syn_blif_dir := $(syn_dir)blif/
 
 syn_src := $(notdir $(wildcard $(syn_src_dir)*.v))
-syn_inc := $(notdir $(wildcard $(syn_inc_dir)*.vh))
 syn_tgt := $(syn_src:.v=)
 syn_chk_tgt := $(addprefix check-,$(syn_tgt))
 syn_blif_tgt := $(addprefix $(syn_blif_dir),$(syn_tgt:=.blif))
 
-IVERILOG_FLAGS += -y$(syn_src_dir) -I$(syn_inc_dir)
-VERILATOR_FLAGS += -y $(syn_src_dir) -I$(syn_inc_dir)
+IVERILOG_FLAGS += -y$(syn_src_dir)
+VERILATOR_FLAGS += -y $(syn_src_dir)
 
 vpath %.v $(syn_src_dir)
-vpath %.vh $(syn_inc_dir)
 
 all: all-syn
 

@@ -1,19 +1,16 @@
 sim_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 sim_src_dir := $(sim_dir)src/
-sim_inc_dir := $(sim_dir)inc/
 sim_dep_dir := $(sim_dir)dep/
 sim_vvp_dir := $(sim_dir)vvp/
 sim_vcd_dir := $(sim_dir)vcd/
 sim_src := $(notdir $(wildcard $(sim_src_dir)*_test.sv))
-sim_inc := $(notdir $(wildcard $(sim_inc_dir)*.svh))
 sim_tst_tgt := $(addprefix test-,$(sim_src:_test.sv=))
 sim_chk_tgt := $(addprefix check-,$(sim_src:_test.sv=))
 sim_vcd_tgt := $(addprefix $(sim_vcd_dir),$(sim_src:.sv=.vcd))
 
-IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir) -I$(sim_inc_dir)
+IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir)
 
 vpath %.sv $(sim_src_dir)
-vpath %.svh $(sim_inc_dir)
 
 all: all-sim
 

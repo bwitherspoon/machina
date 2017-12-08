@@ -46,6 +46,7 @@ check-makefile:
 
 include dev/machina.mk
 include dat/machina.mk
+include inc/machina.mk
 include syn/machina.mk
 include sim/machina.mk
 
