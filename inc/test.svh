@@ -2,6 +2,7 @@
 `define TEST_INCLUDED
 
 `include "debug.vh"
+`include "util.vh"
 
 `ifndef TIMEOUT
 `define TIMEOUT 1000000
@@ -78,24 +79,6 @@ logic err_rdy;
 logic fbk_stb;
 logic [FBKD-1:0][FBKW-1:0] fbk_dat;
 logic fbk_rdy = 0;
-
-task dump;
-  begin
-    reg [128*8:1] dumpfile;
-    if ($value$plusargs("dumpfile=%s", dumpfile)) begin
-      $dumpfile(dumpfile);
-      $dumpvars;
-    end
-  end
-endtask : dump
-
-task reset;
-  begin
-    rst = 1;
-    repeat (2) @ (posedge clk);
-    #1 rst = 0;
-  end
-endtask : reset
 
 task argument;
   input [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg;
@@ -193,9 +176,5 @@ task backward;
     join
   end
 endtask : backward
-
-function integer abs(integer val);
-  abs = val < 0 ? -val : val;
-endfunction
 
 `endif
