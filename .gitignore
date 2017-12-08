@@ -1,3 +1,5 @@
+*.asc
+*.bin
 *.blif
 *.d
 *.dat
