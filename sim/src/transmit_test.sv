@@ -22,7 +22,7 @@ module top;
 
   always #(PERIOD/2) clk = (clk === 0);
 
-  transmit #(FREQUENCY, BAUDRATE) uut (.*);
+  transmit #(BAUDRATE, FREQUENCY) uut (.*);
 
   task xmt;
     input [7:0] data;

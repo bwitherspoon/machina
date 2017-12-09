@@ -1,6 +1,6 @@
 module transmit #(
-  parameter integer FREQ = 12000000,
-  parameter integer BAUD = 9600
+  parameter integer BAUD = 9600,
+  parameter integer FREQ = 12000000
 )(
   input clk,
   input rst,
