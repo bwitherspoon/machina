@@ -60,7 +60,7 @@ module top;
 
   initial begin
     dump;
-    #5 reset;
+    #(PERIOD/2) reset;
     xmt(8'h8F);
     rcv(res);
     `ASSERT_EQUAL(res, 8'h8f);
