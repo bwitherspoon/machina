@@ -10,8 +10,8 @@ set_io led[4]    95  # PIO1_10 / LED4
 #set_io rs232_dcd 1   # PIO3_02 / DCDn
 #set_io rs232_cts 4   # PIO3_05 / CTSn
 #set_io rs232_rts 7   # PIO3_06 / RTSn
-#set_io rs232_txd 8   # PIO3_07 / RS232_Tx_TTL
-#set_io rs232_rxd 9   # PIO3_08 / RS232_Rx TTL
+set_io rs232_txd 8   # PIO3_07 / RS232_Tx_TTL
+set_io rs232_rxd 9   # PIO3_08 / RS232_Rx TTL
 #set_io irda_txd  105 # PIO1_18
 #set_io irda_rxd  106 # PIO1_19
 #set_io irda_sd   104 # PIO1_20

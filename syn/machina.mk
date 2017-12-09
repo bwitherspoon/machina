@@ -23,7 +23,7 @@ all-syn: $(syn_blif_tgt)
 
 check-syn: $(syn_chk_tgt)
 
-clean-syn:
+clean-syn::
 	-$(RM) -r $(syn_dep_dir) $(syn_blif_dir)
 
 $(syn_dep_dir) $(syn_blif_dir):

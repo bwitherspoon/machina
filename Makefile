@@ -43,5 +43,6 @@ include dat/machina.mk
 include inc/machina.mk
 include syn/machina.mk
 include sim/machina.mk
+include sys/*/machina.mk
 
 .PHONY: all help check test clean check-makefile
