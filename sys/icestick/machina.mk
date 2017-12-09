@@ -24,7 +24,7 @@ clean-syn::
 $(syn_ice_dir):
 	@mkdir -p $@
 
-$(syn_ice_dir)icestick.blif: receive.v
+$(syn_ice_dir)icestick.blif: receive.v transmit.v
 $(syn_ice_dir)%.blif: %.v | $(syn_ice_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -p 'synth_ice40 -blif $@' $^
 

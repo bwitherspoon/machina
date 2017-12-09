@@ -23,24 +23,30 @@ module icestick (
   localparam FREQ = 12000000;
   localparam BAUD = 9600;
 
-  wire rcv_stb;
-  wire [7:0] rcv_dat;
+  wire stb;
+  wire rdy;
+  wire [7:0] dat;
 
   receive #(BAUD, FREQ) rcv (
     .clk(clk),
     .rst(1'b0),
     .rxd(rs232_rxd),
-    .rdy(1'b0),
-    .stb(rcv_stb),
-    .dat(rcv_dat)
+    .rdy(rdy),
+    .stb(stb),
+    .dat(dat)
   );
 
-  assign rs232_txd = rs232_rxd;
+  transmit #(FREQ, BAUD) xmt (
+    .clk(clk),
+    .rst(1'b0),
+    .stb(stb),
+    .dat(dat),
+    .rdy(rdy),
+    .txd(rs232_txd)
+  );
 
   assign led = 5'b10000;
 
   wire nc = &{1'b0,
-              rcv_stb,
-              rcv_dat,
               1'b0};
 endmodule
