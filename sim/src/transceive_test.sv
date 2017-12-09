@@ -58,15 +58,42 @@ module top;
     end
   endtask
 
+  task test0;
+    begin
+      fork
+        xmt(8'h8f);
+        rcv(res);
+      join
+      `ASSERT_EQUAL(res, 8'h8f);
+      fork
+        xmt(8'hf8);
+        rcv(res);
+      join
+      `ASSERT_EQUAL(res, 8'hf8);
+      fork
+        xmt(8'h77);
+        rcv(res);
+      join
+      `ASSERT_EQUAL(res, 8'h77);
+    end
+  endtask
+
+  task test1;
+    begin
+      xmt(8'h55);
+      xmt(8'haa);
+      rcv(res);
+      `ASSERT_EQUAL(res, 8'h55);
+      rcv(res);
+      `ASSERT_EQUAL(res, 8'haa);
+    end
+  endtask
+
   initial begin
     dump;
     #(PERIOD/2) reset;
-    fork
-      xmt(8'h8f);
-      rcv(res);
-    join
-    //`ASSERT_EQUAL(res, 8'h8f);
-    repeat(100000) @(posedge clk);
+    test0;
+    test1;
     $finish;
   end
 
