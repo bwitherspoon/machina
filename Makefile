@@ -25,7 +25,6 @@ endif
 
 define check-program
 	@command -v $(1) > /dev/null 2>&1 || { echo "ERROR: $(1) command not found in PATH" >&2; exit 1; }
-	@$(1) -V 2>&1 | head -n 1
 endef
 
 .DELETE_ON_ERROR:
