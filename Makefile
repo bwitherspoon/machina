@@ -18,11 +18,6 @@ VERILATOR_FLAGS := -Wall -Wno-fatal
 YOSYS ?= yosys
 YOSYS_FLAGS := -q
 
-CXXFLAGS := -std=c++11 -Wall -Wextra
-ifdef DEBUG
-CXXFLAGS += -O0 -g
-endif
-
 define check-program
 	@command -v $(1) > /dev/null 2>&1 || { echo "ERROR: $(1) command not found in PATH" >&2; exit 1; }
 endef

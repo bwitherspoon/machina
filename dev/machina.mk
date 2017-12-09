@@ -2,6 +2,11 @@ dev_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 dev_src_dir := $(dev_dir)src/
 dev_mem := $(dev_dir)mem
 
+CXXFLAGS := -std=c++11 -Wall -Wextra
+ifdef DEBUG
+CXXFLAGS += -O0 -g
+endif
+
 vpath %.cc $(dev_src_dir)
 vpath %.hh $(dev_src_dir)
 
