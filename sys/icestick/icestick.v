@@ -36,7 +36,7 @@ module icestick (
     .dat(dat)
   );
 
-  transmit #(FREQ, BAUD) xmt (
+  transmit #(BAUD, FREQ) xmt (
     .clk(clk),
     .rst(1'b0),
     .stb(stb),
