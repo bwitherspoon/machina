@@ -48,13 +48,13 @@ $(sim_chk_tgt):: check-%: %_test.sv
 $(sim_dmp_tgt):: dump-%: $(sim_vcd_dir)%_test.vcd
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
-	@$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
+	$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
 
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.act=\"$(dat_sig_act)\"
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.der=\"$(dat_sig_der)\"
 
 $(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
-	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
+	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
 
 $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
 	@trap 'rm -f $@.$$$$' EXIT; \
