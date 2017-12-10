@@ -1,6 +1,6 @@
 task dump;
   begin
-    reg [128*8:1] dumpfile;
+    string dumpfile;
     if ($value$plusargs("dumpfile=%s", dumpfile)) begin
       $dumpfile(dumpfile);
       $dumpvars;
@@ -18,4 +18,4 @@ endtask : reset
 
 function integer abs(integer val);
   abs = val < 0 ? -val : val;
-endfunction
+endfunction : abs

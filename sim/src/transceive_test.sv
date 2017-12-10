@@ -3,7 +3,7 @@ module top;
   timeprecision 1ps;
 
   `include "debug.vh"
-  `include "util.vh"
+  `include "util.svh"
 
   parameter BAUDRATE = 96e2;
   parameter FREQUENCY = 12e6;

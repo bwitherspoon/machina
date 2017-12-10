@@ -2,7 +2,7 @@
 `define TEST_INCLUDED
 
 `include "debug.vh"
-`include "util.vh"
+`include "util.svh"
 
 `ifndef TIMEOUT
 `define TIMEOUT 1000000
