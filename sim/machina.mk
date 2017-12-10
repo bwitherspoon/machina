@@ -6,27 +6,27 @@ sim_vcd_dir := $(sim_dir)vcd/
 sim_src := $(notdir $(wildcard $(sim_src_dir)*_test.sv))
 sim_tst_tgt := $(addprefix test-,$(sim_src:_test.sv=))
 sim_chk_tgt := $(addprefix check-,$(sim_src:_test.sv=))
-sim_vcd_tgt := $(addprefix $(sim_vcd_dir),$(sim_src:.sv=.vcd))
+sim_dmp_tgt := $(addprefix dump-,$(sim_src:_test.sv=))
 
 IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir)
 
 vpath %.sv $(sim_src_dir)
 
-all: all-sim
+all:
 
 test: test-sim
 
 check: check-sim
 
-clean: clean-sim
-
 dump: dump-sim
 
-all-sim: dump-sim
+clean: clean-sim
 
 test-sim: $(sim_tst_tgt)
 
 check-sim: $(sim_chk_tgt)
+
+dump-sim: $(sim_dmp_tgt)
 
 clean-sim:
 	-$(RM) -r $(sim_dep_dir) $(sim_vvp_dir) $(sim_vcd_dir)
@@ -43,7 +43,7 @@ $(sim_tst_tgt):: test-%: $(sim_vvp_dir)%_test.vvp
 $(sim_chk_tgt):: check-%: %_test.sv
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
 
-dump-sim: $(sim_vcd_tgt)
+$(sim_dmp_tgt):: dump-%: $(sim_vcd_dir)%_test.vcd
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
 	@$(VVP) -n -l- $< -vcd +dumpfile=$@ > /dev/null 2>$(@:.vcd=.log)
@@ -66,5 +66,5 @@ ifneq ($(MAKECMDGOALS),clean)
 include $(sim_src:%.sv=$(sim_dep_dir)%.mk)
 endif
 
-.PHONY: all test check clean dump all-sim test-sim check-sim clean-sim dump-sim
-.PHONY: $(sim_tst_tgt) $(sim_chk_tgt)
+.PHONY: all test check clean dump test-sim check-sim clean-sim dump-sim
+.PHONY: $(sim_tst_tgt) $(sim_chk_tgt) $(sim_dmp_tgt)
