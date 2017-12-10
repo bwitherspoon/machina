@@ -24,11 +24,9 @@ module receive #(
     if (rst) begin
       stb <= 0;
     end else if (state == STOP) begin
-      if (~stb) begin
+      if (~stb | rdy) begin
         stb <= 1;
         dat <= data;
-      end else if (rdy) begin
-        stb <= 0;
       end
     end else if (stb & rdy) begin
       stb <= 0;
