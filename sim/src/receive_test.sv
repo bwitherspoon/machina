@@ -5,15 +5,12 @@ module top;
   `include "debug.vh"
   `include "util.vh"
 
-  parameter SEED = 'hdeadbeef;
   parameter BAUDRATE = 96e2;
   parameter FREQUENCY = 12e6;
 
   localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
   localparam PERIOD = 1 / FREQUENCY / 1e-9;
   localparam TIMEOUT = 25 * CYCLES * PERIOD;
-
-  integer seed = SEED;
 
   logic clk;
   logic rst;
@@ -66,7 +63,7 @@ module top;
     logic [7:0] rx;
     begin
       repeat (4) begin
-        tx = $random(seed) % 255;
+        tx = {$random(seed)} % 255;
         fork
           xmt(tx);
           rcv(rx);
@@ -81,7 +78,7 @@ module top;
     logic [7:0] rx;
     begin
       for (int i = 0; i < 2; i++) begin
-        tx[i] = $random(seed) % 255;
+        tx[i] = {$random(seed)} % 255;
         xmt(tx[i]);
       end
       for (int i = 0; i < 2; i++) begin
@@ -91,9 +88,12 @@ module top;
     end
   endtask
 
+  int seed = 0;
+
   initial begin
     dump;
-    #(0.5*PERIOD) reset;
+    if ($value$plusargs("seed=%d", seed)) $info("using seed %0d", seed);
+    #(PERIOD/2) reset;
     test0;
     test1;
     $finish;
