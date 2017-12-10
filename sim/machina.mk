@@ -43,7 +43,8 @@ test-sigmoid:: $(dat_sig_act) $(dat_sig_der)
 
 $(sim_tst_tgt):: test-%: $(sim_vvp_dir)%_test.vvp
 	@$(VVP) -N -l- $< -none +seed=$(SEED) > /dev/null 2>$(<:.vvp=.log) && \
-	echo "PASS: $*" || { echo "FAIL: $*"; cat $(<:.vvp=.log); exit 1; }
+	echo 'PASS: $*' || \
+	{ echo 'FAIL: $*'; cat $(<:.vvp=.log) | sed 's,^,$(<:.vvp=.log): ,' 1>&2; exit 1; }
 
 $(sim_chk_tgt):: check-%: %_test.sv
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
@@ -61,7 +62,7 @@ $(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
 
 $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
 	@trap 'rm -f $@.$$$$' EXIT; \
-	trap '[ -e "$(@:.mk=.log)" ] && cat "$(@:.mk=.log)" 1>&2; rm -f $@' ERR; \
+	trap 'echo "ERROR: unable to generate dependencies for $<"; [ -e "$(@:.mk=.log)" ] && cat "$(@:.mk=.log)" | sed "s,^,$(@:.mk=.log): ," 1>&2; rm -f $@' ERR; \
 	set -e; \
 	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull -Mall=$@.$$$$ $< > $(@:.mk=.log) 2>&1; \
 	basename -a `uniq $@.$$$$` | sed '1i$(sim_vvp_dir)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
