@@ -7,6 +7,7 @@ sim_src := $(notdir $(wildcard $(sim_src_dir)*_test.sv))
 sim_tst_tgt := $(addprefix test-,$(sim_src:_test.sv=))
 sim_chk_tgt := $(addprefix check-,$(sim_src:_test.sv=))
 sim_dmp_tgt := $(addprefix dump-,$(sim_src:_test.sv=))
+sim_vvp_tgt := $(addprefix $(sim_vvp_dir),$(sim_src:.sv=.vvp))
 
 IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir)
 
@@ -14,7 +15,7 @@ SEED ?= $(shell echo $$RANDOM)
 
 vpath %.sv $(sim_src_dir)
 
-all:
+all: all-sim
 
 test: test-sim
 
@@ -23,6 +24,8 @@ check: check-sim
 dump: dump-sim
 
 clean: clean-sim
+
+all-sim: $(sim_vvp_tgt)
 
 test-sim: $(sim_tst_tgt)
 
