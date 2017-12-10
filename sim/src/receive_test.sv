@@ -4,15 +4,13 @@ module top;
 
   `include "debug.vh"
   `include "util.svh"
+  `include "clock.svh"
 
   parameter BAUDRATE = 96e2;
-  parameter FREQUENCY = 12e6;
 
   localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
-  localparam PERIOD = 1 / FREQUENCY / 1e-9;
   localparam TIMEOUT = 10 * CYCLES * PERIOD;
 
-  logic clk = 0;
   logic rst = 0;
   logic rxd = 1;
   logic rdy = 0;
@@ -119,8 +117,6 @@ module top;
     test1;
     test2;
   endtask
-
-  always #(PERIOD/2) clk <= ~clk;
 
   initial begin
     dump;

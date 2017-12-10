@@ -4,14 +4,12 @@ module top;
 
   `include "debug.vh"
   `include "util.svh"
+  `include "clock.svh"
 
   parameter BAUDRATE = 96e2;
-  parameter FREQUENCY = 12e6;
 
   localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
-  localparam PERIOD = 1.0 / FREQUENCY / 1e-9;
 
-  logic clk;
   logic rst;
   logic stb = 0;
   logic [7:0] dat;
@@ -19,8 +17,6 @@ module top;
   logic txd;
 
   logic [7:0] res;
-
-  always #(PERIOD/2) clk = (clk === 0);
 
   transmit #(BAUDRATE, FREQUENCY) uut (.*);
 
