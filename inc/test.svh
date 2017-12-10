@@ -4,6 +4,7 @@
 `include "debug.vh"
 `include "util.svh"
 `include "clock.svh"
+`include "reset.svh"
 
 `ifndef TIMEOUT
 `define TIMEOUT 1000000
@@ -59,7 +60,6 @@ localparam FBKD = `FBKD;
 `undef FBKW
 `undef FBKD
 
-logic rst = 0;
 logic en = 0;
 
 logic [ARGN-1:0] arg_stb = 0;

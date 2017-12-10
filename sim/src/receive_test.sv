@@ -4,6 +4,7 @@ module top;
 
   `include "debug.vh"
   `include "util.svh"
+  `include "reset.svh"
   `include "clock.svh"
 
   parameter BAUDRATE = 96e2;
@@ -11,7 +12,6 @@ module top;
   localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
   localparam TIMEOUT = 10 * CYCLES * PERIOD;
 
-  logic rst = 0;
   logic rxd = 1;
   logic rdy = 0;
   logic stb;
