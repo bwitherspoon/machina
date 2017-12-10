@@ -19,6 +19,7 @@ module top;
   logic rdy;
   logic stb;
   logic [7:0] dat;
+  logic err;
 
   logic [7:0] res;
 

@@ -6,8 +6,9 @@ module receive #(
   input rst,
   input rxd,
   input rdy,
-  output reg stb,
-  output reg [7:0] dat
+  output stb,
+  output reg [7:0] dat,
+  output err
 );
   localparam integer PERIOD = FREQ / BAUD;
   localparam COUNT = PERIOD[$clog2(3*PERIOD/2)-1:0];
@@ -18,45 +19,47 @@ module receive #(
   reg [$clog2(3*PERIOD/2)-1:0] count = 0;
   reg [3:0] state = IDLE;
   reg [7:0] data;
-
-  initial stb = 0;
-  always @(posedge clk) begin
-    if (rst) begin
-      stb <= 0;
-    end else if (state == STOP) begin
-      if (~stb | rdy) begin
-        stb <= 1;
-        dat <= data;
-      end
-    end else if (stb & rdy) begin
-      stb <= 0;
-    end
-  end
+  reg stb = 0;
+  reg err = 0;
 
   always @(posedge clk) begin
     if (rst) begin
       state <= IDLE;
       count <= 0;
-    end else begin
-      case (state)
-      IDLE:
-        if (~rxd) begin
-          state <= START;
-          count <= COUNT >> 1;
-        end
-      STOP:
-        if (~stb | rdy) begin
+    end else if (state == IDLE) begin
+      if (~rxd) begin
+        state <= START;
+        count <= COUNT >> 1;
+      end
+    end else if (count == COUNT) begin
+        if (state == STOP) begin
           state <= IDLE;
-        end
-      default:
-        if (count == COUNT) begin
+        end else begin
           data <= {rxd, data[7:1]};
           state <= state + 1;
-          count <= 0;
-        end else begin
-          count <= count + 1;
         end
-      endcase
+        count <= 0;
+    end else begin
+        count <= count + 1;
+    end
+  end
+
+  always @(posedge clk) begin
+    if (rst) begin
+      stb <= 0;
+      err <= 0;
+    end else if (state == STOP && count == COUNT) begin
+      if (rxd) begin
+        if (~stb | rdy) begin
+          stb <= 1;
+          dat <= data;
+        end
+        err <= 0;
+      end else begin
+        err <= 1;
+      end
+    end else if (stb & rdy) begin
+      stb <= 0;
     end
   end
 
