@@ -5,8 +5,6 @@ module top;
   `define ERRD 1
   `include "test.svh"
 
-  parameter SEED = 32'hdeadbeef;
-
   logic [ARGD-1:0][ARGW-1:0] arg [4];
   logic [RESW-1:0] res;
   logic signed [RESW-1:0] tgt [4];
@@ -83,11 +81,10 @@ module top;
   end
   endtask : test
 
-  integer seed = SEED;
   task init;
   begin
     for (int i = 0; i < ARGD; i++)
-      uut.weights[i] = $random(seed) % 2**4;
+      uut.weights[i] = random(2**4);
   end
   endtask : init
 
