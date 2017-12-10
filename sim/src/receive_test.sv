@@ -5,11 +5,15 @@ module top;
   `include "debug.vh"
   `include "util.vh"
 
+  parameter SEED = 'hdeadbeef;
   parameter BAUDRATE = 96e2;
   parameter FREQUENCY = 12e6;
 
   localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
-  localparam PERIOD = 1.0 / FREQUENCY / 1e-9;
+  localparam PERIOD = 1 / FREQUENCY / 1e-9;
+  localparam TIMEOUT = 25 * CYCLES * PERIOD;
+
+  integer seed = SEED;
 
   logic clk;
   logic rst;
@@ -17,7 +21,6 @@ module top;
   logic rdy = 0;
   logic stb;
   logic [7:0] dat;
-  logic [7:0] res;
 
   always #(PERIOD/2) clk = (clk === 0);
 
@@ -42,7 +45,7 @@ module top;
     begin
       fork
         begin : timeout
-          repeat (10000) @(posedge clk);
+          repeat (TIMEOUT) @(posedge clk);
           disable worker;
           `DEBUG("receiver timeout");
           data = 8'hxx;
@@ -58,15 +61,41 @@ module top;
     end
   endtask
 
+  task test0;
+    logic [7:0] tx;
+    logic [7:0] rx;
+    begin
+      repeat (4) begin
+        tx = $random(seed) % 255;
+        fork
+          xmt(tx);
+          rcv(rx);
+        join
+        `ASSERT_EQUAL(tx, rx);
+      end
+    end
+  endtask
+
+  task test1;
+    logic [7:0] tx [2];
+    logic [7:0] rx;
+    begin
+      for (int i = 0; i < 2; i++) begin
+        tx[i] = $random(seed) % 255;
+        xmt(tx[i]);
+      end
+      for (int i = 0; i < 2; i++) begin
+        rcv(rx);
+        `ASSERT_EQUAL(rx, tx[i]);
+      end
+    end
+  endtask
+
   initial begin
     dump;
-    #(PERIOD/2) reset;
-    xmt(8'h8F);
-    rcv(res);
-    `ASSERT_EQUAL(res, 8'h8f);
-    xmt(8'hf8);
-    rcv(res);
-    `ASSERT_EQUAL(res, 8'hf8);
+    #(0.5*PERIOD) reset;
+    test0;
+    test1;
     $finish;
   end
 
