@@ -1,44 +1,38 @@
 `ifndef SERIAL_INCLUDED
 `define SERIAL_INCLUDED
 
-`include "debug.vh"
 `include "clock.svh"
 
 parameter BAUDRATE = 96e2;
 
-localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
+localparam CYCLES_PER_SYMBOL = $rtoi(FREQUENCY / BAUDRATE);
 
-logic ser_txd;
-logic ser_rxd = 1;
+`define stx(prefix=) \
+  logic prefix``rxd = 1; \
+  task prefix``stx(input [7:0] dat); \
+  begin \
+    prefix``rxd = 0; \
+    #(CYCLES_PER_SYMBOL*PERIOD); \
+    for (int i = 0; i < 8; i++) begin \
+      prefix``rxd = dat[i]; \
+      #(CYCLES_PER_SYMBOL*PERIOD); \
+    end \
+    prefix``rxd = 1; \
+    #(CYCLES_PER_SYMBOL*PERIOD); \
+  end \
+  endtask : prefix``stx
 
-task ser_xmt;
-  input [7:0] dat;
-  begin
-    ser_rxd = 0;
-    #(CYCLES*PERIOD);
-    for (int i = 0; i < 8; i++) begin
-      ser_rxd = dat[i];
-      #(CYCLES*PERIOD);
-    end
-    ser_rxd = 1;
-    #(CYCLES*PERIOD);
-  end
-endtask : ser_xmt
-
-task ser_rcv;
-  output [7:0] dat;
-  begin
-    wait (ser_txd == 0);
-    #(CYCLES*PERIOD/2);
-    `ASSERT_EQUAL(ser_txd, 0);
-    #(CYCLES*PERIOD);
-    for (int i = 0; i < 8; i++) begin
-      dat[i] = ser_txd;
-      #(CYCLES*PERIOD);
-    end
-    `ASSERT_EQUAL(ser_txd, 1);
-    #(CYCLES*PERIOD);
-  end
-endtask : ser_rcv
+`define srx(prefix=) \
+  logic prefix``txd; \
+  task prefix``srx(output [7:0] dat); \
+  begin \
+    wait (prefix``txd == 0) #(1.5*CYCLES_PER_SYMBOL*PERIOD); \
+    for (int i = 0; i < 8; i++) begin \
+      dat[i] = prefix``txd; \
+      #(CYCLES_PER_SYMBOL*PERIOD); \
+    end \
+    #(CYCLES_PER_SYMBOL*PERIOD); \
+  end \
+  endtask : prefix``srx
 
 `endif // SERIAL_INCLUDED

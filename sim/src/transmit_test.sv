@@ -1,34 +1,46 @@
-module top;
+module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  `include "debug.vh"
-  `include "util.svh"
-  `include "reset.svh"
   `include "clock.svh"
-  `include "serial.svh"
+  `include "debug.vh"
+  `include "dump.svh"
   `include "interface.svh"
+  `include "random.svh"
+  `include "reset.svh"
+  `include "serial.svh"
 
-  transmit #(BAUDRATE, FREQUENCY) uut (
-    .*,
-    .stb(inf_xmt_stb),
-    .dat(inf_xmt_dat),
-    .rdy(inf_xmt_rdy),
-    .txd(ser_txd)
-  );
+  `xmt()
+  `srx()
+  transmit #(BAUDRATE, FREQUENCY) uut (.*);
 
-  task test;
-    logic [7:0] xmtd;
-    logic [7:0] rcvd;
+  task testcase;
+    logic [7:0] tx;
+    logic [7:0] rx;
     begin
       for (int i = 0; i < 2; i++) begin
-        xmtd = random(255);
-        inf_xmt(xmtd);
-        ser_rcv(rcvd);
-        `ASSERT_EQUAL(rcvd, xmtd);
+        tx = random(255);
+        xmt(tx);
+        srx(rx);
+        `ASSERT_EQUAL(rx, tx);
       end
     end
-  endtask : test
+  endtask
+
+  task test;
+    fork
+      begin : timeout
+        repeat (1e6) @(posedge clk);
+        disable worker;
+        $error("testbench timeout");
+        $stop;
+      end : timeout
+      begin : worker
+        testcase;
+        disable timeout;
+      end : worker
+    join
+  endtask
 
   initial begin
     dump;
