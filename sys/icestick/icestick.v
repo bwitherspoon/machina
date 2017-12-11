@@ -23,6 +23,7 @@ module icestick (
   localparam FREQ = 12000000;
   localparam BAUD = 9600;
 
+  wire err;
   wire stb;
   wire rdy;
   wire [7:0] dat;
@@ -33,7 +34,8 @@ module icestick (
     .rxd(rs232_rxd),
     .rdy(rdy),
     .stb(stb),
-    .dat(dat)
+    .dat(dat),
+    .err(err)
   );
 
   transmit #(BAUD, FREQ) xmt (
@@ -45,7 +47,7 @@ module icestick (
     .txd(rs232_txd)
   );
 
-  assign led = 5'b10000;
+  assign led = {~err, {4{err}}};
 
   wire nc = &{1'b0,
               1'b0};
