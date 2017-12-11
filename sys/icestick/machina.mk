@@ -20,7 +20,7 @@ clean: clean-sys
 icestick: $(sys_ice_dir)icestick.asc $(sys_ice_dir)icestick.bin $(sys_ice_dir)icestick.rpt
 
 clean-sys::
-	-$(RM) $(sys_ice_dir)*.{asc,bin,rpt,log}
+	-$(RM) $(sys_ice_dir)*.{asc,bin,rpt}
 
 clean-syn::
 	-$(RM) -r $(syn_ice_dir)

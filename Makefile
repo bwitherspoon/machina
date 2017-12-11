@@ -22,17 +22,6 @@ define check-program
 	@command -v $(1) > /dev/null 2>&1 || { echo "ERROR: $(1) command not found in PATH" >&2; exit 1; }
 endef
 
-define generate-depends
-	@trap 'rm -f $@.$$$$' EXIT; \
-	trap 'echo "ERROR: unable to generate dependencies for $<"; \
-		[ -e "$(@:.mk=.log)" ] && cat "$(@:.mk=.log)" | sed "s,^,$(@:.mk=.log): ," 1>&2; \
-		rm -f $@' ERR; \
-	set -e; \
-	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull -Mall=$@.$$$$ $< >$(@:.mk=.log) 2>&1; \
-	basename -a `uniq $@.$$$$` | sed '1i$(1) $@:' | sed ':x;N;s/\n/ /;bx' >$@
-	@$(RM) $(@:.mk=.log)
-endef
-
 .DELETE_ON_ERROR:
 
 all:
@@ -49,8 +38,8 @@ check: check-makefile
 check-makefile:
 	@$(MAKE) --dry-run --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
 
+include machina.mk
 include dev/machina.mk
-include dat/machina.mk
 include inc/machina.mk
 include syn/machina.mk
 include sim/machina.mk

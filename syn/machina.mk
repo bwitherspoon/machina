@@ -1,16 +1,15 @@
 syn_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 syn_src_dir := $(syn_dir)src/
-syn_dep_dir := $(syn_dir)dep/
 syn_gen_dir := $(syn_dir)generic/
 
 syn_src := $(notdir $(wildcard $(syn_src_dir)*.v))
-syn_tgt := $(syn_src:.v=)
-syn_chk_tgt := $(addprefix check-,$(syn_src:.v=))
-syn_lnt_tgt := $(addprefix lint-,$(syn_src:.v=))
-syn_gen_tgt := $(addprefix $(syn_gen_dir),$(syn_src:.v=.blif))
+syn_dep := $(addprefix $(dep_dir),$(syn_src:.v=.mk))
+syn_chk := $(addprefix check-,$(syn_src:.v=))
+syn_lnt := $(addprefix lint-,$(syn_src:.v=))
+syn_gen := $(addprefix $(syn_gen_dir),$(syn_src:.v=.blif))
 
-IVERILOG_FLAGS += -y$(syn_src_dir)
-VERILATOR_FLAGS += -y $(syn_src_dir)
+IVERILOG_FLAGS += -y$(syn_src_dir:/=)
+VERILATOR_FLAGS += -y $(syn_src_dir:/=)
 
 vpath %.v $(syn_src_dir)
 
@@ -22,23 +21,23 @@ lint: lint-syn
 
 clean: clean-syn
 
-all-syn: $(syn_gen_tgt)
+all-syn: $(syn_gen)
 
-check-syn: $(syn_chk_tgt)
+check-syn: $(syn_chk)
 
-lint-syn: $(syn_lnt_tgt)
+lint-syn: $(syn_lnt)
 
 clean-syn::
-	-$(RM) -r $(syn_dep_dir) $(syn_gen_dir)
+	-$(RM) -r $(syn_gen_dir)
 
-$(syn_dep_dir) $(syn_gen_dir):
-	@mkdir -p $@
+$(syn_gen_dir):
+	@mkdir $@
 
-$(syn_chk_tgt):: check-%: %.v
+$(syn_chk):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
 	@$(YOSYS) $(YOSYS_FLAGS) $<
 
-$(syn_lnt_tgt):: lint-%: %.v
+$(syn_lnt):: lint-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
 
 $(syn_gen_dir)sigmoid.blif: $(dat_sig_act) $(dat_sig_der)
@@ -46,12 +45,12 @@ $(syn_gen_dir)sigmoid.blif: $(dat_sig_act) $(dat_sig_der)
 $(syn_gen_dir)%.blif: %.v | $(syn_gen_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -o $@ -S $(filter %.v,$^)
 
-$(syn_dep_dir)%.mk:: %.v | $(syn_dep_dir)
-	$(call generate-depends,$(syn_gen_dir)$*.blif)
+$(syn_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
+	$(call depends,$(syn_gen_dir)$*.blif)
 
-ifneq ($(MAKECMDGOALS),clean)
-include $(syn_src:%.v=$(syn_dep_dir)%.mk)
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
+include $(syn_dep)
 endif
 
 .PHONY: all check lint clean all-syn check-syn lint-syn clean-syn
-.PHONY: $(syn_chk_tgt) $(syn_lnt_tgt)
+.PHONY: $(syn_chk) $(syn_lnt)
