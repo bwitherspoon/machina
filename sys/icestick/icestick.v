@@ -49,6 +49,10 @@ module icestick (
 
   assign led = {~err, {4{err}}};
 
+  assign rs232_cts = 0;
+  assign rs232_dcd = 0;
+  assign rs232_dsr = 0;
+
   assign irda_txd = 0;
   assign irda_sd = 1;
 
