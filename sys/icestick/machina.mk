@@ -1,5 +1,5 @@
 sys_ice_dir := $(dir $(lastword $(MAKEFILE_LIST)))
-syn_ice_dir := $(syn_dir)ice/
+syn_ice_dir := $(syn_dir)ice40/
 sys_ice_dev := hx1k
 sys_ice_cdb := /usr/share/icestorm/chipdb-1k.txt
 
