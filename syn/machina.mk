@@ -4,9 +4,9 @@ syn_gen_dir := $(syn_dir)generic/
 
 syn_src := $(notdir $(wildcard $(syn_src_dir)*.v))
 syn_dep := $(addprefix $(dep_dir),$(syn_src:.v=.mk))
+syn_gen := $(addprefix $(syn_gen_dir),$(syn_src))
 syn_chk := $(addprefix check-,$(syn_src:.v=))
 syn_lnt := $(addprefix lint-,$(syn_src:.v=))
-syn_gen := $(addprefix $(syn_gen_dir),$(syn_src:.v=.blif))
 
 IVERILOG_FLAGS += -y$(syn_src_dir:/=)
 VERILATOR_FLAGS += -y $(syn_src_dir:/=)
@@ -40,10 +40,11 @@ $(syn_chk):: check-%: %.v
 $(syn_lnt):: lint-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
 
-$(syn_gen_dir)sigmoid.blif: $(dat_sig_act) $(dat_sig_der)
-
 $(syn_gen_dir)%.blif: %.v | $(syn_gen_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -o $@ -S $(filter %.v,$^)
+
+$(syn_gen_dir)%.v: $(syn_gen_dir)%.blif
+		$(YOSYS) $(YOSYS_FLAGS) -l $(@:.v=.log) -p 'read_blif $<; write_verilog $@'
 
 $(syn_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_gen_dir)$*.blif)

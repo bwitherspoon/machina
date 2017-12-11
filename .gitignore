@@ -12,5 +12,4 @@
 *.sav
 *.vcd
 *.vvp
-dat/
 dep/

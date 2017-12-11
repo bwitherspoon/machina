@@ -40,8 +40,6 @@ clean-sim:
 $(sim_vvp_dir) $(sim_vcd_dir):
 	@mkdir $@
 
-test-sigmoid:: $(dat_sig_act) $(dat_sig_der)
-
 $(sim_tst):: test-%: $(sim_vvp_dir)%_test.vvp
 	@$(VVP) -N -l- $< -none +seed=$(SEED) > /dev/null 2>$(<:.vvp=.log) && \
 	echo 'PASS: $*' || \
@@ -54,9 +52,6 @@ $(sim_dmp):: dump-%: $(sim_vcd_dir)%_test.vcd
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
 	$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
-
-$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.act=\"$(dat_sig_act)\"
-$(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptop.der=\"$(dat_sig_der)\"
 
 $(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
 	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
