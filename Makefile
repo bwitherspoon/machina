@@ -13,7 +13,7 @@ endif
 VVP ?= vvp
 
 VERILATOR ?= verilator
-VERILATOR_FLAGS := -Wall -Wno-fatal
+VERILATOR_FLAGS := -Wall
 
 YOSYS ?= yosys
 YOSYS_FLAGS := -q
