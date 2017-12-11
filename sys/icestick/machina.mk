@@ -20,7 +20,9 @@ all: icestick
 
 clean: clean-sys
 
-icestick: $(sys_ice_dir)icestick.asc $(sys_ice_dir)icestick.bin $(sys_ice_dir)icestick.rpt
+icestick: $(sys_ice_dir)icestick.asc \
+					$(sys_ice_dir)icestick.bin \
+					$(sys_ice_dir)icestick.rpt
 
 clean-sys::
 	-$(RM) $(sys_ice_dir)*.{asc,bin,rpt}
@@ -32,7 +34,10 @@ $(syn_ice_dir):
 	@mkdir $@
 
 $(syn_ice_dir)%.blif: %.v | $(syn_ice_dir)
-	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -p 'synth_ice40 -blif $@' $^
+	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'synth_ice40 -blif $@' $^
+
+$(syn_ice_dir)%.v: $(syn_ice_dir)%.blif
+	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'read_blif $<; write_verilog $@'
 
 $(sys_ice_dir)%.asc: %.pcf $(syn_ice_dir)%.blif
 	$(ARACHNE_PNR) $(ARACHNE_PNR_OPTIONS) -o $@ -p $^
