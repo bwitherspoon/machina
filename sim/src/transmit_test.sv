@@ -6,67 +6,38 @@ module top;
   `include "util.svh"
   `include "reset.svh"
   `include "clock.svh"
+  `include "serial.svh"
+  `include "interface.svh"
 
-  parameter BAUDRATE = 96e2;
 
-  localparam CYCLES = $rtoi(FREQUENCY / BAUDRATE);
+  transmit #(BAUDRATE, FREQUENCY) uut (
+    .*,
+    .stb(inf_xmt_stb),
+    .dat(inf_xmt_dat),
+    .rdy(inf_xmt_rdy),
+    .txd(ser_txd)
+  );
 
-  logic stb = 0;
-  logic [7:0] dat;
-  logic rdy;
-  logic txd;
-
-  logic [7:0] res;
-
-  transmit #(BAUDRATE, FREQUENCY) uut (.*);
-
-  task xmt;
-    input [7:0] data;
+  task test;
+    logic [7:0] xmtd;
+    logic [7:0] rcvd;
     begin
-      fork
-        begin : timeout
-          repeat (10000) @(posedge clk);
-          disable worker;
-          `DEBUG("transmitter timeout");
-          data = 8'hxx;
-        end : timeout
-        begin : worker
-          stb = 1;
-          dat = data;
-          wait (rdy);
-          @(posedge clk) `ASSERT_EQUAL(rdy, 1);
-          #1 stb = 0;
-          disable timeout;
-        end : worker
-      join
-    end
-  endtask
-
-  task rcv;
-    output [7:0] data;
-    begin
-      wait (txd == 0);
-      #(CYCLES*PERIOD/2);
-      `ASSERT_EQUAL(txd, 0);
-      #(CYCLES*PERIOD);
-      for (int i = 0; i < 8; i++) begin
-        data[i] = txd;
-        #(CYCLES*PERIOD);
+      for (int i = 0; i < 2; i++) begin
+        xmtd = random(255);
+        inf_xmt(xmtd);
+        ser_xmt(rcvd);
+        `ASSERT_EQUAL(rcvd, xmtd[i]);
       end
-      `ASSERT_EQUAL(txd, 1);
-      #(CYCLES*PERIOD);
     end
-  endtask
+  endtask : test
 
   initial begin
     dump;
-    #(PERIOD/2) reset;
-    xmt(8'h55);
-    rcv(res);
-    `ASSERT_EQUAL(res, 8'h55);
-    xmt(8'haa);
-    rcv(res);
-    `ASSERT_EQUAL(res, 8'haa);
+    seed;
+    #PERIOD;
+    test;
+    reset;
+    test;
     $finish;
   end
 
