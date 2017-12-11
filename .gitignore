@@ -8,6 +8,7 @@
 *.log
 *.lxt
 *.o
+*.rpt
 *.sav
 *.vcd
 *.vvp
