@@ -10,7 +10,7 @@ $(dat_dir)sigmoid_deriv.dat: SCALE = 255
 
 all-dat: $(dat_dir)sigmoid_funct.dat $(dat_dir)sigmoid_deriv.dat
 
-test-sigmoid dump-sigmoid:: $(dat_dir)sigmoid_funct.dat $(dat_dir)sigmoid_deriv.dat
+test-sigmoid dump-sigmoid: $(dat_dir)sigmoid_funct.dat $(dat_dir)sigmoid_deriv.dat
 
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptestbench.funct=\"$(dat_dir)sigmoid_funct.dat\"
 $(sim_vvp_dir)sigmoid_test.vvp: IVERILOG_FLAGS += -Ptestbench.deriv=\"$(dat_dir)sigmoid_deriv.dat\"

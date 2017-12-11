@@ -40,7 +40,7 @@ clean-sim:
 $(sim_vvp_dir) $(sim_vcd_dir):
 	@mkdir $@
 
-$(sim_tst):: test-%: $(sim_vvp_dir)%_test.vvp
+$(sim_tst): test-%: $(sim_vvp_dir)%_test.vvp
 	@$(VVP) -N -l- $< -none +seed=$(SEED) > /dev/null 2>$(<:.vvp=.log) && \
 	echo 'PASS: $*' || \
 	{ echo 'FAIL: $*'; cat $(<:.vvp=.log) | sed 's,^,$(<:.vvp=.log): ,' 1>&2; exit 1; }
@@ -48,7 +48,7 @@ $(sim_tst):: test-%: $(sim_vvp_dir)%_test.vvp
 $(sim_chk):: check-%: %_test.sv
 	@$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull $<
 
-$(sim_dmp):: dump-%: $(sim_vcd_dir)%_test.vcd
+$(sim_dmp): dump-%: $(sim_vcd_dir)%_test.vcd
 
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
 	$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
