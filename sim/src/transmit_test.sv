@@ -9,7 +9,6 @@ module top;
   `include "serial.svh"
   `include "interface.svh"
 
-
   transmit #(BAUDRATE, FREQUENCY) uut (
     .*,
     .stb(inf_xmt_stb),
@@ -25,8 +24,8 @@ module top;
       for (int i = 0; i < 2; i++) begin
         xmtd = random(255);
         inf_xmt(xmtd);
-        ser_xmt(rcvd);
-        `ASSERT_EQUAL(rcvd, xmtd[i]);
+        ser_rcv(rcvd);
+        `ASSERT_EQUAL(rcvd, xmtd);
       end
     end
   endtask : test
