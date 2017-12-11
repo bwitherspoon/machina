@@ -47,12 +47,7 @@ $(syn_gen_dir)%.blif: %.v | $(syn_gen_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:.blif=.log) -o $@ -S $(filter %.v,$^)
 
 $(syn_dep_dir)%.mk:: %.v | $(syn_dep_dir)
-	@trap 'rm -f $@.$$$$' EXIT; \
-	trap '[ -e "$(@:.mk=.log)" ] && cat "$(@:.mk=.log)" 1>&2; rm -f $@' ERR; \
-	set -e; \
-	$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull -Mall=$@.$$$$ $< > $(@:.mk=.log) 2>&1; \
-	basename -a `uniq $@.$$$$` | sed '1i$(syn_gen_dir)$*.blif $@:' | sed ':x;N;s/\n/ /;bx' > $@
-	@$(RM) $(@:.mk=.log)
+	$(call generate-depends,$(syn_gen_dir)$*.blif)
 
 ifneq ($(MAKECMDGOALS),clean)
 include $(syn_src:%.v=$(syn_dep_dir)%.mk)

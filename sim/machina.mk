@@ -61,16 +61,12 @@ $(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
 	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
 
 $(sim_dep_dir)%.mk:: %.sv | $(sim_dep_dir)
-	@trap 'rm -f $@.$$$$' EXIT; \
-	trap 'echo "ERROR: unable to generate dependencies for $<"; [ -e "$(@:.mk=.log)" ] && cat "$(@:.mk=.log)" | sed "s,^,$(@:.mk=.log): ," 1>&2; rm -f $@' ERR; \
-	set -e; \
-	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tnull -Mall=$@.$$$$ $< > $(@:.mk=.log) 2>&1; \
-	basename -a `uniq $@.$$$$` | sed '1i$(sim_vvp_dir)$*.vvp $@:' | sed ':x;N;s/\n/ /;bx' > $@
-	@$(RM) $(@:.mk=.log)
+	$(call generate-depends,$(sim_vvp_dir)$*.vvp)
 
 ifneq ($(MAKECMDGOALS),clean)
 include $(sim_src:%.sv=$(sim_dep_dir)%.mk)
 endif
 
-.PHONY: all test check clean dump test-sim check-sim clean-sim dump-sim
+.PHONY: all test check dump clean
+.PHONY: all-sim test-sim check-sim dump-sim clean-sim
 .PHONY: $(sim_tst_tgt) $(sim_chk_tgt) $(sim_dmp_tgt)
