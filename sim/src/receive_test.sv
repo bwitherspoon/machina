@@ -1,19 +1,26 @@
+`include "clock.svh"
+`include "dump.svh"
+`include "interface.svh"
+`include "random.svh"
+`include "reset.svh"
+`include "serial.svh"
+`include "test.svh"
+
 module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  `include "clock.svh"
-  `include "debug.vh"
-  `include "dump.svh"
-  `include "interface.svh"
-  `include "random.svh"
-  `include "reset.svh"
-  `include "serial.svh"
+  localparam FREQ = 12e6;
+  localparam BAUD = 96e2;
 
-  `rcv()
-  `stx()
+  `clock(FREQ)
+  `reset
+  `serial(BAUD)
+  `slave()
+
   wire err;
-  receive #(BAUDRATE, FREQUENCY) uut (.*);
+
+  receive #(BAUD, FREQ) uut (.*);
 
   task testcase0;
     logic [7:0] tx;
@@ -24,7 +31,7 @@ module testbench;
         stx(tx);
         rcv(rx);
       join
-      `ASSERT_EQUAL(rx, tx);
+      `test_equal(rx, tx);
     end
   endtask
 
@@ -35,7 +42,7 @@ module testbench;
       tx = random(255);
       stx(tx);
       rcv(rx);
-      `ASSERT_EQUAL(tx, rx);
+      `test_equal(tx, rx);
     end
   endtask
 
@@ -45,34 +52,38 @@ module testbench;
     repeat (8) begin
       tx[0] = random(255);
       stx(tx[0]);
-      `ASSERT_EQUAL(err, 0);
+      `test_equal(err, 0);
       tx[1] = random(255);
       fork
         stx(tx[1]);
-        #(9.5*CYCLES_PER_SYMBOL*PERIOD) rcv(rx);
+        #(9.5e9/BAUD) rcv(rx);
       join
-      `ASSERT_EQUAL(err, 0);
-      `ASSERT_EQUAL(rx, tx[0]);
+      `test_equal(err, 0);
+      `test_equal(rx, tx[0]);
       rcv(rx);
-      `ASSERT_EQUAL(rx, tx[1]);
+      `test_equal(rx, tx[1]);
     end
   endtask
 
   task test;
-    fork
-      begin : timeout
-        repeat (1e6) @(posedge clk);
-        disable worker;
+  fork
+    begin : timeout
+      repeat (1e6) @(posedge clk);
+      disable worker;
+      `ifdef __ICARUS__
         $error("testbench timeout");
         $stop;
-      end : timeout
-      begin : worker
-        testcase0;
-        testcase1;
-        testcase2;
-        disable timeout;
-      end : worker
-    join
+      `else
+        $fatal(0, "testbench timeout");
+      `endif
+    end : timeout
+    begin : worker
+      testcase0;
+      testcase1;
+      testcase2;
+      disable timeout;
+    end : worker
+  join
   endtask
 
   initial begin

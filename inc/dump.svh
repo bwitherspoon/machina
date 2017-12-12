@@ -2,12 +2,10 @@
 `define DUMP_INCLUDED
 
 task dump;
-  begin
-    string dumpfile;
-    if ($value$plusargs("dumpfile=%s", dumpfile)) begin
-      $dumpfile(dumpfile);
-      $dumpvars;
-    end
+  string dumpfile;
+  if ($value$plusargs("dumpfile=%s", dumpfile)) begin
+    $dumpfile(dumpfile);
+    $dumpvars;
   end
 endtask : dump
 

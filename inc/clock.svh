@@ -1,13 +1,12 @@
 `ifndef CLOCK_INCLUDED
 `define CLOCK_INCLUDED
 
-parameter FREQUENCY = 12e6;
-parameter TIMEUNIT = 1e-9;
-
-localparam PERIOD = 1 / FREQUENCY / TIMEUNIT;
-
-logic clk = 0;
-
-always #(PERIOD/2) clk <= ~clk;
+`define clock(freq=100e6, unit=1e-9) \
+  localparam PERIOD = 1 / (freq) / (unit); \
+  logic clk; \
+  initial begin : clock \
+    clk <= 0; \
+    forever #(PERIOD/2) clk = ~clk; \
+  end : clock
 
 `endif // CLOCK_INCLUDED

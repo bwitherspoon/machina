@@ -1,24 +1,28 @@
+`include "clock.svh"
+`include "dump.svh"
+`include "random.svh"
+`include "reset.svh"
+`include "serial.svh"
+`include "test.svh"
+
 module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  `include "clock.svh"
-  `include "debug.vh"
-  `include "dump.svh"
-  `include "random.svh"
-  `include "reset.svh"
-  `include "serial.svh"
+  localparam FREQ = 12e6;
+  localparam BAUD = 96e2;
 
-  `stx()
-  `srx()
+  `clock(FREQ)
+  `reset
+  `serial(BAUD)
 
   logic rdy;
   logic stb;
   logic err;
   logic [7:0] dat;
 
-  receive  #(BAUDRATE, FREQUENCY) rx (.*);
-  transmit #(BAUDRATE, FREQUENCY) tx (.*);
+  receive  #(BAUD, FREQ) rx (.*);
+  transmit #(BAUD, FREQ) tx (.*);
 
   task testcase;
     logic [7:0] tx;
@@ -29,8 +33,8 @@ module testbench;
         stx(tx);
         srx(rx);
       join
-      `ASSERT_EQUAL(err, 0);
-      `ASSERT_EQUAL(rx, tx);
+      `test_equal(err, 0);
+      `test_equal(rx, tx);
     end
   endtask
 

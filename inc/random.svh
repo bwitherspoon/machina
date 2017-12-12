@@ -13,4 +13,4 @@ task seed;
     $info("using seed %0d", random.seed);
 endtask : seed
 
-`endif
+`endif // RANDOM_INCLUDED
