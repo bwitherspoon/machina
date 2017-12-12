@@ -1,11 +1,11 @@
 `ifndef INTERFACE_INCLUDED
 `define INTERFACE_INCLUDED
 
-`define rcv(prefix=) \
+`define rcv(prefix=, width=8) \
   logic prefix``stb; \
-  logic [7:0] prefix``dat; \
+  logic [(width)-1:0] prefix``dat; \
   logic prefix``rdy = 0; \
-  task prefix``rcv(output [7:0] d); \
+  task prefix``rcv(output [(width)-1:0] d); \
   begin \
     prefix``rdy = 1; \
     do wait (prefix``stb) @(posedge clk); while (~prefix``stb); \
@@ -14,11 +14,11 @@
   end \
   endtask : prefix``rcv
 
-`define xmt(prefix=) \
+`define xmt(prefix=, width=8) \
   logic prefix``stb = 0; \
-  logic [7:0] prefix``dat; \
+  logic [(width)-1:0] prefix``dat; \
   logic prefix``rdy; \
-  task prefix``xmt(input [7:0] d); \
+  task prefix``xmt(input [(width)-1:0] d); \
   begin \
     prefix``stb = 1; \
     prefix``dat = d; \
