@@ -1,42 +1,70 @@
+`include "clock.svh"
+`include "dump.svh"
+`include "interface.svh"
+`include "reset.svh"
+`include "test.svh"
+
 module testbench;
-  // `define ARGW 16
-  // `define ARGN 4
-  // `define RESW 18
-  // `include "test.svh"
-  //
-  // serialize #(.ARGW(ARGW), .ARGN(ARGN)) uut (.*);
-  //
-  // task test;
-  //   begin
-  //     fork
-  //       begin : arg_worker
-  //         logic [ARGN-1:0][ARGD-1:0][ARGW-1:0] arg;
-  //         bit arg_timeout = 0;
-  //         // TODO iverilog 10 (not 11) seg faults with for loop local int
-  //         int n;
-  //         for (n = 0; n < ARGN; n++) begin : arg_loop
-  //           arg[n] = n[ARGW-1:0];
-  //         end : arg_loop
-  //         argument(arg, arg_timeout);
-  //         `ASSERT_EQUAL(arg_timeout, 0);
-  //       end : arg_worker
-  //       begin : res_worker
-  //         logic [RESD-1:0][RESW-1:0] res;
-  //         bit res_timeout;
-  //         // TODO iverilog 10 (not 11) seg faults with for loop local int
-  //         int n;
-  //         for (n = 0; n < ARGN; n++) begin : res_loop
-  //           res_timeout = 0;
-  //           result(res, res_timeout);
-  //           `ASSERT_EQUAL(res_timeout, 0);
-  //           `ASSERT_EQUAL(res, ({n[$clog2(ARGN)-1:0], n[ARGW-1:0]}));
-  //         end : res_loop
-  //       end : res_worker
-  //     join
-  //   end
-  // endtask
+  timeunit 1ns;
+  timeprecision 1ps;
+
+  localparam ARGW = 16;
+  localparam ARGC = 4;
+  localparam RESW = 18;
+
+  `clock()
+  `reset
+  `master(arg_, ARGW,, ARGC)
+  `slave(res_, RESW)
+
+  serialize #(.ARGW(ARGW), .ARGN(ARGC)) uut (.*);
+
+  // FIXME iverilog 10 (not 11) seg faults with for loop local int in fork
+  task testcase;
+  fork
+    begin : xmt
+      int i;
+      for (i = 0; i < ARGC; i++)
+        arg_xmt(i[ARGW-1:0], i);
+    end : xmt
+    begin : rcv
+      logic [RESW-1:0] exp;
+      logic [RESW-1:0] res;
+      int i;
+      for (i = 0; i < ARGC; i++) begin
+        res_rcv(res);
+        exp = {i[$clog2(ARGC)-1:0], i[ARGW-1:0]};
+        `test_equal(res, exp);
+      end
+    end : rcv
+  join
+  endtask
+
+  task test;
+  fork
+    begin : timeout
+      repeat (1e6) @(posedge clk);
+      disable worker;
+      `ifdef __ICARUS__
+        $error("testbench timeout");
+        $stop;
+      `else
+        $fatal(0, "testbench timeout");
+      `endif
+    end : timeout
+    begin : worker
+      testcase;
+      disable timeout;
+    end : worker
+  join
+  endtask : test
 
   initial begin
+    dump;
+    test;
+    reset;
+    test;
     $finish;
   end
+
 endmodule
