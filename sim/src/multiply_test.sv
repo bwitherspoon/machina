@@ -10,11 +10,12 @@ module testbench;
   timeprecision 1ps;
 
   localparam ARGW = 16;
+  localparam ARGD = 2;
   localparam RESW = 2*ARGW;
 
   `clock()
   `reset
-  `master(arg_, ARGW, 2)
+  `master(arg_, ARGW, ARGD)
   `slave(res_, RESW)
 
   multiply #(ARGW) uut (.*);

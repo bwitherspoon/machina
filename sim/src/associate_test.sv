@@ -49,7 +49,7 @@ module testbench;
     for (int i = 0; i < 4; i++) begin
       arg_xmt(arg[i]);
       res_rcv(res);
-      act = $signed(res < 0) ? 16'h0000 : 16'h00ff;
+      act = $signed(res) < 0 ? 16'h0000 : 16'h00ff;
       err = tgt[i] - act;
       `test_equal(abs(err), 0);
     end
@@ -68,8 +68,8 @@ module testbench;
   task bwd_test;
   begin
     en = 1;
-    err_xmt(16'h0000);
-    fbk_rcv(res);
+    arg_xmt(16'h0000);
+    res_rcv(res);
     `test_equal(res, 16'b0);
     err_xmt(16'h0000);
     fbk_rcv(res);
@@ -78,34 +78,23 @@ module testbench;
   end
   endtask : bwd_test
 
-  // task and_test;
-  // begin
-  // // Logical AND function with linear threshold
-  // arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
-  // tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;
-  // train;
-  // end
-  // endtask : and_test
-  //
-  // task or_test;
-  // begin
-  // // Logical OR function with linear threshold
-  // arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
-  // tgt[0] = 16'h0000; tgt[1] = 16'h00ff; tgt[2] = 16'h00ff; tgt[3] = 16'h00ff;
-  // train;
-  // end
-  // endtask : or_test
-  //
-  // task test;
-  // begin
-  //   fwd_test;
-  //   bwd_test;
-  //   reset;
-  //   and_test;
-  //   reset;
-  //   or_test;
-  // end
-  // endtask : test
+  task and_test;
+  begin
+  // Logical AND function
+  arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
+  tgt[0] = 16'h0000; tgt[1] = 16'h0000; tgt[2] = 16'h0000; tgt[3] = 16'h00ff;
+  train;
+  end
+  endtask : and_test
+
+  task or_test;
+  begin
+  // Logical OR function
+  arg[0] = 16'h0000; arg[1] = 16'h00ff; arg[2] = 16'hff00; arg[3] = 16'hffff;
+  tgt[0] = 16'h0000; tgt[1] = 16'h00ff; tgt[2] = 16'h00ff; tgt[3] = 16'h00ff;
+  train;
+  end
+  endtask : or_test
 
   task test;
   fork
@@ -122,10 +111,12 @@ module testbench;
     begin : worker
       fwd_test;
       bwd_test;
-      // reset;
-      // and_test;
-      // reset;
-      // or_test;
+      reset;
+      init;
+      and_test;
+      reset;
+      init;
+      or_test;
       disable timeout;
     end : worker
   join
@@ -142,8 +133,6 @@ module testbench;
     dump;
     seed;
     init;
-    test;
-    reset;
     test;
     $finish;
   end
