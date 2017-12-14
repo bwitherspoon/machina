@@ -26,12 +26,12 @@ clean-dev:
 	-$(RM) -r $(dev_bin_dir)
 
 $(dev_bin_dir):
-	@mkdir $@
+	-@mkdir $@
 
 $(dev_bin_dir)mem: LDFLAGS += -lboost_program_options
 $(dev_bin_dir)mem: memory.hh sigmoid.hh -lboost_program_options
 
 $(dev_bin_dir)%: %.cc | $(dev_bin_dir)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter %.cc,$<)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter %.cc,$^)
 
 .PHONY: all clean all-dev clean-dev

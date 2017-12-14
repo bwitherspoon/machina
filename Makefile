@@ -54,7 +54,7 @@ clean-dep:
 	-$(RM) -r $(dep_dir)
 
 $(dep_dir):
-	@mkdir $@
+	-@mkdir $@
 
 include dev/machina.mk
 include inc/machina.mk
