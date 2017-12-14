@@ -1,26 +1,37 @@
 dev_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 dev_src_dir := $(dev_dir)src/
-dev_mem := $(dev_dir)mem
+dev_bin_dir := $(dev_dir)bin/
 
-CXXFLAGS := -std=c++11 -Wall -Wextra
 ifdef DEBUG
-CXXFLAGS += -O0 -g
+dev_cxx_opt := -O0 -g
+else
+dev_cxx_opt := -O2
 endif
+dev_cxx_std := -std=c++11
+dev_cxx_wrn := -Wall -Wextra
+dev_cxx_inc := -I$(dev_src_dir:/=)
 
-vpath %.cc $(dev_src_dir)
-vpath %.hh $(dev_src_dir)
+override CXXFLAGS := $(dev_cxx_opt) $(dev_cxx_std) $(dev_cxx_wrn) $(CXXFLAGS) $(dev_cxx_inc)
+
+vpath %.cc $(dev_src_dir:/=)
+vpath %.hh $(dev_src_dir:/=)
 
 all: all-dev
 
 clean: clean-dev
 
-all-dev: $(dev_mem)
+all-dev: $(dev_bin_dir)mem
 
 clean-dev:
-	-$(RM) -r $(dev_mem)
+	-$(RM) -r $(dev_bin_dir)
 
-$(dev_mem): LDFLAGS += -lboost_program_options
-$(dev_mem): memory.cc memory.hh sigmoid.hh -lboost_program_options
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $<
+$(dev_bin_dir):
+	@mkdir $@
+
+$(dev_bin_dir)mem: LDFLAGS += -lboost_program_options
+$(dev_bin_dir)mem: memory.hh sigmoid.hh -lboost_program_options
+
+$(dev_bin_dir)%: %.cc | $(dev_bin_dir)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter %.cc,$<)
 
 .PHONY: all clean all-dev clean-dev
