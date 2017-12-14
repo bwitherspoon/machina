@@ -11,18 +11,18 @@ using std::vector;
 
 class Serial {
 public:
-  Serial();
+  Serial() = default;
 
   ~Serial();
 
-  Serial & open(string port, int baud);
+  Serial & open(string port);
 
-  vector<char> read(int n = -1);
+  vector<char> read(int size = -1);
 
   Serial & write(const vector<char>& data);
 
 private:
-  int dev;
+  int fd = -1;
 };
 
 }
