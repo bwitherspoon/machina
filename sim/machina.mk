@@ -38,7 +38,7 @@ clean-sim:
 	-$(RM) -r $(sim_vvp_dir) $(sim_vcd_dir)
 
 $(sim_vvp_dir) $(sim_vcd_dir):
-	@mkdir $@
+	@mkdir -p $@
 
 $(sim_tst): test-%: $(sim_vvp_dir)%_test.vvp
 	@$(VVP) -N -l- $< -none +seed=$(SEED) > /dev/null 2>$(<:.vvp=.log) && \

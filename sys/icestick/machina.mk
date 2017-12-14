@@ -31,7 +31,7 @@ clean-syn::
 	-$(RM) -r $(syn_ice_dir)
 
 $(syn_ice_dir):
-	@mkdir $@
+	@mkdir -p $@
 
 $(syn_ice_dir)%.blif: %.v | $(syn_ice_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'synth_ice40 -blif $@' $^

@@ -31,7 +31,7 @@ clean-syn::
 	-$(RM) -r $(syn_gen_dir)
 
 $(syn_gen_dir):
-	@mkdir $@
+	@mkdir -p $@
 
 $(syn_chk):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<

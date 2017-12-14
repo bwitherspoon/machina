@@ -26,7 +26,9 @@ clean-dev:
 	-$(RM) -r $(dev_bin_dir)
 
 $(dev_bin_dir):
-	-@mkdir $@
+	@mkdir -p $@
+
+$(dev_bin_dir)ice: serial.cc serial.hh
 
 $(dev_bin_dir)mem: LDFLAGS += -lboost_program_options
 $(dev_bin_dir)mem: memory.hh sigmoid.hh -lboost_program_options
