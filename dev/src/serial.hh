@@ -34,7 +34,7 @@ public:
   Serial& operator<<(const vector<char>& data);
 
 private:
-  int fd;
+  int tty;
 };
 
 }

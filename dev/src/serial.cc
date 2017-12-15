@@ -8,44 +8,37 @@
 
 namespace machina {
 
-Serial::Serial() : fd(-1)
+Serial::Serial() : tty(-1)
 {
 }
 
-Serial::Serial(Serial&& other) : fd(other.fd)
+Serial::Serial(Serial&& other) : tty(other.tty)
 {
-  other.fd = -1;
-}
-
-Serial& Serial::operator=(Serial&& other)
-{
-  fd = other.fd;
-  other.fd = -1;
-  return *this;
+  other.tty = -1;
 }
 
 Serial::~Serial()
 {
-  if (fd != -1)
-    close(fd);
+  if (tty != -1)
+    close(tty);
 }
 
 Serial & Serial::open(string port)
 {
   string path = "/dev/tty" + port;
-  fd = ::open(path.c_str(), O_RDWR | O_NOCTTY);
-  if (fd == -1)
+  tty = ::open(path.c_str(), O_RDWR | O_NOCTTY);
+  if (tty == -1)
     throw std::runtime_error("unable to open TTY");
-  if (!isatty(fd))
+  if (!isatty(tty))
     throw std::runtime_error("not a TTY device");
 
   struct termios attr;
   cfmakeraw(&attr);
   attr.c_cc[VMIN] = 1;
   attr.c_cc[VTIME] = 0;
-  if (cfsetispeed(&attr, B9600) < 0 || cfsetospeed(&attr, B9600) < 0)
+  if (cfsetspeed(&attr, B9600) < 0)
     throw std::runtime_error("unable to set TTY speed");
-  if (tcsetattr(fd, TCSAFLUSH, &attr) < 0)
+  if (tcsetattr(tty, TCSAFLUSH, &attr) < 0)
     throw std::runtime_error("unable to set TTY attributes");
 
   return *this;
@@ -53,7 +46,7 @@ Serial & Serial::open(string port)
 
 Serial & Serial::read(vector<char>& data)
 {
-  auto n = ::read(fd, &data[0], data.size());
+  auto n = ::read(tty, &data[0], data.size());
   if (n == -1)
     throw std::runtime_error("unable to read from TTY");
   else if (n < static_cast<decltype(n)>(data.size()))
@@ -63,11 +56,18 @@ Serial & Serial::read(vector<char>& data)
 
 Serial & Serial::write(const vector<char>& data)
 {
-  auto n = ::write(fd, &data[0], data.size());
+  auto n = ::write(tty, &data[0], data.size());
   if (n == -1)
     throw std::runtime_error("unable to write to TTY");
   else if (n < static_cast<decltype(n)>(data.size()))
     throw std::runtime_error("unable to complete write to TTY");
+  return *this;
+}
+
+Serial& Serial::operator=(Serial&& other)
+{
+  tty = other.tty;
+  other.tty = -1;
   return *this;
 }
 
