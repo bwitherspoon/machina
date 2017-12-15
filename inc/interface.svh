@@ -17,18 +17,19 @@
   end \
   endtask : prefix``xmt
 
-`define slave(prefix=, width=8, depth=1) \
-  logic prefix``stb; \
-  logic [(depth)-1:0][(width)-1:0] prefix``dat; \
-  logic prefix``rdy = 0; \
+`define slave(prefix=, width=8, depth=1, count=1) \
+  logic [(count)-1:0] prefix``stb; \
+  logic [(count)-1:0][(depth)-1:0][(width)-1:0] prefix``dat; \
+  logic [(count)-1:0] prefix``rdy = 0; \
   task prefix``rcv( \
-    output [(depth)-1:0][(width)-1:0] d \
+    output [(depth)-1:0][(width)-1:0] d, \
+    input [$clog2(count)-1:0] i = 0 \
   ); \
   begin \
-    prefix``rdy = 1; \
-    do wait (prefix``stb) @(posedge clk); while (~prefix``stb); \
-    d = prefix``dat; \
-    #1 prefix``rdy = 0; \
+    prefix``rdy[i] = 1; \
+    do wait (prefix``stb[i]) @(posedge clk); while (~prefix``stb[i]); \
+    d = prefix``dat[i]; \
+    #1 prefix``rdy[i] = 0; \
   end \
   endtask : prefix``rcv
 
