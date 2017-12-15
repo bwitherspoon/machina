@@ -1,8 +1,8 @@
-`ifndef UTIL_INCLUDED
-`define UTIL_INCLUDED
+`ifndef UTILITY_INCLUDED
+`define UTILITY_INCLUDED
 
 function integer abs(integer val);
   abs = val < 0 ? -val : val;
 endfunction : abs
 
-`endif // UTIL_INCLUDED
+`endif // UTILITY_INCLUDED

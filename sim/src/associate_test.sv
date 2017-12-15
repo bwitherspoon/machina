@@ -4,7 +4,7 @@
 `include "random.svh"
 `include "reset.svh"
 `include "test.svh"
-`include "util.svh"
+`include "utility.svh"
 
 module testbench;
   timeunit 1ns;
