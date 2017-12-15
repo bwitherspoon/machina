@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -28,7 +28,7 @@ module testbench;
       for (int i = 0; i < 4; i++) begin
         arg_xmt(arg[i]);
         res_rcv(res);
-        `test_equal(res, exp[i]);
+        `check_equal(res, exp[i]);
       end
     end
   endtask

@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench #(
   parameter funct = "sigmoid_funct.dat",
@@ -43,7 +43,7 @@ module testbench #(
           arg_xmt(arg[i]);
           res_rcv(res);
         join
-        `test_equal(res, exp[i]);
+        `check_equal(res, exp[i]);
       end
     end
   endtask : fwd
@@ -59,8 +59,8 @@ module testbench #(
         err_xmt(16'd256);
         fbk_rcv(fbk);
       join
-      `test_equal(res, 8'h80);
-      `test_equal(fbk, 16'h0040);
+      `check_equal(res, 8'h80);
+      `check_equal(fbk, 16'h0040);
       en = 0;
     end
   endtask : bwd

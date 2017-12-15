@@ -1,10 +1,10 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "random.svh"
 `include "reset.svh"
 `include "serial.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -31,7 +31,7 @@ module testbench;
         stx(tx);
         rcv(rx);
       join
-      `test_equal(rx, tx);
+      `check_equal(rx, tx);
     end
   endtask
 
@@ -42,7 +42,7 @@ module testbench;
       tx = random(255);
       stx(tx);
       rcv(rx);
-      `test_equal(tx, rx);
+      `check_equal(tx, rx);
     end
   endtask
 
@@ -52,16 +52,16 @@ module testbench;
     repeat (8) begin
       tx[0] = random(255);
       stx(tx[0]);
-      `test_equal(err, 0);
+      `check_equal(err, 0);
       tx[1] = random(255);
       fork
         stx(tx[1]);
         #(9.5e9/BAUD) rcv(rx);
       join
-      `test_equal(err, 0);
-      `test_equal(rx, tx[0]);
+      `check_equal(err, 0);
+      `check_equal(rx, tx[0]);
       rcv(rx);
-      `test_equal(rx, tx[1]);
+      `check_equal(rx, tx[1]);
     end
   endtask
 

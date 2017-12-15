@@ -1,9 +1,9 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "random.svh"
 `include "reset.svh"
 `include "serial.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -33,8 +33,8 @@ module testbench;
         stx(tx);
         srx(rx);
       join
-      `test_equal(err, 0);
-      `test_equal(rx, tx);
+      `check_equal(err, 0);
+      `check_equal(rx, tx);
     end
   endtask
 

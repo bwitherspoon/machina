@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -34,7 +34,7 @@ module testbench;
       for (i = 0; i < ARGC; i++) begin
         res_rcv(res);
         exp = {i[$clog2(ARGC)-1:0], i[ARGW-1:0]};
-        `test_equal(res, exp);
+        `check_equal(res, exp);
       end
     end : rcv
   join

@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -30,7 +30,7 @@ module testbench;
       en = 0;
       arg_xmt(0);
       res_rcv(res);
-      `test_equal(res, 8'hff);
+      `check_equal(res, 8'hff);
     end
   endtask
 
@@ -41,10 +41,10 @@ module testbench;
       en = 1;
       arg_xmt(-1);
       res_rcv(res);
-      `test_equal(res, 8'h00);
+      `check_equal(res, 8'h00);
       err_xmt(-1);
       fbk_rcv(fbk);
-      `test_equal($signed(fbk), -1);
+      `check_equal($signed(fbk), -1);
     end
   endtask
 

@@ -1,9 +1,9 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "random.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -29,7 +29,7 @@ module testbench;
       res[0] = $signed(arg[0]) * $signed(arg[1]);
       for (int i = 0; i < 2; i++) arg_xmt(arg[i], i);
       res_rcv(res[1]);
-      `test_equal(res[0], res[1]);
+      `check_equal(res[0], res[1]);
     end
   endtask
 
@@ -44,7 +44,7 @@ module testbench;
         for (int i = 0; i < 2; i++) arg_xmt(arg[i], i);
         res_rcv(res[1]);
       join
-      `test_equal(res[0], res[1]);
+      `check_equal(res[0], res[1]);
     end
   endtask
 
@@ -60,7 +60,7 @@ module testbench;
         arg_xmt(arg[1], 1);
         res_rcv(res[1]);
       join
-      `test_equal(res[0], res[1]);
+      `check_equal(res[0], res[1]);
     end
   endtask
 

@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 `include "utility.svh"
 
 module testbench;
@@ -53,7 +53,7 @@ module testbench;
         arg_xmt(arg[i]);
         res_rcv(res);
         err = $signed({1'b0, tgt[i]}) - $signed({1'b0, res});
-        `test_equal(abs(err), 0);
+        `check_equal(abs(err), 0);
       end
     end
   endtask

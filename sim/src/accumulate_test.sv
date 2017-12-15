@@ -1,8 +1,8 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "reset.svh"
-`include "test.svh"
 
 module testbench;
   timeunit 1ns;
@@ -33,9 +33,9 @@ module testbench;
       begin : rcv
         logic [RESW-1:0] res;
         res_rcv(res);
-        `test_equal(res, 40'h00000000ff);
+        `check_equal(res, 40'h00000000ff);
         res_rcv(res);
-        `test_equal(res, 40'h000000000f);
+        `check_equal(res, 40'h000000000f);
       end : rcv
     join
   endtask : testcase

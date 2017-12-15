@@ -1,9 +1,9 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
 `include "random.svh"
 `include "reset.svh"
-`include "test.svh"
 `include "utility.svh"
 
 module testbench;
@@ -51,7 +51,7 @@ module testbench;
       res_rcv(res);
       act = $signed(res) < 0 ? 16'h0000 : 16'h00ff;
       err = tgt[i] - act;
-      `test_equal(abs(err), 0);
+      `check_equal(abs(err), 0);
     end
   end
   endtask : train
@@ -61,7 +61,7 @@ module testbench;
     en = 0;
     arg_xmt(16'h0000);
     res_rcv(res);
-    `test_equal(res, 16'b0);
+    `check_equal(res, 16'b0);
   end
   endtask : fwd_test
 
@@ -70,10 +70,10 @@ module testbench;
     en = 1;
     arg_xmt(16'h0000);
     res_rcv(res);
-    `test_equal(res, 16'b0);
+    `check_equal(res, 16'b0);
     err_xmt(16'h0000);
     fbk_rcv(res);
-    `test_equal(res, 32'b0);
+    `check_equal(res, 32'b0);
     en = 0;
   end
   endtask : bwd_test
