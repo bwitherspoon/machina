@@ -48,22 +48,6 @@ module testbench;
     end
   endtask
 
-  task testcase2;
-    logic [1:0][ARGW-1:0] arg;
-    logic [1:0][RESW-1:0] res;
-    repeat (8) begin
-      arg[0] = random(2**16-1);
-      arg[1] = random(2**16-1);
-      res[0] = $signed(arg[0]) * $signed(arg[1]);
-      fork
-        arg_xmt(arg[0], 0);
-        arg_xmt(arg[1], 1);
-        res_rcv(res[1]);
-      join
-      `check_equal(res[0], res[1]);
-    end
-  endtask
-
   task test;
     fork
       begin : timeout
@@ -75,7 +59,6 @@ module testbench;
       begin : worker
         testcase0;
         testcase1;
-        testcase2;
         disable timeout;
       end : worker
     join
