@@ -32,7 +32,7 @@ module demultiplex #(
     end else if (out_stb[sel_dat]) begin
       if (out_rdy[sel_dat]) begin
         if (arg_ack & sel_ack)
-          out_dat[sel_dat] <= arg_dat;
+          out_dat[ARGW*sel_dat+:ARGW] <= arg_dat;
         else
           out_stb[sel_dat] <= 0;
       end
