@@ -13,12 +13,9 @@ module unpack #(
   output reg [ARGW-1:0] out_dat,
   input out_rdy
 );
-  localparam [$clog2(ARGD)-1:0] END = ARGD - 1;
+  localparam [$clog2(ARGD)-1:0] END = ARGD[$clog2(ARGD)-1:0] - 1;
 
   reg [$clog2(ARGD)-1:0] idx = 0;
-
-  wire arg_ack = arg_stb & arg_rdy;
-  wire out_ack = out_stb & out_rdy;
 
   initial out_stb = 0;
 
