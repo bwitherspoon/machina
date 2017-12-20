@@ -10,7 +10,7 @@ sim_chk := $(addprefix check-,$(sim_src:_test.sv=))
 sim_dmp := $(addprefix dump-,$(sim_src:_test.sv=))
 sim_vvp := $(addprefix $(sim_vvp_dir),$(sim_src:.sv=.vvp))
 
-IVERILOG_FLAGS += -Y.sv -y$(sim_src_dir:/=)
+IVERILOG_FLAGS += -y$(sim_src_dir:/=)
 
 SEED ?= $(shell echo $$RANDOM)
 

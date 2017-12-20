@@ -3,6 +3,8 @@ syn_ice_dir := $(syn_dir)ice40/
 sys_ice_src := $(notdir $(wildcard $(sys_ice_dir)*.v))
 sys_ice_dep := $(addprefix $(dep_dir),$(sys_ice_src:.v=.mk))
 
+IVERILOG_FLAGS += -y$(sys_ice_dir:/=)
+
 ICEDEV ?= hx1k
 ICEDB ?= /usr/share/icestorm/chipdb-1k.txt
 

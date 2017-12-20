@@ -65,8 +65,6 @@ module testbench;
     dump;
     #PERIOD;
     test;
-    reset;
-    test;
     $finish;
   end
 
