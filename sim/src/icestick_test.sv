@@ -1,5 +1,7 @@
+`include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
+`include "random.svh"
 `include "reset.svh"
 `include "serial.svh"
 
@@ -39,7 +41,18 @@ module testbench;
               1'b0};
 
   task testcase;
-    @(posedge clk);
+    logic [7:0] xmt [2];
+    logic [1:0][7:0] rcv [2];
+    begin
+      for (int i = 0; i < 2; i++) begin
+        xmt[i] = random(2**8-1);
+        rs232_stx(xmt[i]);
+      end
+      rcv[0] = $signed(xmt[0]) * $signed(xmt[1]);
+      rs232_srx(rcv[1][0]);
+      rs232_srx(rcv[1][1]);
+      `check_equal(rcv[0], rcv[1]);
+    end
   endtask : testcase
 
   task test;
@@ -63,6 +76,7 @@ module testbench;
 
   initial begin
     dump;
+    seed;
     #PERIOD;
     test;
     $finish;
