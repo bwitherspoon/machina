@@ -35,7 +35,6 @@ $(syn_gen_dir):
 
 $(syn_chk):: check-%: %.v
 	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
-	@$(YOSYS) $(YOSYS_FLAGS) $<
 
 $(syn_lnt):: lint-%: %.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
@@ -44,7 +43,7 @@ $(syn_gen_dir)%.blif: %.v | $(syn_gen_dir)
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -o $@ -S $(filter %.v,$^)
 
 $(syn_gen_dir)%.v: $(syn_gen_dir)%.blif
-		$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'read_blif $<; write_verilog $@'
+	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'read_blif $<; write_verilog $@'
 
 $(syn_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_gen_dir)$*.blif)

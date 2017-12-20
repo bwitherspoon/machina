@@ -2,19 +2,18 @@ sys_ice_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 syn_ice_dir := $(syn_dir)ice40/
 sys_ice_src := $(notdir $(wildcard $(sys_ice_dir)*.v))
 sys_ice_dep := $(addprefix $(dep_dir),$(sys_ice_src:.v=.mk))
-sys_ice_dev := hx1k
-sys_ice_cdb := /usr/share/icestorm/chipdb-1k.txt
+
+ICEDEV ?= hx1k
+ICEDB ?= /usr/share/icestorm/chipdb-1k.txt
 
 vpath %.v $(sys_ice_dir:/=)
-vpath %.pcf $(sys_ice_dir:/=)
 
 ARACHNE_PNR ?= arachne-pnr
-ARACHNE_PNR_OPTIONS := -q -d $(subst hx,,$(subst lx,,$(sys_ice_dev)))
-
+ARACHNE_PNR_OPTIONS := -q -d $(subst hx,,$(subst lx,,$(ICEDEV)))
 ICEPACK ?= icepack
 ICEPROG ?= iceprog
 ICETIME ?= icetime
-ICETIME_OPTIONS := -d $(sys_ice_dev) -C $(sys_ice_cdb) -m -t
+ICETIME_OPTIONS := -d $(ICEDEV) -C $(ICEDB) -m -t
 
 all: icestick
 
@@ -39,7 +38,7 @@ $(syn_ice_dir)%.blif: %.v | $(syn_ice_dir)
 $(syn_ice_dir)%.v: $(syn_ice_dir)%.blif
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'read_blif $<; write_verilog $@'
 
-$(sys_ice_dir)%.asc: %.pcf $(syn_ice_dir)%.blif
+$(sys_ice_dir)%.asc: $(sys_ice_dir)%.pcf $(syn_ice_dir)%.blif
 	$(ARACHNE_PNR) $(ARACHNE_PNR_OPTIONS) -o $@ -p $^
 
 $(sys_ice_dir)%.rpt: $(sys_ice_dir)%.asc
