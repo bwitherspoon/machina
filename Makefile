@@ -6,9 +6,6 @@ IVERILOG_FLAGS := -Wall
 ifndef DEBUG
 IVERILOG_FLAGS += -DNDEBUG
 endif
-ifdef FINISH
-IVERILOG_FLAGS += -DFINISH
-endif
 VVP ?= vvp
 VERILATOR ?= verilator
 VERILATOR_FLAGS := -Wall
