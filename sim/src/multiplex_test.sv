@@ -9,64 +9,30 @@ module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam ARGW = 16;
-  localparam ARGC = 4;
+  localparam W = 16;
+  localparam N = 4;
 
   `clock()
   `reset
-  `master(arg_, ARGW,, ARGC)
-  `master(sel_, $clog2(ARGC))
-  `slave(out_, ARGW)
+  `master(s_, W,, N)
+  `slave(m_, W+$clog2(N))
 
-  multiplex #(ARGW, ARGC) uut (.*);
+  multiplex #(W, N) uut (.*);
 
-  task testcase0;
-    logic [ARGW-1:0] arg;
-    logic [$clog2(ARGC)-1:0] sel;
-    logic [ARGW-1:0] out;
+  task testcase;
+    logic [W-1:0] dat;
+    logic [$clog2(N)-1:0] sel;
+    logic [W-1:0] out;
     repeat (8) begin
-      arg = random(2**ARGW-1);
-      sel = random(ARGC);
+      dat = random(2**W-1);
+      sel = random(N-1);
       fork
-        arg_xmt(arg, sel);
-        sel_xmt(sel);
+        s_xmt(dat, sel);
+        m_rcv(out);
       join
-      out_rcv(out);
-      `check_equal(out, arg);
+      `check_equal(out, dat);
     end
-  endtask : testcase0
-
-  task testcase1;
-    logic [ARGW-1:0] arg;
-    logic [$clog2(ARGC)-1:0] sel;
-    logic [ARGW-1:0] out;
-    repeat (8) begin
-      arg = random(2**ARGW-1);
-      sel = random(ARGC);
-      fork
-        #(PERIOD+1) arg_xmt(arg, sel);
-        sel_xmt(sel);
-      join
-      out_rcv(out);
-      `check_equal(out, arg);
-    end
-  endtask : testcase1
-
-  task testcase2;
-    logic [ARGW-1:0] arg;
-    logic [$clog2(ARGC)-1:0] sel;
-    logic [ARGW-1:0] out;
-    repeat (8) begin
-      arg = random(2**ARGW-1);
-      sel = random(ARGC);
-      fork
-        arg_xmt(arg, sel);
-        #(PERIOD+1) sel_xmt(sel);
-      join
-      out_rcv(out);
-      `check_equal(out, arg);
-    end
-  endtask : testcase2
+  endtask : testcase
 
   task test;
   fork
@@ -81,9 +47,7 @@ module testbench;
       `endif
     end : timeout
     begin : worker
-      testcase0;
-      testcase1;
-      testcase2;
+      testcase;
       disable timeout;
     end : worker
   join
