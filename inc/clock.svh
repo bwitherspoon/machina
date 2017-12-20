@@ -2,7 +2,7 @@
 `define CLOCK_INCLUDED
 
 `define clock(freq=100e6, unit=1e-9) \
-  localparam PERIOD = 1.0 / 1.0*(freq) / 1.0*(unit); \
+  localparam PERIOD = 1.0 / (1.0*(freq)) / (1.0*(unit)); \
   logic clk; \
   initial begin : clock \
     clk <= 0; \
