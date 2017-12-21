@@ -9,44 +9,30 @@ module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam ARGW = 16;
-  localparam ARGC = 2;
-  localparam RESW = 2*ARGW;
+  localparam W = 8;
 
   `clock()
   `reset
-  `master(arg_, ARGW,, ARGC)
-  `slave(res_, RESW)
+  `master(s_, W, 2)
+  `slave(m_, 2*W)
 
-  multiply #(ARGW) uut (.*);
+  multiply #(W) uut (.*);
 
-  task testcase0;
-    logic [1:0][ARGW-1:0] arg;
-    logic [1:0][RESW-1:0] res;
+  task testcase;
+    logic [1:0][W-1:0] arg;
+    logic [2*W-1:0] exp;
+    logic [2*W-1:0] res;
     repeat (8) begin
       arg[0] = random(2**16-1);
       arg[1] = random(2**16-1);
-      res[0] = $signed(arg[0]) * $signed(arg[1]);
-      for (int i = 0; i < 2; i++) arg_xmt(arg[i], i);
-      res_rcv(res[1]);
-      `check_equal(res[0], res[1]);
-    end
-  endtask
-
-  task testcase1;
-    logic [1:0][ARGW-1:0] arg;
-    logic [1:0][RESW-1:0] res;
-    repeat (8) begin
-      arg[0] = random(2**16-1);
-      arg[1] = random(2**16-1);
-      res[0] = $signed(arg[0]) * $signed(arg[1]);
+      exp = $signed(arg[0]) * $signed(arg[1]);
       fork
-        for (int i = 0; i < 2; i++) arg_xmt(arg[i], i);
-        res_rcv(res[1]);
+        s_xmt(arg);
+        m_rcv(res);
       join
-      `check_equal(res[0], res[1]);
+      `check_equal(res, exp);
     end
-  endtask
+  endtask : testcase
 
   task test;
     fork
@@ -57,8 +43,7 @@ module testbench;
         $stop;
       end : timeout
       begin : worker
-        testcase0;
-        testcase1;
+        testcase;
         disable timeout;
       end : worker
     join
