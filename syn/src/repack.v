@@ -34,10 +34,14 @@ module repack #(
   end
 
   always @(posedge clk) begin
-    if (rst)
+    if (rst) begin
       m_stb <= 0;
-    else if (idx == END)
-      m_stb <= m_stb & m_rdy ? 0 : 1;
+    end else if (idx == END) begin
+      if (m_stb & m_rdy)
+        m_stb <= 0;
+      else if (s_stb & s_rdy)
+        m_stb <= 1;
+    end
   end
 
   always @(posedge clk) begin
