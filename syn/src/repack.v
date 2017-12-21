@@ -1,6 +1,6 @@
 module repack #(
-  parameter W = 8,
-  parameter D = 2
+  parameter [31:0] W = 8,
+  parameter [31:0] D = 2
 )(
   input clk,
   input rst,
