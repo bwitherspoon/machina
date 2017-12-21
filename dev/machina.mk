@@ -11,7 +11,7 @@ dev_cxx_std := -std=c++11
 dev_cxx_wrn := -Wall -Wextra
 dev_cxx_inc := -I$(dev_src_dir:/=)
 
-override CXXFLAGS := $(dev_cxx_opt) $(dev_cxx_std) $(dev_cxx_wrn) $(CXXFLAGS) $(dev_cxx_inc)
+override CXXFLAGS += $(dev_cxx_opt) $(dev_cxx_std) $(dev_cxx_wrn) $(dev_cxx_inc)
 
 vpath %.cc $(dev_src_dir:/=)
 vpath %.hh $(dev_src_dir:/=)
