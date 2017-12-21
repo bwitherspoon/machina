@@ -12,9 +12,6 @@ module multiply #(
   output reg m_stb,
   output reg [2*W-1:0] m_dat
 );
-  wire s_ack = s_stb & s_rdy;
-  wire m_ack = m_stb & m_rdy;
-
   reg stb = 0;
   reg signed [W-1:0] arg [1:0];
 
@@ -23,7 +20,7 @@ module multiply #(
   initial m_stb = 0;
 
   always @(posedge clk) begin
-    if (s_ack) begin
+    if (s_stb & s_rdy) begin
       arg[0] <= s_dat[0+:W];
       arg[1] <= s_dat[W+:W];
     end
