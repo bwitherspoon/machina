@@ -20,7 +20,7 @@ all: all-dev
 
 clean: clean-dev
 
-all-dev: $(dev_bin_dir)mem
+all-dev: $(dev_bin_dir)mem $(dev_bin_dir)ice
 
 clean-dev:
 	-$(RM) -r $(dev_bin_dir)
