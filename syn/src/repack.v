@@ -13,7 +13,7 @@ module repack #(
   output reg m_stb,
   output reg [W*D-1:0] m_dat
 );
-  localparam [$clog2(D)-1:0] END = D[$clog2(D)-1:0] - 1;
+  localparam [$clog2(D)-1:0] END = D - 1;
 
   reg [$clog2(D)-1:0] idx = 0;
 
