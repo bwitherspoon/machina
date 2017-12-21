@@ -50,6 +50,17 @@ module icestick (
     .err(rcv_err)
   );
 
+  repack #(.W(8), .D(2)) rpk (
+    .clk(clk),
+    .rst(1'b0),
+    .s_stb(rcv_stb),
+    .s_dat(rcv_dat),
+    .s_rdy(rcv_rdy),
+    .m_rdy(rpk_rdy),
+    .m_stb(rpk_stb),
+    .m_dat(rpk_dat)
+  );
+
   multiply #(.W(8)) mul (
     .clk(clk),
     .rst(1'b0),
