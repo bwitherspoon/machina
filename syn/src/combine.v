@@ -2,8 +2,6 @@ module combine #(
   parameter [31:0] W = 8,
   parameter [31:0] N = 2
 )(
-  input clk,
-  input rst,
   // Slaves
   input [N-1:0] s_stb,
   input [N*W-1:0] s_dat,
