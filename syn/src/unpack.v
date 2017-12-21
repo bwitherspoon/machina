@@ -1,48 +1,54 @@
 module unpack #(
-  parameter ARGW = 8,
-  parameter ARGD = 2
+  parameter [31:0] W = 8,
+  parameter [31:0] D = 2
 )(
   input clk,
   input rst,
 
-  input arg_stb,
-  input [ARGD*ARGW-1:0] arg_dat,
-  output arg_rdy,
+  input s_stb,
+  input [W*D-1:0] s_dat,
+  output s_rdy,
 
-  output reg out_stb,
-  output reg [ARGW-1:0] out_dat,
-  input out_rdy
+  input m_rdy,
+  output reg m_stb,
+  output reg [W-1:0] m_dat
 );
-  localparam [$clog2(ARGD)-1:0] END = ARGD[$clog2(ARGD)-1:0] - 1;
+  localparam [$clog2(D)-1:0] END = D - 1;
 
-  reg [$clog2(ARGD)-1:0] idx = 0;
+  reg [$clog2(D)-1:0] idx = 0;
 
-  initial out_stb = 0;
+  initial m_stb = 0;
 
-  assign arg_rdy = idx == END & out_rdy;
+  assign s_rdy = idx == END & m_rdy;
 
   always @(posedge clk) begin
-    if (rst | idx == END) begin
+    if (rst) begin
       idx <= 0;
-    end else if ((idx == 0 & arg_stb) | (idx != 0 & out_stb & out_rdy)) begin
-      idx <= idx + 1;
+    end else if (idx == 0) begin
+      if (s_stb)
+        idx <= idx + 1;
+    end else if (m_stb & m_rdy) begin
+      if (idx == END)
+        idx <= 0;
+      else
+        idx <= idx + 1;
     end
   end
 
   always @(posedge clk) begin
     if (rst) begin
-      out_stb <= 0;
+      m_stb <= 0;
     end else if (idx == 0) begin
-      if (arg_stb)
-        out_stb <= 1;
-      else if (out_stb & out_rdy)
-        out_stb <= 0;
+      if (s_stb)
+        m_stb <= 1;
+      else if (m_stb & m_rdy)
+        m_stb <= 0;
     end
   end
 
   always @(posedge clk) begin
-    if ((idx == 0 & arg_stb) | (idx != 0 & out_stb & out_rdy))
-      out_dat <= arg_dat[ARGW*idx+:ARGW];
+    if ((idx == 0 & s_stb) | (idx != 0 & m_stb & m_rdy))
+      m_dat <= s_dat[W*idx+:W];
   end
 
 endmodule

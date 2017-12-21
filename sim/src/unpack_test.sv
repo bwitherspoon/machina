@@ -9,27 +9,27 @@ module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam ARGW = 8;
-  localparam ARGD = 4;
+  localparam W = 8;
+  localparam D = 4;
 
   `clock()
   `reset
-  `master(arg_, ARGW, ARGD)
-  `slave(out_, ARGW)
+  `master(s_, W, D)
+  `slave(m_, W)
 
-  unpack #(ARGW, ARGD) uut (.*);
+  unpack #(W, D) uut (.*);
 
   task testcase;
-    logic [ARGD-1:0][ARGW-1:0] arg;
-    logic [ARGW-1:0] out;
+    logic [D-1:0][W-1:0] arg;
+    logic [W-1:0] out;
     repeat (8) begin
-      for (int idx = 0; idx < ARGD; idx++)
-        arg[idx] = random(2**ARGW-1);
+      for (int idx = 0; idx < D; idx++)
+        arg[idx] = random(2**W-1);
       fork
-        arg_xmt(arg);
-        for (int cnt = 0; cnt < ARGD; cnt++) begin
-          out_rcv(out);
-          `check_equal(out, arg[cnt]);
+        s_xmt(arg);
+        for (int idx = 0; idx < D; idx++) begin
+          m_rcv(out);
+          `check_equal(out, arg[idx]);
         end
       join
     end
