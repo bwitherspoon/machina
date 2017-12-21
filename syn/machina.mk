@@ -1,6 +1,7 @@
 syn_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 syn_src_dir := $(syn_dir)src/
-syn_gen_dir := $(syn_dir)generic/
+syn_cfg_dir := $(syn_dir)cfg/
+syn_gen_dir := $(syn_dir)gen/
 
 syn_src := $(notdir $(wildcard $(syn_src_dir)*.v))
 syn_dep := $(addprefix $(dep_dir),$(syn_src:.v=.mk))

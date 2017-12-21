@@ -13,45 +13,37 @@ module testbench;
   localparam BAUD = 9600;
 
   `clock(FREQ)
-  `serial(BAUD,, rs232_)
+  `serial(BAUD)
 
-  wire rs232_rts = 0;
-  wire rs232_dtr = 0;
-  wire rs232_cts;
-  wire rs232_dcd;
-  wire rs232_dsr;
-  wire irda_rxd = 0;
-  wire irda_txd;
-  wire irda_sd;
-  wire [4:0] led;
-  wire [7:0] pmod;
-  wire [15:0] gpio;
-
-  icestick ice (.*);
-
-  wire nc = &{1'b0,
-              rs232_cts,
-              rs232_dcd,
-              rs232_dsr,
-              irda_txd,
-              irda_sd,
-              led,
-              pmod,
-              gpio,
-              1'b0};
+  icestick ice (
+    .clk,
+    .rs232_rxd(rxd),
+    .rs232_rts(1'b0),
+    .rs232_dtr(1'b0),
+    .rs232_txd(txd),
+    .rs232_cts(),
+    .rs232_dcd(),
+    .rs232_dsr(),
+    .irda_rxd(1'b0),
+    .irda_txd(),
+    .irda_sd(),
+    .led(),
+    .pmod(),
+    .gpio()
+  );
 
   task testcase;
     logic [7:0] xmt [2];
-    logic [1:0][7:0] rcv [2];
-    begin
-      for (int i = 0; i < 2; i++) begin
-        xmt[i] = random(2**8-1);
-        rs232_stx(xmt[i]);
-      end
-      rcv[0] = $signed(xmt[0]) * $signed(xmt[1]);
-      rs232_srx(rcv[1][0]);
-      rs232_srx(rcv[1][1]);
-      `check_equal(rcv[0], rcv[1]);
+    logic [1:0][7:0] rcv;
+    logic [1:0][7:0] exp;
+    repeat (1) begin
+      for (int i = 0; i < 2; i++) xmt[i] = random(2**8-1);
+      exp = $signed(xmt[0]) * $signed(xmt[1]);
+      fork
+        for (int i = 0; i < 2; i++) stx(xmt[i]);
+        for (int i = 0; i < 2; i++) srx(rcv[i]);
+      join
+      `check_equal(rcv, exp);
     end
   endtask : testcase
 

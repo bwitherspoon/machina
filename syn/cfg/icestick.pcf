@@ -1,0 +1,41 @@
+# Lattice Semiconductor iCEstick Evaluation Kit (iCE40-HX1K-TQ144)
+set_io clk                      21  # PIO3_00 / iCE_CLK
+set_io --warn-no-port led[0]    99  # PIO1_14 / LED0
+set_io --warn-no-port led[1]    98  # PIO1_13 / LED1
+set_io --warn-no-port led[2]    97  # PIO1_12 / LED2
+set_io --warn-no-port led[3]    96  # PIO1_11 / LED3
+set_io --warn-no-port led[4]    95  # PIO1_10 / LED4
+set_io --warn-no-port rs232_dsr 2   # PIO3_03 / DSRn
+set_io --warn-no-port rs232_dtr 3   # PIO3_04 / CTSn
+set_io --warn-no-port rs232_dcd 1   # PIO3_02 / DCDn
+set_io --warn-no-port rs232_cts 4   # PIO3_05 / CTSn
+set_io --warn-no-port rs232_rts 7   # PIO3_06 / RTSn
+set_io --warn-no-port rs232_txd 8   # PIO3_07 / RS232_Tx_TTL
+set_io --warn-no-port rs232_rxd 9   # PIO3_08 / RS232_Rx TTL
+set_io --warn-no-port irda_txd  105 # PIO1_18
+set_io --warn-no-port irda_rxd  106 # PIO1_19
+set_io --warn-no-port irda_sd   104 # PIO1_20
+set_io --warn-no-port pmod[0]   78  # PIO1_02
+set_io --warn-no-port pmod[1]   79  # PIO1_03
+set_io --warn-no-port pmod[2]   80  # PIO1_04
+set_io --warn-no-port pmod[3]   81  # PIO1_05
+set_io --warn-no-port pmod[4]   87  # PIO1_06
+set_io --warn-no-port pmod[5]   88  # PIO1_07
+set_io --warn-no-port pmod[6]   90  # PIO1_08
+set_io --warn-no-port pmod[7]   91  # PIO1_09
+set_io --warn-no-port gpio[0]   112 # PIO0_02
+set_io --warn-no-port gpio[1]   113 # PIO0_03
+set_io --warn-no-port gpio[2]   114 # PIO0_04
+set_io --warn-no-port gpio[3]   115 # PIO0_05
+set_io --warn-no-port gpio[4]   116 # PIO0_06
+set_io --warn-no-port gpio[5]   117 # PIO0_07
+set_io --warn-no-port gpio[6]   118 # PIO0_08
+set_io --warn-no-port gpio[7]   119 # PIO0_09
+set_io --warn-no-port gpio[8]   62  # PIO2_17
+set_io --warn-no-port gpio[9]   61  # PIO2_16
+set_io --warn-no-port gpio[10]  60  # PIO2_15
+set_io --warn-no-port gpio[11]  56  # PIO2_14
+set_io --warn-no-port gpio[12]  48  # PIO2_13
+set_io --warn-no-port gpio[13]  47  # PIO2_12
+set_io --warn-no-port gpio[14]  45  # PIO2_11
+set_io --warn-no-port gpio[15]  44  # PIO2_10
