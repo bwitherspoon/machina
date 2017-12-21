@@ -36,9 +36,9 @@ module icestick (
   wire mul_stb;
   wire [15:0] mul_dat;
 
-  wire upk_rdy;
-  wire upk_stb;
-  wire [7:0] upk_dat;
+  wire xmt_rdy;
+  wire xmt_stb;
+  wire [7:0] xmt_dat;
 
   receive #(BAUD, FREQ) rcv (
     .clk(clk),
@@ -72,12 +72,23 @@ module icestick (
     .m_rdy(mul_rdy)
   );
 
+  unpack #(.W(8), .D(2)) upk (
+    .clk(clk),
+    .rst(1'b0),
+    .s_stb(mul_stb),
+    .s_dat(mul_dat),
+    .s_rdy(mul_rdy),
+    .m_rdy(xmt_rdy),
+    .m_stb(xmt_stb),
+    .m_dat(xmt_dat)
+  );
+
   transmit #(BAUD, FREQ) xmt (
     .clk(clk),
     .rst(1'b0),
-    .stb(upk_stb),
-    .dat(upk_dat),
-    .rdy(upk_rdy),
+    .stb(xmt_stb),
+    .dat(xmt_dat),
+    .rdy(xmt_rdy),
     .txd(rs232_txd)
   );
 

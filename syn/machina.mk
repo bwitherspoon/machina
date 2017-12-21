@@ -53,5 +53,7 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 include $(syn_dep)
 endif
 
+include $(syn_src_dir)*/*.mk
+
 .PHONY: all check lint clean all-syn check-syn lint-syn clean-syn
 .PHONY: $(syn_chk) $(syn_lnt)

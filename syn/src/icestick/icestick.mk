@@ -1,4 +1,10 @@
+ice_src_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 syn_ice_dir := $(syn_dir)ice/
+ice_src := icestick.v
+ice_dep := $(addprefix $(dep_dir),$(ice_src:.v=.mk))
+
+IVERILOG_FLAGS += -y$(ice_src_dir:/=)
+VERILATOR_FLAGS += -y $(ice_src_dir:/=)
 
 ICEDEV ?= hx1k
 ICEDB ?= /usr/share/icestorm/chipdb-1k.txt
@@ -10,15 +16,13 @@ ICEPROG ?= iceprog
 ICETIME ?= icetime
 ICETIME_OPTIONS := -d $(ICEDEV) -C $(ICEDB) -m -t
 
-all: all-syn
+vpath %.v $(ice_src_dir)
 
-clean: clean-syn
+all-syn: icestick
 
-all-syn: all-ice
-
-all-ice: $(syn_ice_dir)icestick.asc \
-			   $(syn_ice_dir)icestick.bin \
-				 $(syn_ice_dir)icestick.rpt
+icestick: $(syn_ice_dir)icestick.asc \
+			    $(syn_ice_dir)icestick.bin \
+				  $(syn_ice_dir)icestick.rpt
 
 clean-syn::
 	-$(RM) -r $(syn_ice_dir)
@@ -32,7 +36,7 @@ $(syn_ice_dir)%.blif: %.v | $(syn_ice_dir)
 $(syn_ice_dir)%.v: $(syn_ice_dir)%.blif
 	$(YOSYS) $(YOSYS_FLAGS) -l $(@:=.log) -p 'read_blif $<; write_verilog $@'
 
-$(syn_ice_dir)%.asc: $(syn_cfg_dir)%.pcf $(syn_ice_dir)%.blif
+$(syn_ice_dir)%.asc: $(ice_src_dir)%.pcf $(syn_ice_dir)%.blif
 	$(ARACHNE_PNR) $(ARACHNE_PNR_OPTIONS) -o $@ -p $^
 
 $(syn_ice_dir)%.rpt: $(syn_ice_dir)%.asc
@@ -41,11 +45,11 @@ $(syn_ice_dir)%.rpt: $(syn_ice_dir)%.asc
 $(syn_ice_dir)%.bin: $(syn_ice_dir)%.asc
 	$(ICEPACK) $< $@
 
-$(sys_ice_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
+$(ice_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_ice_dir)$*.blif)
 
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-include $(sys_ice_dep)
+include $(ice_dep)
 endif
 
-.PHONY: all clean all-syn all-ice clean-syn
+.PHONY: all-syn clean-syn icestick
