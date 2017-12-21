@@ -35,7 +35,7 @@ module transmit #(
           txd <= 1;
           idx <= 0;
         end else begin
-          txd <= idx == 8 ? 1 : tmp[idx];
+          txd <= idx == 8 ? 1 : tmp[idx[2:0]];
           idx <= idx + 1;
         end
         cnt <= 0;
