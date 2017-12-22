@@ -1,53 +1,62 @@
 module accumulate #(
-  parameter ARGW = 32,
-  parameter RESW = 40
+  parameter [31:0] W = 16
 )(
   input clk,
   input rst,
 
-  input arg_stb,
-  input [ARGW-1:0] arg_dat,
-  output arg_rdy,
+  input s_stb,
+  input [W-1:0] s_dat,
+  output s_rdy,
 
-  output reg res_stb,
-  output reg [RESW-1:0] res_dat,
-  input res_rdy
+  input m_rdy,
+  output reg m_stb,
+  output reg [W-1:0] m_dat
 );
-  initial if (RESW < ARGW)
-    $display("ERROR: accumulate: result width must be greater then or equal to argument width");
+  localparam signed [W:0] MAX = 2**(W-1);
+  localparam signed [W:0] MIN = -MAX;
 
-  reg arg_ack = 0;
-  wire arg_end = arg_ack & ~arg_stb;
-  reg signed [RESW-1:0] acc = 0;
+  reg ack = 0;
 
-  assign arg_rdy = ~res_stb | res_rdy;
+  wire clr = ack & ~s_stb;
+
+  reg signed [W:0] acc = 0;
+
+  wire signed [W:0] sum = acc + $signed({s_dat[W-1], s_dat});
+
+  initial m_stb = 0;
+
+  assign s_rdy = ~m_stb | m_rdy;
 
   always @(posedge clk) begin
     if (rst)
-      arg_ack <= 0;
+      ack <= 0;
     else
-      arg_ack <= arg_stb & arg_rdy;
+      ack <= s_stb & s_rdy;
   end
 
   always @(posedge clk) begin
-    if (rst | arg_end) begin
+    if (rst | clr) begin
       acc <= 0;
-    end else if (arg_stb & arg_rdy) begin
-      acc <= acc + $signed({{(RESW-ARGW){arg_dat[ARGW-1]}}, arg_dat});
+    end else if (s_stb & s_rdy) begin
+      case ({MIN < sum, sum < MAX})
+      2'b11: acc <= sum;
+      2'b10: acc <= MAX - 1;
+      2'b01: acc <= MIN;
+      2'b00: acc <= {(W+1){1'bx}};
+      endcase
     end
   end
 
-  initial res_stb = 0;
   always @(posedge clk) begin
     if (rst) begin
-      res_stb <= 0;
-    end else if (~res_stb) begin
-      if (arg_end) begin
-        res_stb <= 1;
-        res_dat <= acc;
+      m_stb <= 0;
+    end else if (~m_stb) begin
+      if (clr) begin
+        m_stb <= 1;
+        m_dat <= acc;
       end
-    end else if (res_rdy) begin
-      res_stb <= 0;
+    end else if (m_rdy) begin
+      m_stb <= 0;
     end
   end
 

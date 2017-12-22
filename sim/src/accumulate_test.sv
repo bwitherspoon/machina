@@ -2,43 +2,59 @@
 `include "clock.svh"
 `include "dump.svh"
 `include "interface.svh"
+`include "random.svh"
 `include "reset.svh"
 
 module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam ARGW = 24;
-  localparam RESW = 40;
+  localparam W = 16;
 
   `clock()
   `reset
-  `master(arg_, ARGW)
-  `slave(res_, RESW)
+  `master(s_, W)
+  `slave(m_, W)
 
-  accumulate #(.ARGW(ARGW), .RESW(RESW)) uut (.*);
+  accumulate #(W) uut (.*);
 
-  task testcase;
+  task basic;
+    logic [W-1:0] arg[4];
+    logic signed [W-1:0] exp;
+    logic [W-1:0] res;
+    begin
+      exp = 0;
+      for (int i = 0; i < 4; i++) begin
+        arg[i] = random(2**W-1);
+        exp += $signed(arg[i]);
+      end
+      fork
+        for (int i = 0; i < 4; i++) s_xmt(arg[i]);
+        m_rcv(res);
+      join
+    end
+  endtask : basic
+
+  task clear;
     fork
       begin : xmt
-        logic [ARGW-1:0] arg [4];
-        bit timeout;
+        logic [W-1:0] arg [4];
         int i;
-        arg[0] = 24'h0000ff; arg[1] = 24'h000001;
-        arg[2] = 24'hffffff; arg[3] = 24'h00000f;
-        for (i = 0; i < 3; i++) arg_xmt(arg[i]);
+        arg[0] = 16'h00ff; arg[1] = 16'h0001;
+        arg[2] = 16'hffff; arg[3] = 16'h000f;
+        for (i = 0; i < 3; i++) s_xmt(arg[i]);
         repeat (2) @(posedge clk);
-        @(negedge clk) arg_xmt(arg[3]);
+        @(negedge clk) s_xmt(arg[3]);
       end : xmt
       begin : rcv
-        logic [RESW-1:0] res;
-        res_rcv(res);
-        `check_equal(res, 40'h00000000ff);
-        res_rcv(res);
-        `check_equal(res, 40'h000000000f);
+        logic [W-1:0] res;
+        m_rcv(res);
+        `check_equal(res, 16'h00ff);
+        m_rcv(res);
+        `check_equal(res, 16'h000f);
       end : rcv
     join
-  endtask : testcase
+  endtask : clear
 
   task test;
     fork
@@ -53,7 +69,8 @@ module testbench;
         `endif
       end : timeout
       begin : worker
-        testcase;
+        basic;
+        clear;
         disable timeout;
       end : worker
     join
