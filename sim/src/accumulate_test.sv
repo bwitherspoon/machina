@@ -1,7 +1,7 @@
 `include "check.svh"
 `include "clock.svh"
+`include "connect.svh"
 `include "dump.svh"
-`include "interface.svh"
 `include "random.svh"
 `include "reset.svh"
 
@@ -13,8 +13,8 @@ module testbench;
 
   `clock()
   `reset
-  `master(s_, W)
-  `slave(m_, W)
+  `master(W)
+  `slave(W)
 
   accumulate #(W) uut (.*);
 
@@ -29,8 +29,8 @@ module testbench;
         exp += $signed(arg[i]);
       end
       fork
-        for (int i = 0; i < 4; i++) s_xmt(arg[i]);
-        m_rcv(res);
+        for (int i = 0; i < 4; i++) s_put(arg[i]);
+        m_get(res);
       join
     end
   endtask : basic
@@ -42,15 +42,15 @@ module testbench;
         int i;
         arg[0] = 16'h00ff; arg[1] = 16'h0001;
         arg[2] = 16'hffff; arg[3] = 16'h000f;
-        for (i = 0; i < 3; i++) s_xmt(arg[i]);
+        for (i = 0; i < 3; i++) s_put(arg[i]);
         repeat (2) @(posedge clk);
-        @(negedge clk) s_xmt(arg[3]);
+        @(negedge clk) s_put(arg[3]);
       end : xmt
       begin : rcv
         logic [W-1:0] res;
-        m_rcv(res);
+        m_get(res);
         `check_equal(res, 16'h00ff);
-        m_rcv(res);
+        m_get(res);
         `check_equal(res, 16'h000f);
       end : rcv
     join
