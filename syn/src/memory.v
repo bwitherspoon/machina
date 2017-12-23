@@ -28,12 +28,14 @@ module memory #(
 
   initial rdata_stb = 0;
 
-  assign waddr_rdy = waddr_stb & wdata_stb;
+  assign waddr_rdy = waddr_stb & wdata_stb & ~(raddr_stb & raddr_dat == waddr_dat);
   assign wdata_rdy = waddr_rdy;
   assign raddr_rdy = ~rdata_stb | rdata_rdy;
 
   always @(posedge clk) begin
-    if (raddr_stb & raddr_rdy) begin
+    if (rst) begin
+      rdata_stb <= 0;
+    end else if (raddr_stb & raddr_rdy) begin
       rdata_stb <= 1;
       rdata_dat <= mem[raddr_dat];
     end else if (rdata_stb & rdata_rdy) begin
