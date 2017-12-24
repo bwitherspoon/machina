@@ -2,7 +2,7 @@
 `define RANDOM_INCLUDED
 
 function int unsigned random(int unsigned max = 2**32);
-  int seed = 0;
+  static int seed = 0;
   return {$random(seed)} % max;
 endfunction : random
 
