@@ -25,7 +25,7 @@ module reorder #(
   wire adr_stb = mask == 0;
   wire adr_rdy;
   wire [W-1:0] dat_dat;
-  reg [$clog2(N)-1:0] adr_dat[2];
+  reg [$clog2(N)-1:0] adr_dat [1:0];
 
   reg [N-1:0] mask = {N{1'b1}};
 
