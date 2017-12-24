@@ -1,7 +1,7 @@
 `include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
-`include "interface.svh"
+`include "connect.svh"
 `include "random.svh"
 `include "reset.svh"
 
@@ -14,25 +14,41 @@ module testbench;
 
   `clock()
   `reset
-  `master(s_, W,, N)
-  `slave(m_, W+$clog2(N))
+  `slave(W,, N)
+  `master(W+$clog2(N))
 
   multiplex #(W, N) uut (.*);
 
-  task testcase;
-    logic [W-1:0] dat;
+  task single;
     logic [$clog2(N)-1:0] sel;
-    logic [W-1:0] out;
+    logic [W-1:0] dat, out;
     repeat (8) begin
       dat = random(2**W-1);
       sel = random(N-1);
       fork
-        s_xmt(dat, sel);
-        m_rcv(out);
+        s_put(dat, sel);
+        m_get(out);
       join
       `check_equal(out, dat);
     end
-  endtask : testcase
+  endtask : single
+
+  task multiple;
+    localparam K = 10;
+    logic [$clog2(N)-1:0] sel[K], adr;
+    logic [W-1:0] dat[K], out;
+    begin
+      foreach (sel[k]) sel[k] = random(N-1);
+      foreach (dat[k]) dat[k] = random(2**W-1);
+      fork
+        foreach (sel[k]) s_put(dat[sel[k]], sel[k]);
+        repeat (K) begin
+          m_get({adr, out});
+          `check_equal(out, dat[adr]);
+        end
+      join
+    end
+  endtask : multiple
 
   task test;
   fork
@@ -47,7 +63,8 @@ module testbench;
       `endif
     end : timeout
     begin : worker
-      testcase;
+      //single;
+      multiple;
       disable timeout;
     end : worker
   join
