@@ -2,7 +2,7 @@ prj := machina
 prj_dir := $(dir $(firstword $(MAKEFILE_LIST)))
 
 IVERILOG ?= iverilog
-IVERILOG_FLAGS := -Wall -Y.sv
+IVERILOG_FLAGS := -Wall -Wno-timescale -Y.sv
 ifndef DEBUG
 IVERILOG_FLAGS += -DNDEBUG
 endif

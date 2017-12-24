@@ -12,6 +12,7 @@ sim_vvp := $(addprefix $(sim_vvp_dir),$(sim_src:.sv=.vvp))
 
 IVERILOG_FLAGS += -y$(sim_src_dir:/=)
 
+TIMESCALE ?= 1ns/1ps
 SEED ?= $(shell echo $$RANDOM)
 
 vpath %.sv $(sim_src_dir)
@@ -54,7 +55,7 @@ $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
 	$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
 
 $(sim_vvp_dir)%.vvp:: %.sv | $(sim_vvp_dir)
-	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -tvvp -o $@ $<
+	$(IVERILOG) -g2012 $(IVERILOG_FLAGS) -ptimescale=$(TIMESCALE) -tvvp -o $@ $<
 
 $(sim_dep): $(dep_dir)%.mk: %.sv | $(dep_dir)
 	$(call depends,$(sim_vvp_dir)$*.vvp)
