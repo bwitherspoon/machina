@@ -2,21 +2,23 @@
 `include "dump.svh"
 `include "reset.svh"
 
-module testbench;
+module testbench #(
+  parameter TIMEOUT = 1e6
+);
   timeunit 1ns;
   timeprecision 1ps;
 
   `clock()
   `reset
 
-  task testcase;
-    @(posedge clk);
-  endtask : testcase
-
   task test;
+    @(posedge clk);
+  endtask : test
+
+  task run;
   fork
     begin : timeout
-      repeat (1e6) @(posedge clk);
+      repeat (TIMEOUT) @(posedge clk);
       disable worker;
       `ifdef __ICARUS__
         $error("testbench timeout");
@@ -26,18 +28,18 @@ module testbench;
       `endif
     end : timeout
     begin : worker
-      testcase;
+      test;
       disable timeout;
     end : worker
   join
-  endtask : test
+  endtask : run
 
   initial begin
     dump;
     #PERIOD;
-    test;
+    run;
     reset;
-    test;
+    run;
     $finish;
   end
 
