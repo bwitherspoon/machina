@@ -12,16 +12,17 @@ module accumulate #(
   output reg m_stb,
   output reg [W-1:0] m_dat
 );
-  localparam signed [W:0] MAX = 2**(W-1);
-  localparam signed [W:0] MIN = -MAX;
-
   reg ack = 0;
 
   wire clr = ack & ~s_stb;
 
-  reg signed [W:0] acc = 0;
+  reg signed [W-1:0] acc = 0;
 
-  wire signed [W:0] sum = acc + $signed({s_dat[W-1], s_dat});
+  wire signed [W:0] add = $signed({acc[W-1], acc}) + $signed({s_dat[W-1], s_dat});
+
+  wire signed [W-1:0] sum;
+
+  saturate #(W) sat (add, sum);
 
   initial m_stb = 0;
 
@@ -38,12 +39,7 @@ module accumulate #(
     if (rst | clr) begin
       acc <= 0;
     end else if (s_stb & s_rdy) begin
-      case ({MIN < sum, sum < MAX})
-      2'b11: acc <= sum;
-      2'b10: acc <= MAX - 1;
-      2'b01: acc <= MIN;
-      2'b00: acc <= {(W+1){1'bx}};
-      endcase
+      acc <= sum;
     end
   end
 
