@@ -14,30 +14,30 @@ module testbench;
 
   `clock()
   `reset
-  `slave($clog2(D),,, waddr)
-  `slave(W,,, wdata)
-  `slave($clog2(D),,, raddr)
-  `master(W,,, rdata)
+  `slave($clog2(D),,, s_wa)
+  `slave(W,,, s_wd)
+  `slave($clog2(D),,, s_ra)
+  `master(W,,, m_rd)
 
   memory #(W, D) uut (.*);
 
   task testcase;
-    logic [W-1:0] wdata [D];
-    logic [W-1:0] rdata [D];
+    logic [W-1:0] wd [D];
+    logic [W-1:0] rd [D];
     begin
       for (int i = 0; i < D; i++) begin
-        wdata[i] = random(2**W-1);
+        wd[i] = random(2**W);
         fork
-          waddr_put(i[$clog2(D)-1:0]);
-          wdata_put(wdata[i]);
+          s_wa_put(i[$clog2(D)-1:0]);
+          s_wd_put(wd[i]);
         join
       end
       for (int i = 0; i < D; i++) begin
         fork
-          raddr_put(i[$clog2(D)-1:0]);
-          rdata_get(rdata[i]);
+          s_ra_put(i[$clog2(D)-1:0]);
+          m_rd_get(rd[i]);
         join
-        `check_equal(rdata[i], wdata[i]);
+        `check_equal(rd[i], wd[i]);
       end
     end
   endtask : testcase

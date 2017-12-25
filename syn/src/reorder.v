@@ -54,18 +54,18 @@ module reorder #(
   memory #(W, N) mem (
     .clk(clk),
     .rst(rst),
-    .waddr_stb(mux_stb),
-    .waddr_dat(mux_adr),
-    .waddr_rdy(mux_adr_rdy),
-    .wdata_stb(mux_stb),
-    .wdata_dat(mux_dat),
-    .wdata_rdy(mux_dat_rdy),
-    .raddr_stb(adr_stb),
-    .raddr_dat(adr_dat[0]),
-    .raddr_rdy(adr_rdy),
-    .rdata_rdy(m_rdy),
-    .rdata_stb(m_stb),
-    .rdata_dat(dat_dat)
+    .s_wa_stb(mux_stb),
+    .s_wa_dat(mux_adr),
+    .s_wa_rdy(mux_adr_rdy),
+    .s_wd_stb(mux_stb),
+    .s_wd_dat(mux_dat),
+    .s_wd_rdy(mux_dat_rdy),
+    .s_ra_stb(adr_stb),
+    .s_ra_dat(adr_dat[0]),
+    .s_ra_rdy(adr_rdy),
+    .m_rd_rdy(m_rdy),
+    .m_rd_stb(m_stb),
+    .m_rd_dat(dat_dat)
   );
 
   always @(posedge clk) begin
