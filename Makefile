@@ -1,5 +1,6 @@
 prj := machina
 prj_dir := $(dir $(firstword $(MAKEFILE_LIST)))
+dep_dir := dep/
 
 IVERILOG ?= iverilog
 IVERILOG_FLAGS := -Wall -Wno-timescale -Y.sv
@@ -11,8 +12,6 @@ VERILATOR ?= verilator
 VERILATOR_FLAGS := -Wall
 YOSYS ?= yosys
 YOSYS_FLAGS := -q
-
-dep_dir := dep/
 
 define depends
 	@trap 'rm -f $@.$$$$' EXIT; \
@@ -53,10 +52,10 @@ clean-dep:
 $(dep_dir):
 	@mkdir -p $@
 
-include dev/machina.mk
-include inc/machina.mk
-include syn/machina.mk
-include sim/machina.mk
-include dat/machina.mk
+include dev/$(prj).mk
+include inc/$(prj).mk
+include syn/$(prj).mk
+include sim/$(prj).mk
+include dat/$(prj).mk
 
 .PHONY: all help check test clean check-makefile clean-dep
