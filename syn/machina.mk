@@ -50,7 +50,7 @@ $(syn_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_gen_dir)$*.blif)
 
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-include $(syn_dep)
+-include $(syn_dep)
 endif
 
 include $(syn_src_dir)*/*.mk

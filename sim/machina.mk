@@ -61,7 +61,7 @@ $(sim_dep): $(dep_dir)%.mk: %.sv | $(dep_dir)
 	$(call depends,$(sim_vvp_dir)$*.vvp)
 
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-include $(sim_dep)
+-include $(sim_dep)
 endif
 
 .PHONY: all test check dump clean

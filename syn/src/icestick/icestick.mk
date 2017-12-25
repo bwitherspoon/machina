@@ -49,7 +49,7 @@ $(ice_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_ice_dir)$*.blif)
 
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-include $(ice_dep)
+-include $(ice_dep)
 endif
 
 .PHONY: all-syn clean-syn icestick
