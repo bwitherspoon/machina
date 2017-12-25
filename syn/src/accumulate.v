@@ -1,28 +1,29 @@
 module accumulate #(
-  parameter [31:0] W = 16
+  parameter [31:0] WIDTH = 16,
+  parameter [WIDTH:0] LIMIT = 2**(WIDTH-1)
 )(
   input clk,
   input rst,
 
   input s_stb,
-  input [W-1:0] s_dat,
+  input [WIDTH-1:0] s_dat,
   output s_rdy,
 
   input m_rdy,
   output reg m_stb,
-  output reg [W-1:0] m_dat
+  output reg [WIDTH-1:0] m_dat
 );
+  localparam W = WIDTH;
+
   reg ack = 0;
 
   wire clr = ack & ~s_stb;
 
-  reg signed [W-1:0] acc = 0;
+  reg signed [WIDTH-1:0] acc = 0;
+  wire signed [WIDTH:0] add = $signed({acc[WIDTH-1], acc}) + $signed({s_dat[WIDTH-1], s_dat});
+  wire signed [WIDTH-1:0] sum;
 
-  wire signed [W:0] add = $signed({acc[W-1], acc}) + $signed({s_dat[W-1], s_dat});
-
-  wire signed [W-1:0] sum;
-
-  saturate #(W) sat (add, sum);
+  saturate #(WIDTH, LIMIT) sat (add, sum);
 
   initial m_stb = 0;
 
