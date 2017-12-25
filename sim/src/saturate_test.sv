@@ -1,62 +1,30 @@
 `include "check.svh"
-`include "clock.svh"
 `include "dump.svh"
-`include "interface.svh"
-`include "reset.svh"
 
 module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam ARGW = 24;
-  localparam RESW = 16;
+  reg  [16:0] val;
+  wire [15:0] out;
 
-  `clock()
-  `reset
-  `master(arg_, ARGW)
-  `slave(res_, RESW)
+  saturate uut (.*);
 
-  saturate #(.ARGW(ARGW), .RESW(RESW)) uut (.*);
-
-  task testcase;
-    logic [ARGW-1:0] arg [4];
-    logic [RESW-1:0] exp [4];
-    logic [RESW-1:0] res;
+  task test;
+    logic [16:0] arg [4];
+    logic [15:0] sat [4];
     begin
-      arg[0] = 24'h0000ff; arg[1] = 24'hffff00; arg[2] = 24'h7fffff; arg[3] = 24'h800000;
-      exp[0] = 16'h00ff; exp[1] = 16'hff00; exp[2] = 16'h7fff; exp[3] = 16'h8000;
+      arg[0] = 17'h000ff; arg[1] = 17'h1ff00; arg[2] = 17'h07fff; arg[3] = 17'h10000;
+      sat[0] = 16'h00ff;  sat[1] = 16'hff00;  sat[2] = 16'h7fff;  sat[3] = 16'h8000;
       for (int i = 0; i < 4; i++) begin
-        arg_xmt(arg[i]);
-        res_rcv(res);
-        `check_equal(res, exp[i]);
+        val = arg[i];
+        #1 `check_equal(out, sat[i]);
       end
     end
   endtask
 
-  task test;
-  fork
-    begin : timeout
-      repeat (1e6) @(posedge clk);
-      disable worker;
-      `ifdef __ICARUS__
-        $error("testbench timeout");
-        $stop;
-      `else
-        $fatal(0, "testbench timeout");
-      `endif
-    end : timeout
-    begin : worker
-      testcase;
-      disable timeout;
-    end : worker
-  join
-  endtask : test
-
   initial begin
     dump;
-    #PERIOD;
-    test;
-    reset;
     test;
     $finish;
   end
