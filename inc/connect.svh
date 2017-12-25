@@ -1,6 +1,17 @@
 `ifndef CONNECT_INCLUDED
 `define CONNECT_INCLUDED
 
+`define connect(master=m, slave=s, width=8, depth=1, count=1) \
+  logic [(count)-1:0] master``_stb; \
+  logic [(count)-1:0][(depth)-1:0][(width)-1:0] master``_dat; \
+  logic [(count)-1:0] master``_rdy; \
+  logic [(count)-1:0] slave``_stb; \
+  logic [(count)-1:0][(depth)-1:0][(width)-1:0] slave``_dat; \
+  logic [(count)-1:0] slave``_rdy; \
+  assign master``_rdy = slave``_rdy; \
+  assign slave``_stb = master``_stb; \
+  assign slave``_dat = master``_dat;
+
 `define master(width=8, depth=1, count=1, prefix=m) \
   logic [(count)-1:0] prefix``_stb; \
   logic [(count)-1:0][(depth)-1:0][(width)-1:0] prefix``_dat; \
