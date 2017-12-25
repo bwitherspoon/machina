@@ -24,8 +24,8 @@ module testbench;
     logic [$clog2(N)-1:0] sel;
     logic [W-1:0] out;
     repeat (8) begin
-      dat = random(2**W-1);
-      sel = random(N-1);
+      dat = random(2**W);
+      sel = random(N);
       fork
         s_xmt({sel, dat});
         m_rcv(out, sel);

@@ -24,7 +24,7 @@ module testbench;
     logic [W-1:0] out;
     repeat (8) begin
       for (int idx = 0; idx < D; idx++)
-        arg[idx] = random(2**W-1);
+        arg[idx] = random(2**W);
       fork
         s_xmt(arg);
         for (int idx = 0; idx < D; idx++) begin

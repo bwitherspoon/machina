@@ -24,7 +24,7 @@ module testbench;
     logic [N-1:0][W-1:0] out;
     repeat (8) begin
       for (int n = 0; n < N; n++)
-        dat[n] = random(2**W-1);
+        dat[n] = random(2**W);
       fork
         #(0*PERIOD+1) s_xmt(dat[0], 0);
         #(1*PERIOD+1) s_xmt(dat[1], 1);

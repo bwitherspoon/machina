@@ -23,8 +23,8 @@ module testbench;
     logic [2*W-1:0] exp;
     logic [2*W-1:0] res;
     repeat (8) begin
-      arg[0] = random(2**16-1);
-      arg[1] = random(2**16-1);
+      arg[0] = random(2**W);
+      arg[1] = random(2**W);
       exp = $signed(arg[0]) * $signed(arg[1]);
       fork
         s_xmt(arg);

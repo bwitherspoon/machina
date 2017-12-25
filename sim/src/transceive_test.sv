@@ -28,7 +28,7 @@ module testbench;
     logic [7:0] tx;
     logic [7:0] rx;
     repeat (8) begin
-      tx = random(255);
+      tx = random(2**8);
       fork
         stx(tx);
         srx(rx);

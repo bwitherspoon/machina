@@ -25,7 +25,7 @@ module testbench;
     begin
       exp = 0;
       for (int i = 0; i < 4; i++) begin
-        arg[i] = random(2**W-1);
+        arg[i] = random(2**W);
         exp += $signed(arg[i]);
       end
       fork

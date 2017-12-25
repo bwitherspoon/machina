@@ -25,7 +25,7 @@ module testbench;
     repeat (8) begin
       fork
         for (int i = 0; i < D; i++) begin
-          arg[i] = random(2**W-1);
+          arg[i] = random(2**W);
           s_xmt(arg[i]);
         end
         m_rcv(out);
@@ -39,7 +39,7 @@ module testbench;
     begin
       m_rdy = 1;
       for (int i = 0; i < D; i++)
-        s_xmt(random(2**W-1));
+        s_xmt(random(2**W));
       s_stb = 1;
       do wait (m_stb) @(posedge clk); while (~m_stb);
       #(PERIOD+1) `check_equal(m_stb, 0);

@@ -37,7 +37,7 @@ module testbench;
     logic [1:0][7:0] rcv;
     logic [1:0][7:0] exp;
     repeat (1) begin
-      for (int i = 0; i < 2; i++) xmt[i] = random(2**8-1);
+      for (int i = 0; i < 2; i++) xmt[i] = random(2**8);
       exp = $signed(xmt[0]) * $signed(xmt[1]);
       fork
         for (int i = 0; i < 2; i++) stx(xmt[i]);

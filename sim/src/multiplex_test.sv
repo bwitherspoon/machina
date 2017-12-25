@@ -23,8 +23,8 @@ module testbench;
     logic [$clog2(N)-1:0] sel;
     logic [W-1:0] dat, out;
     repeat (8) begin
-      dat = random(2**W-1);
-      sel = random(N-1);
+      dat = random(2**W);
+      sel = random(N);
       fork
         s_put(dat, sel);
         m_get(out);
@@ -38,8 +38,8 @@ module testbench;
     logic [$clog2(N)-1:0] sel[K], adr;
     logic [W-1:0] dat[K], out;
     begin
-      foreach (sel[k]) sel[k] = random(N-1);
-      foreach (dat[k]) dat[k] = random(2**W-1);
+      foreach (sel[k]) sel[k] = random(N);
+      foreach (dat[k]) dat[k] = random(2**W);
       fork
         foreach (sel[k]) s_put(dat[sel[k]], sel[k]);
         repeat (K) begin

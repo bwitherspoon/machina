@@ -26,7 +26,7 @@ module testbench;
     logic [7:0] tx;
     logic [7:0] rx;
     repeat (8) begin
-      tx = random(255);
+      tx = random(2**8);
       fork
         stx(tx);
         rcv(rx);
@@ -39,7 +39,7 @@ module testbench;
     logic [7:0] tx;
     logic [7:0] rx;
     repeat (8) begin
-      tx = random(255);
+      tx = random(2**8);
       stx(tx);
       rcv(rx);
       `check_equal(tx, rx);
@@ -50,10 +50,10 @@ module testbench;
     logic [7:0] tx [2];
     logic [7:0] rx;
     repeat (8) begin
-      tx[0] = random(255);
+      tx[0] = random(2**8);
       stx(tx[0]);
       `check_equal(err, 0);
-      tx[1] = random(255);
+      tx[1] = random(2**8);
       fork
         stx(tx[1]);
         #(9.5e9/BAUD) rcv(rx);

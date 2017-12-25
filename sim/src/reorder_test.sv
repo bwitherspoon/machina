@@ -26,7 +26,7 @@ module testbench;
     logic [$clog2(N)-1:0] adr;
     begin
       foreach (sel[i]) sel[i] = i;
-      foreach (dat[i]) dat[i] = random(2**W-1);
+      foreach (dat[i]) dat[i] = random(2**W);
       fork
         foreach (sel[i]) s_put(dat[sel[i]], sel[i]);
         foreach (dat[i]) begin
