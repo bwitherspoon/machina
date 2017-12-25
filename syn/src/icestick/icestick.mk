@@ -3,9 +3,6 @@ syn_ice_dir := $(syn_dir)ice/
 ice_src := icestick.v
 ice_dep := $(addprefix $(dep_dir),$(ice_src:.v=.mk))
 
-IVERILOG_FLAGS += -y$(ice_src_dir:/=)
-VERILATOR_FLAGS += -y $(ice_src_dir:/=)
-
 ICEDEV ?= hx1k
 ICEDB ?= /usr/share/icestorm/chipdb-1k.txt
 
@@ -20,9 +17,21 @@ vpath %.v $(ice_src_dir)
 
 all.syn: icestick
 
+lint.syn: lint.icestick
+
 icestick: $(syn_ice_dir)icestick.asc \
 			    $(syn_ice_dir)icestick.bin \
 				  $(syn_ice_dir)icestick.rpt
+
+lint.icestick: VERILATOR_FLAGS += -y $(ice_src_dir:/=)
+lint.icestick: icestick.v
+	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
+
+$(sim_vvp_dir)icestick_test.vvp check.icestick: IVERILOG_FLAGS += -y$(ice_src_dir:/=)
+
+check.icestick:: icestick.v
+	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
+
 
 clean.syn::
 	-$(RM) -r $(syn_ice_dir)
