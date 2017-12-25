@@ -18,13 +18,13 @@ ICETIME_OPTIONS := -d $(ICEDEV) -C $(ICEDB) -m -t
 
 vpath %.v $(ice_src_dir)
 
-all-syn: icestick
+all.syn: icestick
 
 icestick: $(syn_ice_dir)icestick.asc \
 			    $(syn_ice_dir)icestick.bin \
 				  $(syn_ice_dir)icestick.rpt
 
-clean-syn::
+clean.syn::
 	-$(RM) -r $(syn_ice_dir)
 
 $(syn_ice_dir):
@@ -52,4 +52,4 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 -include $(ice_dep)
 endif
 
-.PHONY: all-syn clean-syn icestick
+.PHONY: all.syn clean.syn icestick

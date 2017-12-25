@@ -39,14 +39,14 @@ help:
 	@echo " TARGET ::= all | check | test | clean"
 	@echo ""
 
-check: check-makefile
+check: check.makefile
 
-clean: clean-dep
+clean: clean.dep
 
-check-makefile:
+check.makefile:
 	@$(MAKE) --dry-run --warn-undefined-variables --makefile=$(firstword $(MAKEFILE_LIST)) all > /dev/null
 
-clean-dep:
+clean.dep:
 	-$(RM) -r $(dep_dir)
 
 $(dep_dir):
@@ -58,4 +58,4 @@ include syn/$(prj).mk
 include sim/$(prj).mk
 include dat/$(prj).mk
 
-.PHONY: all help check test clean check-makefile clean-dep
+.PHONY: all help check test clean check.makefile clean.dep
