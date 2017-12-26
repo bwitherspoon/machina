@@ -5,20 +5,23 @@ module testbench;
   timeunit 1ns;
   timeprecision 1ps;
 
-  reg  [16:0] val;
-  wire [15:0] out;
+  localparam W = 16;
+  localparam L = 8;
 
-  saturate uut (.*);
+  reg  [W-1:0] i;
+  wire [W-1:0] o;
+
+  saturate #(W, L) uut (.*);
 
   task test;
-    logic [16:0] arg [4];
+    logic [16:0] dat [4];
     logic [15:0] sat [4];
     begin
-      arg[0] = 17'h000ff; arg[1] = 17'h1ff00; arg[2] = 17'h07fff; arg[3] = 17'h10000;
-      sat[0] = 16'h00ff;  sat[1] = 16'hff00;  sat[2] = 16'h7fff;  sat[3] = 16'h8000;
-      for (int i = 0; i < 4; i++) begin
-        val = arg[i];
-        #1 `check_equal(out, sat[i]);
+      dat[0] = 16'h000f; dat[1] = 16'h00f0; dat[2] = 16'h007f; dat[3] = 16'h0100;
+      sat[0] = 16'h000f; sat[1] = 16'h00f0; sat[2] = 16'h007f; sat[3] = 16'h0080;
+      for (int n = 0; n < 4; n++) begin
+        i = dat[n];
+        #1 `check_equal(o, sat[n]);
       end
     end
   endtask
