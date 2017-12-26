@@ -17,13 +17,13 @@ LDFLAGS ?=
 vpath %.cc $(dev_src_dir:/=)
 vpath %.hh $(dev_src_dir:/=)
 
-all: all-dev
+all: all.dev
 
-clean: clean-dev
+clean: clean.dev
 
-all-dev: $(dev_bin_dir)mem $(dev_bin_dir)ice
+all.dev: $(dev_bin_dir)mem $(dev_bin_dir)ice
 
-clean-dev:
+clean.dev:
 	-$(RM) -r $(dev_bin_dir)
 
 $(dev_bin_dir):
@@ -37,4 +37,4 @@ $(dev_bin_dir)mem: memory.hh sigmoid.hh -lboost_program_options
 $(dev_bin_dir)%: %.cc | $(dev_bin_dir)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter %.cc,$^)
 
-.PHONY: all clean all-dev clean-dev
+.PHONY: all clean all.dev clean.dev

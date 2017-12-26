@@ -3,13 +3,13 @@ dat_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 dat_cur := $(notdir $(lastword $(MAKEFILE_LIST)))
 dat_inc := $(filter-out $(dat_dir)$(dat_cur),$(wildcard $(dat_dir)*.mk))
 
-all: all-dat
+all: all.dat
 
-clean: clean-dat
+clean: clean.dat
 
-all-dat:
+all.dat:
 
-clean-dat:
+clean.dat:
 	-$(RM) -r $(dat_dir)*.dat
 
 $(dat_dir)%.dat: FUNCT ?= random
@@ -21,4 +21,4 @@ $(dat_dir)%.dat: $(prj_dir)dev/bin/mem
 
 include $(dat_inc)
 
-.PHONY: all clean all-dat clean-dat
+.PHONY: all clean all.dat clean.dat
