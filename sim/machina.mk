@@ -8,6 +8,7 @@ sim_dep := $(addprefix $(dep_dir),$(sim_src:.sv=.mk))
 sim_tst := $(addprefix test.,$(sim_src:_test.sv=))
 sim_chk := $(addprefix check.,$(sim_src:_test.sv=))
 sim_dmp := $(addprefix dump.,$(sim_src:_test.sv=))
+sim_wav := $(addprefix wave.,$(sim_src:_test.sv=))
 sim_vvp := $(addprefix $(sim_vvp_dir),$(sim_src:.sv=.vvp))
 
 IVERILOG_FLAGS += -y$(sim_src_dir:/=)
@@ -56,6 +57,9 @@ $(sim_chk):: check.%: %_test.sv
 
 $(sim_dmp): dump.%: $(sim_vcd_dir)%_test.vcd
 
+$(sim_wav): wave.%: $(sim_vcd_dir)%_test.vcd
+	@$(GTKWAVE) -f $< -S $(dev_dir)tcl/testbench.tcl >/dev/null 2>&1 &
+
 $(sim_vcd_dir)%.vcd: $(sim_vvp_dir)%.vvp | $(sim_vcd_dir)
 	$(VVP) -n -l- $< -vcd +dumpfile=$@ +seed=$(SEED) > /dev/null 2>$(@:.vcd=.log)
 
@@ -71,4 +75,4 @@ endif
 
 .PHONY: all test check dump clean
 .PHONY: all.sim test.sim check.sim dump.sim clean.sim
-.PHONY: $(sim_tst) $(sim_chk) $(sim_dmp)
+.PHONY: $(sim_tst) $(sim_chk) $(sim_dmp) $(sim_wav)
