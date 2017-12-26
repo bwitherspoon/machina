@@ -54,8 +54,8 @@ $(dep_dir):
 
 include dev/$(prj).mk
 include inc/$(prj).mk
-include syn/$(prj).mk
 include sim/$(prj).mk
+include syn/$(prj).mk
 include dat/$(prj).mk
 
 .PHONY: all help check test clean check.makefile clean.dep

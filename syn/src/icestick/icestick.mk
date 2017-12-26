@@ -23,15 +23,16 @@ icestick: $(syn_ice_dir)icestick.asc \
 			    $(syn_ice_dir)icestick.bin \
 				  $(syn_ice_dir)icestick.rpt
 
+check.icestick: IVERILOG_FLAGS += -y$(ice_src_dir:/=)
+check.icestick:: icestick.v
+	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
+
 lint.icestick: VERILATOR_FLAGS += -y $(ice_src_dir:/=)
 lint.icestick: icestick.v
 	@$(VERILATOR) $(VERILATOR_FLAGS) --unused-regexp nc --lint-only $<
 
-$(sim_vvp_dir)icestick_test.vvp check.icestick: IVERILOG_FLAGS += -y$(ice_src_dir:/=)
-
-check.icestick:: icestick.v
-	@$(IVERILOG) -g2005 $(IVERILOG_FLAGS) -tnull $<
-
+$(sim_vvp_dir)icestick_test.vvp: IVERILOG_FLAGS += -y$(ice_src_dir:/=)
+$(dep_dir)icestick_test.mk: IVERILOG_FLAGS += -y$(ice_src_dir:/=)
 
 clean.syn::
 	-$(RM) -r $(syn_ice_dir)
@@ -54,6 +55,7 @@ $(syn_ice_dir)%.rpt: $(syn_ice_dir)%.asc
 $(syn_ice_dir)%.bin: $(syn_ice_dir)%.asc
 	$(ICEPACK) $< $@
 
+$(ice_dep): IVERILOG_FLAGS += -y$(ice_src_dir:/=)
 $(ice_dep): $(dep_dir)%.mk: %.v | $(dep_dir)
 	$(call depends,$(syn_ice_dir)$*.blif)
 
