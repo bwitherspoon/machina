@@ -12,6 +12,8 @@ sim_vvp := $(addprefix $(sim_vvp_dir),$(sim_src:.sv=.vvp))
 
 IVERILOG_FLAGS += -y$(sim_src_dir:/=)
 
+GTKWAVE ?= gtkwave
+
 TIMESCALE ?= 1ns/1ps
 SEED ?= $(shell echo $$RANDOM)
 
@@ -24,6 +26,9 @@ test: test.sim
 check: check.sim
 
 dump: dump.sim
+
+wave:
+	@$(GTKWAVE) -n $(sim_vcd_dir) -S $(dev_dir)tcl/testbench.tcl >/dev/null 2>&1 &
 
 clean: clean.sim
 
