@@ -11,6 +11,9 @@ module testbench;
 
   localparam W = 16;
 
+  localparam int MAX = 2**(W-1)-1;
+  localparam int MIN = -(2**(W-1));
+
   `clock()
   `reset
   `master(W)
@@ -18,45 +21,31 @@ module testbench;
 
   accumulate #(W) uut (.*);
 
-  task basic;
-    logic [W-1:0] arg[4];
-    logic signed [W-1:0] exp;
+  task test;
+    logic [W-1:0] arg [4];
+    logic [W-1:0] exp;
     logic [W-1:0] res;
+    int sum;
     begin
-      exp = 0;
-      for (int i = 0; i < 4; i++) begin
+      sum = 0;
+      foreach (arg[i]) begin
         arg[i] = random(2**W);
-        exp += $signed(arg[i]);
+        sum += $signed(arg[i]);
+        if (sum < MIN)
+          sum = MIN;
+        else if (sum > MAX)
+          sum = MAX;
       end
+      exp = sum[W-1:0];
       fork
         for (int i = 0; i < 4; i++) s_put(arg[i]);
-        m_get(res);
+        for (int i = 0; i < 4; i++) m_get(res);
       join
+      `check_equal(res, exp);
     end
-  endtask : basic
+  endtask : test
 
-  task clear;
-    fork
-      begin : xmt
-        logic [W-1:0] arg [4];
-        int i;
-        arg[0] = 16'h00ff; arg[1] = 16'h0001;
-        arg[2] = 16'hffff; arg[3] = 16'h000f;
-        for (i = 0; i < 3; i++) s_put(arg[i]);
-        repeat (2) @(posedge clk);
-        @(negedge clk) s_put(arg[3]);
-      end : xmt
-      begin : rcv
-        logic [W-1:0] res;
-        m_get(res);
-        `check_equal(res, 16'h00ff);
-        m_get(res);
-        `check_equal(res, 16'h000f);
-      end : rcv
-    join
-  endtask : clear
-
-  task test;
+  task run;
     fork
       begin : timeout
         repeat (1e6) @(posedge clk);
@@ -69,19 +58,19 @@ module testbench;
         `endif
       end : timeout
       begin : worker
-        basic;
-        clear;
+        test;
         disable timeout;
       end : worker
     join
-  endtask : test
+  endtask : run
 
   initial begin
     dump;
+    seed;
     #PERIOD;
-    test;
+    run;
     reset;
-    test;
+    run;
     $finish;
   end
 
