@@ -11,21 +11,21 @@ module multiplex #(
   output m_stb,
   output [$clog2(N)+W-1:0] m_dat
 );
-  // Priority encoder
-  reg [$clog2(N)-1:0] i, n;
-  always @* begin
-    n = {$clog2(N){1'b0}};
-    for (i = N - 1; i > 0; i = i - 1)
-      if (s_stb[i])
-        n = i;
+  // Priority encode
+  reg [$clog2(N)-1:0] s_adr, n;
+  always @* begin : encode
+    s_adr = {$clog2(N){1'b0}};
+    for (n = N - 1; n > 0; n = n - 1)
+      if (s_stb[n])
+        s_adr = n;
   end
-  // Decoder
-  always @* begin
+  // Decode
+  always @* begin : decode
     s_rdy = {N{1'b0}};
-    s_rdy[n] = s_stb[n] & m_rdy;
+    s_rdy[s_adr] = s_stb[s_adr] & m_rdy;
   end
-  // Multiplexer
+  // Multiplex
   assign m_stb = |s_stb;
-  assign m_dat = {n, s_dat[n*W+:W]};
+  assign m_dat = {s_adr, s_dat[s_adr*W+:W]};
 
 endmodule

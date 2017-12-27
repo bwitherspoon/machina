@@ -19,38 +19,24 @@ module testbench;
 
   multiplex #(W, N) uut (.*);
 
-  task single;
-    logic [$clog2(N)-1:0] sel;
-    logic [W-1:0] dat, out;
-    repeat (8) begin
-      dat = random(2**W);
-      sel = random(N);
-      fork
-        s_put(dat, sel);
-        m_get(out);
-      join
-      `check_equal(out, dat);
-    end
-  endtask : single
-
-  task multiple;
-    localparam K = 10;
+  task test;
+    localparam K = 16*N;
     logic [$clog2(N)-1:0] sel[K], adr;
-    logic [W-1:0] dat[K], out;
+    logic [W-1:0] arg[K], dat;
     begin
       foreach (sel[k]) sel[k] = random(N);
-      foreach (dat[k]) dat[k] = random(2**W);
+      foreach (arg[k]) arg[k] = random(2**W);
       fork
-        foreach (sel[k]) s_put(dat[sel[k]], sel[k]);
+        foreach (sel[k]) s_put(arg[sel[k]], sel[k]);
         repeat (K) begin
-          m_get({adr, out});
-          `check_equal(out, dat[adr]);
+          m_get({adr, dat});
+          `check_equal(dat, arg[adr]);
         end
       join
     end
-  endtask : multiple
+  endtask : test
 
-  task test;
+  task run;
   fork
     begin : timeout
       repeat (1e6) @(posedge clk);
@@ -63,20 +49,19 @@ module testbench;
       `endif
     end : timeout
     begin : worker
-      //single;
-      multiple;
+      test;
       disable timeout;
     end : worker
   join
-  endtask : test
+  endtask : run
 
   initial begin
     dump;
     seed;
     #PERIOD;
-    test;
+    run;
     reset;
-    test;
+    run;
     $finish;
   end
 
