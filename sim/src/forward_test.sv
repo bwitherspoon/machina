@@ -12,36 +12,37 @@ module testbench #(
   timeunit 1ns;
   timeprecision 1ps;
 
-  localparam W = 8;
-  localparam N = 2;
+  localparam W = 16;
+  localparam N = 4;
+  localparam Q = 8;
 
   `clock()
   `reset
-  `connect(m_rd, s_d, 2*W)
-  `connect(m_a, s_ra, $clog2(N+1))
+  `connect(m_rd, s_d, W)
+  `connect(m_a, s_ra, $clog2(N))
   `slave(W,, N, s_i)
-  `master(2*W,, N, m_o)
+  `master(W,,, m_o)
 
-  forward #(W, N) uut (.*);
+  forward #(W, N, Q) uut (.*);
 
-  memory #(2*W, N+1) mem (
+  memory #(W, N) mem (
     .*,
     .s_wa_stb(1'b0),
-    .s_wa_dat({$clog2(N+1){1'bz}}),
+    .s_wa_dat({$clog2(N){1'bz}}),
     .s_wa_rdy(),
     .s_wd_stb(1'b0),
-    .s_wd_dat({(2*W){1'bz}}),
+    .s_wd_dat({W{1'bz}}),
     .s_wd_rdy()
   );
 
   task test;
     logic [W-1:0] dat[N];
-    logic [2*W-1:0] exp;
-    logic [2*W-1:0] out;
+    logic [W-1:0] exp;
+    logic [W-1:0] out;
     begin
-      foreach (dat[n]) dat[n] = random(2*W);
-      exp = mem.mem[N];
-      foreach (dat[n]) exp += (dat[n] * mem.mem[n]) >>> W;
+      foreach (dat[n]) dat[n] = random(2**8);
+      exp = 0;
+      foreach (dat[n]) exp += dat[n] * mem.mem[n] >>> Q;
       fork
         foreach (dat[n]) s_i_put(dat[n], n);
         m_o_get(out);
@@ -49,6 +50,13 @@ module testbench #(
       `check_equal(out, exp);
     end
   endtask : test
+
+  task init;
+  begin
+    for (int n = 0; n < N + 1; n++)
+      mem.mem[n] = 2**Q-1;
+  end
+  endtask : init
 
   task run;
   fork
@@ -63,26 +71,18 @@ module testbench #(
       `endif
     end : timeout
     begin : worker
+      init;
       test;
       disable timeout;
     end : worker
   join
   endtask : run
 
-  task init;
-  begin
-    for (int i = 0; i < N + 1; i++)
-      mem.mem[i] = random(2**W);
-  end
-  endtask : init
-
   initial begin
     dump;
     seed;
-    init;
     run;
     reset;
-    init;
     run;
     $finish;
   end
