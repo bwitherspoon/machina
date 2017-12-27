@@ -1,5 +1,6 @@
 module multiply #(
-  parameter W = 8
+  parameter W = 8,
+  parameter Q = 0
 )(
   input clk,
   input rst,
@@ -42,7 +43,7 @@ module multiply #(
     end else if (stb) begin
       if (~m_stb | m_rdy) begin
         m_stb <= 1;
-        m_dat <= arg[0] * arg[1];
+        m_dat <= arg[0] * arg[1] >>> Q;
       end
     end else if (m_stb & m_rdy) begin
       m_stb <= 0;
