@@ -1,11 +1,13 @@
 `include "check.svh"
 `include "clock.svh"
+`include "connect.svh"
 `include "dump.svh"
-`include "interface.svh"
 `include "random.svh"
 `include "reset.svh"
 
-module testbench;
+module testbench #(
+  parameter [31:0] R = 8
+);
   timeunit 1ns;
   timeprecision 1ps;
 
@@ -14,8 +16,9 @@ module testbench;
 
   `clock()
   `reset
-  `master(s_, W+$clog2(N))
-  `slave(m_, W,, N)
+  `slave(W)
+  `slave($clog2(N),,, n)
+  `master(W,, N)
 
   demultiplex #(W, N) uut (.*);
 
@@ -23,12 +26,13 @@ module testbench;
     logic [W-1:0] dat;
     logic [$clog2(N)-1:0] sel;
     logic [W-1:0] out;
-    repeat (8) begin
+    repeat (R) begin
       dat = random(2**W);
       sel = random(N);
       fork
-        s_xmt({sel, dat});
-        m_rcv(out, sel);
+        n_put(sel);
+        s_put(dat);
+        m_get(out, sel);
       join
       `check_equal(out, dat);
     end
