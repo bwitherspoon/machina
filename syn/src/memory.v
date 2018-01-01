@@ -6,46 +6,46 @@ module memory #(
   input clk,
   input rst,
   // Write address slave
-  input s_wa_stb,
-  input [$clog2(DEPTH)-1:0] s_wa_dat,
-  output s_wa_rdy,
-  // Write data slave
-  input s_wd_stb,
-  input [WIDTH-1:0] s_wd_dat,
-  output s_wd_rdy,
+  input aw_stb,
+  input [$clog2(DEPTH)-1:0] aw_dat,
+  output aw_rdy,
   // Read address slave
-  input s_ra_stb,
-  input [$clog2(DEPTH)-1:0] s_ra_dat,
-  output s_ra_rdy,
+  input ar_stb,
+  input [$clog2(DEPTH)-1:0] ar_dat,
+  output ar_rdy,
+  // Write data slave
+  input w_stb,
+  input [WIDTH-1:0] w_dat,
+  output w_rdy,
   // Read data master
-  input m_rd_rdy,
-  output reg m_rd_stb,
-  output reg [WIDTH-1:0] m_rd_dat
+  input r_rdy,
+  output reg r_stb,
+  output reg [WIDTH-1:0] r_dat
 );
   reg [WIDTH-1:0] mem [0:DEPTH-1];
 
   if (INIT != "") initial $readmemh(INIT, mem, 0, DEPTH-1);
 
-  initial m_rd_stb = 0;
+  initial r_stb = 0;
 
-  assign s_wa_rdy = s_wa_stb & s_wd_stb & ~(s_ra_stb & s_ra_dat == s_wa_dat);
-  assign s_wd_rdy = s_wa_rdy;
-  assign s_ra_rdy = ~m_rd_stb | m_rd_rdy;
+  assign aw_rdy = aw_stb & w_stb & ~(ar_stb & ar_dat == aw_dat);
+  assign w_rdy = aw_rdy;
+  assign ar_rdy = ~r_stb | r_rdy;
 
   always @(posedge clk) begin
     if (rst) begin
-      m_rd_stb <= 0;
-    end else if (s_ra_stb & s_ra_rdy) begin
-      m_rd_stb <= 1;
-      m_rd_dat <= mem[s_ra_dat];
-    end else if (m_rd_stb & m_rd_rdy) begin
-      m_rd_stb <= 0;
+      r_stb <= 0;
+    end else if (ar_stb & ar_rdy) begin
+      r_stb <= 1;
+      r_dat <= mem[ar_dat];
+    end else if (r_stb & r_rdy) begin
+      r_stb <= 0;
     end
   end
 
   always @(posedge clk) begin
-    if (s_wa_stb & s_wd_stb) begin
-      mem[s_wa_dat] <= s_wd_dat;
+    if (aw_stb & w_stb) begin
+      mem[aw_dat] <= w_dat;
     end
   end
 

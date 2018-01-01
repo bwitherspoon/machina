@@ -18,8 +18,8 @@ module testbench #(
 
   `clock()
   `reset
-  `connect(m_rd, s_d, W)
-  `connect(m_a, s_ra, $clog2(N))
+  `connect(r, s_d, W)
+  `connect(m_a, ar, $clog2(N))
   `slave(W,, N, s_i)
   `master(W,,, m_o)
 
@@ -27,12 +27,12 @@ module testbench #(
 
   memory #(W, N) mem (
     .*,
-    .s_wa_stb(1'b0),
-    .s_wa_dat({$clog2(N){1'bz}}),
-    .s_wa_rdy(),
-    .s_wd_stb(1'b0),
-    .s_wd_dat({W{1'bz}}),
-    .s_wd_rdy()
+    .aw_stb(1'b0),
+    .aw_dat({$clog2(N){1'bz}}),
+    .aw_rdy(),
+    .w_stb(1'b0),
+    .w_dat({W{1'bz}}),
+    .w_rdy()
   );
 
   task test;
