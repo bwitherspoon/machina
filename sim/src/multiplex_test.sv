@@ -15,22 +15,26 @@ module testbench;
   `clock()
   `reset
   `slave(W,, N)
-  `master(W+$clog2(N))
+  `master(W)
+  `master($clog2(N),,, n)
 
   multiplex #(W, N) uut (.*);
 
   task test;
     localparam K = 16*N;
-    logic [$clog2(N)-1:0] sel[K], adr;
-    logic [W-1:0] arg[K], dat;
+    logic [$clog2(N)-1:0] sel[K], n;
+    logic [W-1:0] dat[K], d;
     begin
       foreach (sel[k]) sel[k] = random(N);
-      foreach (arg[k]) arg[k] = random(2**W);
+      foreach (dat[k]) dat[k] = random(2**W);
       fork
-        foreach (sel[k]) s_put(arg[sel[k]], sel[k]);
+        foreach (sel[k]) s_put(dat[sel[k]], sel[k]);
         repeat (K) begin
-          m_get({adr, dat});
-          `check_equal(dat, arg[adr]);
+          fork
+            n_get(n);
+            m_get(d);
+          join
+          `check_equal(d, dat[n]);
         end
       join
     end
