@@ -1,7 +1,7 @@
 `include "check.svh"
 `include "clock.svh"
 `include "dump.svh"
-`include "interface.svh"
+`include "connect.svh"
 `include "random.svh"
 `include "reset.svh"
 
@@ -13,12 +13,12 @@ module testbench;
 
   `clock()
   `reset
-  `master(s_, W, 2)
-  `slave(m_, 2*W)
+  `slave(W,, 2)
+  `master(2*W)
 
   multiply #(W) uut (.*);
 
-  task testcase;
+  task test;
     logic [1:0][W-1:0] arg;
     logic [2*W-1:0] exp;
     logic [2*W-1:0] res;
@@ -27,14 +27,15 @@ module testbench;
       arg[1] = random(2**W);
       exp = $signed(arg[0]) * $signed(arg[1]);
       fork
-        s_xmt(arg);
-        m_rcv(res);
+        s_put(arg[0], 0);
+        s_put(arg[1], 1);
+        m_get(res);
       join
       `check_equal(res, exp);
     end
-  endtask : testcase
+  endtask : test
 
-  task test;
+  task run;
     fork
       begin : timeout
         repeat (1e6) @(posedge clk);
@@ -43,19 +44,19 @@ module testbench;
         $stop;
       end : timeout
       begin : worker
-        testcase;
+        test;
         disable timeout;
       end : worker
     join
-  endtask
+  endtask : run
 
   initial begin
     dump;
     seed;
     #PERIOD;
-    test;
+    run;
     reset;
-    test;
+    run;
     $finish;
   end
 
