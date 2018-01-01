@@ -18,10 +18,10 @@ module testbench #(
 
   `clock()
   `reset
-  `connect(r, s_d, W)
-  `connect(m_a, ar, $clog2(N))
-  `slave(W,, N, s_i)
-  `master(W,,, m_o)
+  `connect(a, ar, $clog2(N))
+  `connect(r, d, W)
+  `slave(W,, N)
+  `master(W,,,)
 
   forward #(W, N, Q) uut (.*);
 
@@ -44,8 +44,8 @@ module testbench #(
       exp = 0;
       foreach (dat[n]) exp += dat[n] * mem.mem[n] >>> Q;
       fork
-        foreach (dat[n]) s_i_put(dat[n], n);
-        m_o_get(out);
+        foreach (dat[n]) s_put(dat[n], n);
+        m_get(out);
       join
       `check_equal(out, exp);
     end
