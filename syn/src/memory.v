@@ -1,6 +1,6 @@
 module memory #(
-  parameter WIDTH = 16,
-  parameter DEPTH = 256,
+  parameter [31:0] WIDTH = 16,
+  parameter [31:0] DEPTH = 256,
   parameter INIT = ""
 )(
   input clk,
@@ -28,25 +28,25 @@ module memory #(
 
   initial r_stb = 0;
 
-  assign aw_rdy = aw_stb & w_stb & ~(ar_stb & ar_dat == aw_dat);
-  assign w_rdy = aw_rdy;
-  assign ar_rdy = ~r_stb | r_rdy;
-
   always @(posedge clk) begin
     if (rst) begin
       r_stb <= 0;
     end else if (ar_stb & ar_rdy) begin
       r_stb <= 1;
-      r_dat <= mem[ar_dat];
     end else if (r_stb & r_rdy) begin
       r_stb <= 0;
     end
   end
 
   always @(posedge clk) begin
-    if (aw_stb & w_stb) begin
+    if (ar_stb & ar_rdy)
+      r_dat <= mem[ar_dat];
+    if (aw_stb & w_stb)
       mem[aw_dat] <= w_dat;
-    end
   end
+
+  assign aw_rdy = aw_stb & w_stb;
+  assign w_rdy = aw_rdy;
+  assign ar_rdy = ~r_stb | r_rdy;
 
 endmodule

@@ -21,7 +21,7 @@ module testbench;
 
   memory #(W, D) uut (.*);
 
-  task testcase;
+  task test;
     logic [W-1:0] wr [D];
     logic [W-1:0] rd [D];
     begin
@@ -40,9 +40,9 @@ module testbench;
         `check_equal(rd[i], wr[i]);
       end
     end
-  endtask : testcase
+  endtask : test
 
-  task test;
+  task run;
   fork
     begin : timeout
       repeat (1e6) @(posedge clk);
@@ -55,19 +55,19 @@ module testbench;
       `endif
     end : timeout
     begin : worker
-      testcase;
+      test;
       disable timeout;
     end : worker
   join
-  endtask : test
+  endtask : run
 
   initial begin
     dump;
     seed;
     #PERIOD;
-    test;
+    run;
     reset;
-    test;
+    run;
     $finish;
   end
 
